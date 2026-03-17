@@ -3,11 +3,126 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'motion/react';
-import { Camera, ChevronRight, Check, Star, Play, Instagram, Linkedin, Twitter, Menu, X } from 'lucide-react';
+import { Camera, ChevronLeft, ChevronRight, Check, CheckCheck, Star, Play, Instagram, Linkedin, Twitter, Menu, X } from 'lucide-react';
 import Link from 'next/link';
+
+const testimonials = [
+  {
+    id: 1,
+    name: "Roberto Tech",
+    img: "/profile_roberto.png",
+    status: "Online",
+    msgs: [
+      { sender: "client", text: "Fala Bruno, beleza? Cara, passei pra avisar q botei a foto nova do Virtual Studio no LinkedIn ontem.", time: "09:41" },
+      { sender: "client", text: "bicho, ja recebi 3 inbounds de recrutador hj! Todo mundo elogiando a foto kkk, disseram q passei mó autoridade. Valeu dms!! 💪🔥", time: "09:42" },
+      { sender: "vs", text: "Tamo junto, Roberto! Sabia que ia dar certo. Foco na autoridade é tudo 🤜", time: "09:45" }
+    ]
+  },
+  {
+    id: 2,
+    name: "Camila Lookbook",
+    img: "/profile_camila.png",
+    status: "Online",
+    msgs: [
+      { sender: "client", text: "Amigaaa vc n tem noção! Postei as fotos do ensaio da IA e meu insta EXPLODIU 💥💥💥", time: "20:15" },
+      { sender: "client", text: "Todo mundo perguntando se eu viajei pra Milão pra fazer 😂 Ninguém acredita q foi o Virtual Studio. Ficou PERFEITO o rosto, n parece boneco. Ja to marcando o próximo! 😍📸", time: "20:16" },
+      { sender: "vs", text: "Hahaha q top Camila! Seus amigos n perdem por esperar. Próximo ensaio já to bolando uns temas massa 💥", time: "20:20" }
+    ]
+  },
+  {
+    id: 3,
+    name: "Dr. Andre Card",
+    img: "/profile_andre.png",
+    status: "visto por último às 15:42",
+    msgs: [
+      { sender: "client", text: "Boa tarde. Confesso que estava cético com essa história de IA, mas o resultado final do Virtual Studio me surpreendeu positivamente.", time: "16:30" },
+      { sender: "client", text: "As fotos ficaram naturais e com excelente iluminação profissional. Já configurei meu perfil médico com elas. Trabalho de excelência. Parabéns à equipe. 👍🤝", time: "16:32" },
+      { sender: "vs", text: "Muito obrigado, Dr. Andre. Nossa curadoria humana garante q a essência fique intacta. Sucesso na clínica!", time: "16:45" }
+    ]
+  },
+  {
+    id: 4,
+    name: "Aline Trip",
+    img: null,
+    status: "Online",
+    msgs: [
+      { sender: "client", text: "Bicho, acabei de ver as fotos da Noruega q o VS fez. Ninguém acredita q eu n fui kkk. Ficou mto real, os reflexos, tudo.", time: "11:10" },
+      { sender: "vs", text: "Nossa IA simula até a luz ambiente, Aline. Sabia q vc ia curtir a imersão! 🌍🏔️", time: "11:15" }
+    ]
+  },
+  {
+    id: 5,
+    name: "Carlos Exec",
+    img: null,
+    status: "Online",
+    msgs: [
+      { sender: "client", text: "R$ 397 pra 50 fotos prontas em 24h? O estúdio aqui cobrou R$ 1.200 e 15 dias pra entregar 10. O VS é o futuro.", time: "14:20" },
+      { sender: "vs", text: "Tempo é dinheiro, Carlos. A gente entende as dores do executivo. Fico feliz q tenha poupado ambos! 🤝💨", time: "14:25" }
+    ]
+  },
+  {
+    id: 6,
+    name: "Juliana Model",
+    img: null,
+    status: "visto por último às 10:00",
+    msgs: [
+      { sender: "client", text: "Fiz a galeria Editorial de Moda. O resultado superou dms minhas agências reais. To chocada com a curadoria.", time: "10:05" },
+      { sender: "vs", text: "Nossa Lead Irina Sova revisa cada foto, Ju. O olhar artístico é o nosso diferencial. 🤜📸", time: "10:10" }
+    ]
+  },
+  {
+    id: 7,
+    name: "Marcos Imóveis",
+    img: null,
+    status: "Online",
+    msgs: [
+      { sender: "client", text: "Fala time Virtual Studio! O perfil novo do Google Meu Negócio bombou hj kkk. A foto corporativa com IA me deu mó moral.", time: "17:40" },
+      { sender: "vs", text: "Tamo junto, Marcos! A autoridade visual ajuda a fechar mais negócios. Sucesso! 👍🤜", time: "17:45" }
+    ]
+  },
+  {
+    id: 8,
+    name: "Paula Mãe",
+    img: null,
+    status: "Online",
+    msgs: [
+      { sender: "client", text: "Gente, criei um ensaio Lifestyle Mãe e Filho e chorei kkk. As fotos com meu filho de 3 anos ficaram emocionantes. Mto obrigado.", time: "09:30" },
+      { sender: "vs", text: "Nossa Paula! Esse é o melhor feedback q a gente podia receber. É sobre capturar essência, n só pixels. ❤️👶", time: "09:35" }
+    ]
+  },
+  {
+    id: 9,
+    name: "Pedro Burger",
+    img: null,
+    status: "visto por último ontem",
+    msgs: [
+      { sender: "client", text: "Bicho, as fotos do VS pro cardápio novo e pro Insta ficaram PERFEITAS. Os burguers parecem mais suculentos q os reais 😂", time: "21:00" },
+      { sender: "vs", text: "Hahaha q top, Pedro! A IA tbm sabe de gastronomia kkk. Sucesso nas vendas! 🍔💥", time: "21:05" }
+    ]
+  },
+  {
+    id: 10,
+    name: "Tiago Ator",
+    img: null,
+    status: "Online",
+    msgs: [
+      { sender: "client", text: "Gastei mó grana com headshots normais q pareciam estáticos. O VS gerou uns com expressões naturais perfeitas pro casting.", time: "13:15" },
+      { sender: "vs", text: "Casting natural é o foco, Tiago. Sabia q nossa IA ia te destacar dos concorrentes. Boa sorte! 👍💥", time: "13:20" }
+    ]
+  }
+];
 
 export default function LandingPage() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
+
+  const nextTestimonial = () => {
+    setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
+  };
+
+  const prevTestimonial = () => {
+    setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  };
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -196,6 +311,127 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Testimonials / Social Proof (Dark Mode WhatsApp Carousel) */}
+      <section className="py-24 bg-studio-black relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-studio-gold/5 to-transparent pointer-events-none"></div>
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 font-display">O QUE NOSSOS CLIENTES ESTÃO DIZENDO</h2>
+            <p className="text-studio-gold tracking-widest uppercase text-sm font-light">Mais de +500 ensaios gerados com 100% de satisfação</p>
+          </div>
+
+          <div className="relative h-[650px] max-w-7xl mx-auto flex items-center justify-center mt-8 perspective-1000">
+            {/* Carousel Items */}
+            <div className="relative w-full h-full flex items-center justify-center" style={{ perspective: '1000px' }}>
+              {testimonials.map((test, index) => {
+                const diff = (index - activeTestimonial + testimonials.length) % testimonials.length;
+                const half = Math.floor(testimonials.length / 2);
+                let offset = diff;
+                if (offset > half) offset -= testimonials.length;
+
+                const isCenter = offset === 0;
+                const absOffset = Math.abs(offset);
+
+                // Position logic: hide cards that are too far
+                if (absOffset > 2) return null;
+
+                // Adjust translateX, scale and opacity for 3D overlap effect
+                const translateX = offset * 340;
+                const scale = isCenter ? 1 : Math.max(0.7, 0.9 - (absOffset * 0.1));
+                const zIndex = 50 - absOffset;
+                const opacity = isCenter ? 1 : Math.max(0, 0.6 - (absOffset * 0.2));
+
+                return (
+                  <div
+                    key={test.id}
+                    className="absolute top-1/2 left-1/2 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] cursor-pointer"
+                    style={{
+                      transform: `translate(-50%, -50%) translateX(${translateX}px) scale(${scale})`,
+                      zIndex,
+                      opacity,
+                      pointerEvents: isCenter ? 'auto' : 'auto',
+                    }}
+                    onClick={() => !isCenter && setActiveTestimonial(index)}
+                  >
+                    {/* WhatsApp Phone Frame */}
+                    <div className={`bg-[#111b21] rounded-[2.5rem] overflow-hidden shadow-2xl relative border-[6px] border-[#1C1C1E] transition-all duration-500 w-full max-w-[320px] min-w-[320px] ${!isCenter && 'pointer-events-none'}`}>
+                      {/* Fake Phone Notch */}
+                      <div className="absolute top-0 inset-x-0 h-6 bg-[#1C1C1E] rounded-b-2xl mx-16 z-20"></div>
+
+                      {/* Header */}
+                      <div className="bg-[#202c33] pt-8 pb-4 px-4 flex items-center gap-3 text-[#e9edef] relative z-10 border-b border-[#2a3942]">
+                        <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 border border-white/10 bg-[#005c4b] flex items-center justify-center">
+                          {test.img ? (
+                            <Image src={test.img} alt={test.name} fill className="object-cover" />
+                          ) : (
+                            <span className="text-[#e9edef] font-bold text-[15px]">
+                              {test.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex-1 overflow-hidden">
+                          <p className="font-semibold text-base leading-none text-[#e9edef] truncate">{test.name}</p>
+                          <p className="text-xs text-[#8696a0] mt-1 truncate">{test.status}</p>
+                        </div>
+                      </div>
+
+                      {/* Body */}
+                      <div className="p-4 h-[420px] bg-[#0b141a] flex flex-col justify-start gap-2 relative overflow-y-auto custom-scrollbar" style={{ backgroundImage: 'url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png")', backgroundSize: 'cover', backgroundBlendMode: 'overlay', backgroundColor: 'rgba(11, 20, 26, 0.95)' }}>
+                        <div className="bg-[#182229] border border-[#202c33] text-[#8696a0] text-[11px] py-1 px-3 rounded-lg self-center mb-3 mt-1 shadow-sm font-medium">Hoje</div>
+
+                        {test.msgs.map((msg, idx) => (
+                          <div key={idx} className={`p-[10px] rounded-xl shadow-md max-w-[90%] relative mt-1 flex flex-col ${msg.sender === 'vs' ? 'bg-[#005c4b] self-end rounded-tr-sm' : 'bg-[#202c33] self-start rounded-tl-sm'}`}>
+                            <p className="text-[#e9edef] text-[13.5px] leading-[1.4] pr-[40px] whitespace-pre-wrap">{msg.text}</p>
+                            <div className="absolute bottom-1 right-2 flex items-center gap-[2px]">
+                              <span className="text-[#8696a0] text-[10px] min-w-[30px] text-right font-medium">{msg.time}</span>
+                              {msg.sender === 'vs' && <CheckCheck size={14} className="text-[#53bdeb]" />}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Interactive Fade Overlay when not in focus */}
+                      {!isCenter && (
+                        <div className="absolute inset-0 bg-studio-black/40 z-30 transition-opacity duration-500"></div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Navigation Arrows */}
+            <button
+              onClick={prevTestimonial}
+              className="absolute left-0 lg:left-[5%] xl:left-[10%] top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-studio-gray/80 border border-white/10 flex items-center justify-center text-white hover:bg-studio-gold hover:border-studio-gold hover:text-black transition-all z-50 backdrop-blur-md shadow-lg"
+              aria-label="Anterior"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <button
+              onClick={nextTestimonial}
+              className="absolute right-0 lg:right-[5%] xl:right-[10%] top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-studio-gray/80 border border-white/10 flex items-center justify-center text-white hover:bg-studio-gold hover:border-studio-gold hover:text-black transition-all z-50 backdrop-blur-md shadow-lg"
+              aria-label="Próximo"
+            >
+              <ChevronRight size={24} />
+            </button>
+          </div>
+
+          {/* Dots Indicators */}
+          <div className="flex justify-center items-center gap-3 mt-10">
+            {testimonials.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveTestimonial(i)}
+                className={`transition-all duration-300 rounded-full cursor-pointer ${activeTestimonial === i ? 'w-10 h-2 bg-studio-gold shadow-[0_0_10px_rgba(255,215,0,0.5)]' : 'w-2 h-2 bg-white/20 hover:bg-white/40'}`}
+                aria-label={`Ir para depoimento ${i + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+
       {/* AI Artist Section */}
       <section className="py-24 bg-studio-black">
         <div className="container mx-auto px-6">
@@ -266,7 +502,7 @@ export default function LandingPage() {
               <h2 className="text-3xl md:text-5xl font-bold mb-4">POR QUE ESCOLHER A VIRTUAL STUDIO?</h2>
               <p className="text-studio-gold tracking-widest uppercase text-sm font-light">Evolua sua imagem com Inteligência</p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
               <div className="group">
                 <div className="w-16 h-16 rounded-full border border-studio-gold/30 bg-studio-gold/5 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-studio-gold/20 transition-all duration-300">
@@ -275,7 +511,7 @@ export default function LandingPage() {
                 <h3 className="text-xl font-bold font-display uppercase tracking-widest mb-4">Economia Absoluta</h3>
                 <p className="text-gray-400 font-light leading-relaxed">Até <strong className="text-white">90% mais barato</strong> que um estúdio presencial. Sem custos com fotógrafo, aluguel de cenário, figurino, maquiador e deslocamento.</p>
               </div>
-              
+
               <div className="group">
                 <div className="w-16 h-16 rounded-full border border-studio-gold/30 bg-studio-gold/5 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-studio-gold/20 transition-all duration-300">
                   <span className="text-studio-gold text-2xl font-bold font-display">02</span>
@@ -283,7 +519,7 @@ export default function LandingPage() {
                 <h3 className="text-xl font-bold font-display uppercase tracking-widest mb-4">Agilidade Incomparável</h3>
                 <p className="text-gray-400 font-light leading-relaxed">Sem agendamentos, espera na agenda ou trânsito. Acesso <strong className="text-white">disponível 24/7</strong> para você criar na palma da sua mão a qualquer momento.</p>
               </div>
-              
+
               <div className="group">
                 <div className="w-16 h-16 rounded-full border border-studio-gold/30 bg-studio-gold/5 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-studio-gold/20 transition-all duration-300">
                   <span className="text-studio-gold text-2xl font-bold font-display">03</span>
@@ -312,7 +548,6 @@ export default function LandingPage() {
             <a className="text-studio-gold hover:text-white transition" href="#"><Twitter size={20} /></a>
           </div>
           <div className="max-w-xl mx-auto border-t border-white/10 pt-10">
-            <h2 className="text-4xl md:text-6xl font-bold opacity-20 mb-4 font-display">OBRIGADO POR NOS ESCOLHER</h2>
             <a className="text-studio-gold uppercase text-[10px] tracking-widest hover:underline" href="#">Voltar ao Topo</a>
           </div>
         </div>
