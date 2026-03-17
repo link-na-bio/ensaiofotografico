@@ -21,10 +21,11 @@ export default function LandingPage() {
       <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-studio-black/90 backdrop-blur-md py-4 border-b border-white/10' : 'bg-transparent py-6'}`}>
         <nav className="container mx-auto px-6 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 border border-studio-gold flex items-center justify-center">
-              <span className="text-studio-gold font-display text-xl">1308</span>
+            {/* Logo expandida sem empurrar a altura da barra (margem negativa resolve) */}
+            <div className="relative w-[200px] h-[200px] -my-[80px] flex items-center justify-center z-10 pointer-events-none">
+              <Image src="/logo.png" alt="Virtual Studio Logo" fill className="object-contain" priority />
             </div>
-            <span className="font-display text-lg tracking-widest hidden sm:block">PHOTO STUDIO</span>
+            <span className="font-display text-lg tracking-widest hidden md:block">VIRTUAL STUDIO</span>
           </div>
           <ul className="hidden md:flex gap-8 text-sm uppercase tracking-widest font-display">
             <li><a className="hover:text-studio-gold transition" href="#galeria">Estilos</a></li>
@@ -195,7 +196,7 @@ export default function LandingPage() {
               <h2 className="text-3xl font-bold mb-2">CURADORIA HUMANA</h2>
               <p className="text-studio-gold uppercase tracking-widest text-sm mb-8">Tecnologia com Alma de Artista</p>
               <p className="text-gray-300 mb-6 font-light leading-relaxed">
-                Diferente de aplicativos genéricos, no 1308 cada pixel é revisado por um profissional. Nós não apenas geramos imagens; nós criamos uma narrativa visual que respeita suas características únicas e eleva sua marca pessoal.
+                Diferente de aplicativos genéricos, no VIRTUAL STUDIO cada pixel é revisado por um profissional. Nós não apenas geramos imagens; nós criamos uma narrativa visual que respeita suas características únicas e eleva sua marca pessoal.
               </p>
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full border border-studio-gold p-1 overflow-hidden relative">
@@ -283,10 +284,10 @@ export default function LandingPage() {
       <footer className="py-16 bg-studio-black text-center relative border-t border-white/5">
         <div className="container mx-auto px-6">
           <div className="mb-10">
-            <div className="w-16 h-16 border border-studio-gold flex items-center justify-center mx-auto mb-4">
-              <span className="text-studio-gold font-display text-2xl">1308</span>
+            <div className="relative w-[200px] h-[200px] mx-auto mb-4">
+              <Image src="/logo.png" alt="Virtual Studio Logo" fill className="object-contain" />
             </div>
-            <h4 className="font-display tracking-[0.3em] text-xl">PHOTO STUDIO</h4>
+            <h4 className="font-display tracking-[0.3em] text-xl">VIRTUAL STUDIO</h4>
             <p className="text-gray-500 text-xs mt-2 uppercase">© 2026 VIRTUAL STUDIO - TODOS OS DIREITOS RESERVADOS</p>
           </div>
           <div className="flex justify-center gap-6 mb-12">

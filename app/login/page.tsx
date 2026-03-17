@@ -55,9 +55,10 @@ export default function LoginPage() {
       {/* Login Card */}
       <div className="relative z-10 w-full max-w-[440px] bg-white/5 backdrop-blur-xl p-8 md:p-12 rounded-xl border border-studio-gold/10 shadow-2xl">
         {/* Logo Section */}
-        <div className="flex flex-col items-center gap-4 mb-10">
-          <div className="size-16 flex items-center justify-center rounded-full border border-studio-gold/30 bg-background-dark/50 text-studio-gold shadow-[0_0_15px_rgba(195,157,93,0.2)]">
-            <Camera size={32} />
+        {/* Logo Section */}
+        <div className="flex flex-col items-center gap-0 mb-4 mt-[-40px]">
+          <div className="relative w-[240px] h-[160px] flex items-center justify-center drop-shadow-2xl -mb-10">
+            <Image src="/logo.png" alt="Virtual Studio Logo" fill className="object-contain" priority />
           </div>
           <div className="text-center">
             <h1 className="text-white text-2xl font-black leading-tight tracking-wider uppercase italic">VIRTUAL STUDIO</h1>

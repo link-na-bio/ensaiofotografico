@@ -82,8 +82,8 @@ export default function Dashboard() {
       <aside className="w-64 border-r border-white/5 bg-studio-black flex flex-col sticky top-0 h-screen hidden md:flex">
         <div className="p-6">
           <div className="flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 bg-studio-gold rounded flex items-center justify-center">
-              <Camera className="text-studio-black" size={18} />
+            <div className="relative w-10 h-10 flex items-center justify-center">
+              <Image src="/logo.png" alt="Virtual Studio Logo" fill className="object-contain" priority />
             </div>
             <div>
               <h1 className="text-white text-sm font-bold">VIRTUAL STUDIO</h1>
