@@ -536,16 +536,20 @@ export default function LandingPage() {
       <footer className="py-16 bg-studio-black text-center relative border-t border-white/5">
         <div className="container mx-auto px-6">
           <div className="mb-10">
-            <div className="relative w-[200px] h-[200px] mx-auto mb-4">
+            <div className="relative w-[280px] h-[280px] mx-auto -mt-10 -mb-24">
               <Image src="/logo.png" alt="Virtual Studio Logo" fill className="object-contain" />
             </div>
-            <h4 className="font-display tracking-[0.3em] text-xl">VIRTUAL STUDIO</h4>
-            <p className="text-gray-500 text-xs mt-2 uppercase">© 2026 VIRTUAL STUDIO - TODOS OS DIREITOS RESERVADOS</p>
+            <h4 className="font-display tracking-[0.3em] text-xl relative z-10">VIRTUAL STUDIO</h4>
+            <p className="text-gray-500 text-xs mt-2 uppercase relative z-10">© 2026 VIRTUAL STUDIO - TODOS OS DIREITOS RESERVADOS</p>
           </div>
           <div className="flex justify-center gap-6 mb-12">
             <a className="text-studio-gold hover:text-white transition" href="#"><Instagram size={20} /></a>
             <a className="text-studio-gold hover:text-white transition" href="#"><Linkedin size={20} /></a>
             <a className="text-studio-gold hover:text-white transition" href="#"><Twitter size={20} /></a>
+          </div>
+          <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 mb-12 text-xs text-gray-400 uppercase tracking-widest font-light">
+            <Link href="/termos-de-uso" className="hover:text-studio-gold transition">Termos de Uso</Link>
+            <Link href="/politica-de-privacidade" className="hover:text-studio-gold transition">Política de Privacidade</Link>
           </div>
           <div className="max-w-xl mx-auto border-t border-white/10 pt-10">
             <a className="text-studio-gold uppercase text-[10px] tracking-widest hover:underline" href="#">Voltar ao Topo</a>
