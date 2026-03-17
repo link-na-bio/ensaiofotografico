@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation'; // <-- Importante para os redirecionamentos
@@ -30,6 +30,9 @@ export default function Dashboard() {
   const router = useRouter();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedStyles, setSelectedStyles] = useState<string[]>(['LinkedIn']);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Estados do Usuário Logado
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -64,6 +67,61 @@ export default function Dashboard() {
       setSelectedStyles(selectedStyles.filter(s => s !== style));
     } else if (selectedStyles.length < 3) {
       setSelectedStyles([...selectedStyles, style]);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      const totalFiles = [...selectedFiles, ...newFiles].slice(0, 10);
+      setSelectedFiles(totalFiles);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (e.dataTransfer.files) {
+      const newFiles = Array.from(e.dataTransfer.files);
+      const totalFiles = [...selectedFiles, ...newFiles].slice(0, 10);
+      setSelectedFiles(totalFiles);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleCheckout = async () => {
+    if (selectedStyles.length === 0) {
+      alert("Selecione pelo menos 1 estilo.");
+      return;
+    }
+    if (selectedFiles.length < 5) {
+      alert("Envie pelo menos 5 fotos de rosto.");
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      for (const file of selectedFiles) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}_${file.name}`;
+        const filePath = `${userEmail}/${fileName}`;
+
+        const { error } = await supabase.storage
+          .from('fotos_clientes')
+          .upload(filePath, file);
+
+        if (error) throw error;
+      }
+
+      router.push('/checkout');
+    } catch (error) {
+      console.error('Erro ao enviar fotos:', error);
+      alert("Erro ao enviar fotos. Tente novamente.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -201,14 +259,52 @@ export default function Dashboard() {
             {/* Upload Zone */}
             <section>
               <h3 className="text-xl font-bold mb-6 font-display uppercase tracking-widest">2. Upload de Fotos de Referência</h3>
-              <div className="border border-dashed border-studio-gold/30 p-12 flex flex-col items-center justify-center text-center bg-white/5 hover:border-studio-gold transition-colors cursor-pointer group">
+              <input
+                type="file"
+                multiple
+                accept="image/jpeg, image/png, image/webp"
+                hidden
+                ref={fileInputRef}
+                onChange={handleFileChange}
+              />
+              <div
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className="border border-dashed border-studio-gold/30 p-12 flex flex-col items-center justify-center text-center bg-white/5 hover:border-studio-gold transition-colors cursor-pointer group rounded-lg"
+              >
                 <div className="w-16 h-16 rounded-full bg-studio-gold/10 text-studio-gold flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <CloudUpload size={32} />
                 </div>
                 <h4 className="text-lg font-bold font-display uppercase tracking-widest">Arraste e solte suas fotos aqui</h4>
-                <p className="text-gray-500 text-sm mt-2 max-w-md">Envie entre 5 a 10 fotos nítidas do seu rosto para melhores resultados. Formatos aceitos: JPG, PNG.</p>
+                <p className="text-gray-500 text-sm mt-2 max-w-md">Envie entre 5 a 10 fotos nítidas do seu rosto para melhores resultados. Formatos aceitos: JPG, PNG, WEBP.</p>
                 <button className="mt-6 px-6 py-2 bg-studio-gold text-studio-black font-display font-bold uppercase tracking-widest hover:bg-studio-gold-light transition-all">Selecionar Arquivos</button>
               </div>
+
+              {/* Preview Grid */}
+              {selectedFiles.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mt-8">
+                  {selectedFiles.map((file, index) => (
+                    <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-white/10 group">
+                      <Image
+                        src={URL.createObjectURL(file)}
+                        alt={`Preview ${index}`}
+                        fill
+                        className="object-cover"
+                      />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeFile(index);
+                        }}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </section>
           </div>
 
@@ -224,7 +320,9 @@ export default function Dashboard() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Fotos enviadas</span>
-                  <span className="font-semibold text-red-500">0/10</span>
+                  <span className={`font-semibold ${selectedFiles.length >= 5 ? 'text-emerald-400' : 'text-red-500'}`}>
+                    {selectedFiles.length}/10
+                  </span>
                 </div>
                 <div className="border-t border-white/5 my-2"></div>
                 <div className="flex justify-between text-lg font-bold font-display uppercase tracking-widest">
@@ -232,7 +330,13 @@ export default function Dashboard() {
                   <span>R$ 49,90</span>
                 </div>
               </div>
-              <button className="w-full py-3 bg-studio-gold text-studio-black font-display font-bold uppercase tracking-widest hover:bg-studio-gold-light transition-all">Prosseguir para Pagamento</button>
+              <button
+                onClick={handleCheckout}
+                disabled={isUploading}
+                className="w-full py-3 bg-studio-gold text-studio-black font-display font-bold uppercase tracking-widest hover:bg-studio-gold-light transition-all disabled:opacity-50"
+              >
+                {isUploading ? 'Enviando fotos...' : 'Prosseguir para Pagamento'}
+              </button>
               <p className="text-gray-500 text-[10px] text-center mt-4 uppercase tracking-widest">Processamento seguro via Stripe</p>
             </div>
 
