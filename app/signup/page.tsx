@@ -19,7 +19,7 @@ export default function SignUpPage() {
             </div>
           </div>
           <div className="text-center">
-            <h1 className="text-3xl font-bold tracking-widest text-white uppercase font-display">Photo Studio 1308</h1>
+            <h1 className="text-3xl font-bold tracking-widest text-white uppercase font-display">VIRTUAL STUDIO</h1>
             <p className="text-studio-gold/80 text-sm font-medium tracking-[0.3em] mt-1 uppercase">Creative Excellence</p>
           </div>
         </header>
@@ -32,9 +32,9 @@ export default function SignUpPage() {
               <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Nome Completo</label>
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
-                <input 
-                  className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-12 pr-4 text-white focus:border-studio-gold focus:ring-1 focus:ring-studio-gold outline-none transition-all placeholder:text-slate-600" 
-                  placeholder="Digite seu nome completo" 
+                <input
+                  className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-12 pr-4 text-white focus:border-studio-gold focus:ring-1 focus:ring-studio-gold outline-none transition-all placeholder:text-slate-600"
+                  placeholder="Digite seu nome completo"
                   type="text"
                 />
               </div>
@@ -45,9 +45,9 @@ export default function SignUpPage() {
               <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Email</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
-                <input 
-                  className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-12 pr-4 text-white focus:border-studio-gold focus:ring-1 focus:ring-studio-gold outline-none transition-all placeholder:text-slate-600" 
-                  placeholder="exemplo@estudio1308.com" 
+                <input
+                  className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-12 pr-4 text-white focus:border-studio-gold focus:ring-1 focus:ring-studio-gold outline-none transition-all placeholder:text-slate-600"
+                  placeholder="exemplo@estudio1308.com"
                   type="email"
                 />
               </div>
@@ -58,13 +58,13 @@ export default function SignUpPage() {
               <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Senha</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
-                <input 
-                  className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-12 pr-12 text-white focus:border-studio-gold focus:ring-1 focus:ring-studio-gold outline-none transition-all placeholder:text-slate-600" 
-                  placeholder="••••••••" 
+                <input
+                  className="w-full bg-white/5 border border-white/10 rounded-lg py-3.5 pl-12 pr-12 text-white focus:border-studio-gold focus:ring-1 focus:ring-studio-gold outline-none transition-all placeholder:text-slate-600"
+                  placeholder="••••••••"
                   type={showPassword ? "text" : "password"}
                 />
-                <button 
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-studio-gold transition-colors" 
+                <button
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-studio-gold transition-colors"
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                 >
@@ -76,7 +76,7 @@ export default function SignUpPage() {
             {/* Terms Checkbox */}
             <div className="flex items-start gap-3 mt-2">
               <div className="flex items-center h-5">
-                <input className="w-4 h-4 rounded border-white/20 bg-white/5 text-studio-gold focus:ring-studio-gold focus:ring-offset-[#0f0a08]" id="terms" type="checkbox"/>
+                <input className="w-4 h-4 rounded border-white/20 bg-white/5 text-studio-gold focus:ring-studio-gold focus:ring-offset-[#0f0a08]" id="terms" type="checkbox" />
               </div>
               <label className="text-sm text-slate-400 leading-tight" htmlFor="terms">
                 Eu concordo com os <Link className="text-studio-gold hover:underline" href="#">Termos de Uso</Link> e <Link className="text-studio-gold hover:underline" href="#">Política de Privacidade</Link>.
@@ -117,7 +117,7 @@ export default function SignUpPage() {
         {/* Bottom Link */}
         <div className="text-center">
           <p className="text-slate-400 text-sm">
-            Já tem uma conta? 
+            Já tem uma conta?
             <Link className="text-studio-gold font-bold hover:underline ml-1" href="/login">Fazer Login</Link>
           </p>
         </div>

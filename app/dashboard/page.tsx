@@ -86,7 +86,7 @@ export default function Dashboard() {
               <Camera className="text-studio-black" size={18} />
             </div>
             <div>
-              <h1 className="text-white text-sm font-bold">AI Photo Studio</h1>
+              <h1 className="text-white text-sm font-bold">VIRTUAL STUDIO</h1>
               <p className="text-gray-500 text-[10px] uppercase tracking-widest">Painel do Cliente</p>
             </div>
           </div>

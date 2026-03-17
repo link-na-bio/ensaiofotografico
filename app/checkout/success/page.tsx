@@ -2,13 +2,13 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { 
-  Camera, 
-  CheckCircle, 
-  Download, 
-  Receipt, 
-  ZoomIn, 
-  Brush, 
+import {
+  Camera,
+  CheckCircle,
+  Download,
+  Receipt,
+  ZoomIn,
+  Brush,
   Sparkles,
   Instagram,
   Twitter,
@@ -22,7 +22,7 @@ export default function CheckoutSuccess() {
       <header className="flex items-center justify-between whitespace-nowrap border-b border-studio-gold/10 px-6 md:px-20 py-5 bg-studio-black/80 backdrop-blur-md sticky top-0 z-50">
         <Link href="/" className="flex items-center gap-4 text-studio-gold">
           <Camera size={24} />
-          <h2 className="text-slate-100 text-xl font-light tracking-[0.2em] uppercase font-display">Photo Studio 1308</h2>
+          <h2 className="text-slate-100 text-xl font-light tracking-[0.2em] uppercase font-display">VIRTUAL STUDIO</h2>
         </Link>
         <div className="flex flex-1 justify-end gap-8 items-center">
           <nav className="hidden md:flex items-center gap-9">
@@ -31,7 +31,7 @@ export default function CheckoutSuccess() {
             <Link className="text-slate-400 hover:text-studio-gold text-[10px] font-medium uppercase tracking-widest transition-colors" href="#">Suporte</Link>
           </nav>
           <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-studio-gold/30 relative overflow-hidden">
-            <Image 
+            <Image
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuABmENFIU2Hz39wX1Ew1reA8nrQ3-xmLOooE9N7XUlH31x4QQiiAV6r80OYFaoh6eHKDOf91C20ujhBe41HMpZQa1OEU8pmrFRKgAujXsOFrnxpXdY1_XO3P1tACimZV6opKdi7F6ch0cWABa3r9rVnQA85lRXjR4WtQpZZdMTxzGJ8EUP4NECP8gxxoVYZ9Yld6bLyf-ajrWJrNbV0Hn5lR2t-nNwXg2psDNKDrUHlDkE7P4FogdLha_AAaRRBlTsxZGUPfAB6WOrB"
               alt="User"
               fill
@@ -81,7 +81,7 @@ export default function CheckoutSuccess() {
               </ul>
             </div>
             <div className="relative z-10 w-full md:w-64 h-40 grayscale hover:grayscale-0 transition-all duration-700">
-              <Image 
+              <Image
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4kDhNFTT-xf92uZGENYDxcD1nPfcX9KQsyyCkVrjdDZ17CRHz3uuKGXL__AVOAExZQQYNzs2O1nMVfwRi3UJRbt--qbZRk7u9IJVkqFuNIfqQjjkMnWO3UI7Iv_LgMH3bvdfddbxu_3BvCGHVX16WMrFaP8GJBMfmtqF2K-q_WWsNryZHcSIhzbVanodyiZD4V2tX73F5e8cyEgQQLfCSwcyZZyx5ZwVAeXs6vxqcRX-7N5P7rNSjmieR4KN4AQETs8Q3lC6MuWlI"
                 alt="Studio"
                 fill
@@ -131,10 +131,10 @@ export default function CheckoutSuccess() {
               'https://lh3.googleusercontent.com/aida-public/AB6AXuBDVhxjV1-Rqeb0rrY40ayEusiYFTMQ7DrUhbTUo242w_q6pW2Dhca53HOZhtOnECJyEJ0tW_XCRdm-ZY4qKDHg-JqWYG50RPlW1j5XiSjvm002xo6Mh6ipW2PXJUa94E1piToUkV87f8k7W4Do3_ULA1X3qLx9KQ3vNG-nZ_rH58CppR632J86Ruzbr9zZvV_g_r-psr2DXXw1MRuLwOEg7ap4kdiUerBSiNvyk8xbD5DoCGnNYXXx9ZtXdB_b3eyuSmXaAQ15fs0F'
             ].map((img, i) => (
               <div key={i} className="group relative aspect-[3/4] overflow-hidden bg-slate-900">
-                <Image 
-                  src={img} 
-                  alt={`Portrait ${i+1}`} 
-                  fill 
+                <Image
+                  src={img}
+                  alt={`Portrait ${i + 1}`}
+                  fill
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
                   referrerPolicy="no-referrer"
                 />
@@ -193,7 +193,7 @@ export default function CheckoutSuccess() {
         </div>
       </main>
       <footer className="border-t border-studio-gold/10 py-12 px-6 md:px-20 text-center">
-        <p className="text-slate-600 text-[10px] uppercase tracking-[0.3em]">© 2023 PHOTO STUDIO 1308. EXCELLENCE IN VISUAL STORYTELLING.</p>
+        <p className="text-slate-600 text-[10px] uppercase tracking-[0.3em]">© 2023 VIRTUAL STUDIO. EXCELLENCE IN VISUAL STORYTELLING.</p>
       </footer>
     </div>
   );

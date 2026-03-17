@@ -13,7 +13,7 @@ const oswald = Oswald({
 });
 
 export const metadata: Metadata = {
-  title: 'Photo Studio 1308 | Ensaios com IA',
+  title: 'VIRTUAL STUDIO | Ensaios com IA',
   description: 'A Nova Era da Fotografia Profissional. Transforme suas fotos em obras de arte cinematográficas.',
 };
 

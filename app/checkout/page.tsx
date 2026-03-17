@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { 
-  Camera, 
-  Search, 
-  ChevronDown, 
-  User, 
+import {
+  Camera,
+  Search,
+  ChevronDown,
+  User,
   ArrowRight,
   ShieldCheck,
   CreditCard,
@@ -76,10 +76,10 @@ export default function GalleryPreview() {
               'https://lh3.googleusercontent.com/aida-public/AB6AXuD-xZaaXE0wSQHF3YNlzeuqqwfMXTHpLXYG0ZLpoqhzMXmwbB83bH0hWJmPgQ_QFB3WWDURol_Ivifat5iJHcG0co899h3IDQoY3dr9q90tQz_QXyM4hOkKrf55wAJNPSaRt4xJmrS1ANgaV0CnAsfV_419ABfB1PRznG6dktwEQviTqt_30XXSCouxOLgZ84NrdGqYUD8P4VzKy8e13UiPRVeHw19sSip2OYHCnGug8NSdLR20cGeBcJoo6tyBBmPMhcEedXYMpFwN'
             ].map((img, i) => (
               <div key={i} className="relative group aspect-[3/4] overflow-hidden border border-white/5 bg-[#0e0d0a]">
-                <Image 
-                  src={img} 
-                  alt="AI Photography Preview" 
-                  fill 
+                <Image
+                  src={img}
+                  alt="AI Photography Preview"
+                  fill
                   className="object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
                   referrerPolicy="no-referrer"
                 />
@@ -87,7 +87,7 @@ export default function GalleryPreview() {
                   <span className="font-display text-4xl text-studio-gold/20 -rotate-45 uppercase tracking-[0.5em] select-none">PHOTO 1308</span>
                 </div>
                 <div className="absolute bottom-4 left-4 bg-white/5 backdrop-blur-md px-3 py-1 text-[10px] uppercase tracking-widest text-studio-gold border border-studio-gold/20">
-                  Preview_0{i+1}.png
+                  Preview_0{i + 1}.png
                 </div>
               </div>
             ))}
@@ -178,7 +178,7 @@ export default function GalleryPreview() {
             <Link className="hover:text-studio-gold transition-colors" href="#">Commercial Licensing</Link>
           </div>
           <p className="text-[10px] text-gray-600 uppercase tracking-widest">
-            © 2024 PHOTO STUDIO 1308. All rights reserved.
+            © 2024 VIRTUAL STUDIO. All rights reserved.
           </p>
         </div>
       </footer>

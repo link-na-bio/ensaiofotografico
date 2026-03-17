@@ -76,7 +76,7 @@ export default function LandingPage() {
             transition={{ delay: 0.4 }}
             className="max-w-2xl mx-auto text-gray-300 text-lg mb-10 font-light"
           >
-            Esqueça os estúdios caros e horas de edição. Transforme suas fotos comuns em obras de arte profissionais com o Photo Studio 1308.
+            Esqueça os estúdios caros e horas de edição. Transforme suas fotos comuns em obras de arte profissionais com o VIRTUAL STUDIO.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -121,7 +121,7 @@ export default function LandingPage() {
                 </div>
                 <div className="group">
                   <h4 className="text-xl mb-2 text-studio-gold flex items-center gap-3 font-bold">
-                    <span className="w-8 h-[1px] bg-white"></span> Photo Studio 1308
+                    <span className="w-8 h-[1px] bg-white"></span> VIRTUAL STUDIO
                   </h4>
                   <p className="text-gray-200">Resultados de nível editorial em pouco tempo, em qualquer cenário do mundo, com curadoria artística humana.</p>
                 </div>
@@ -287,7 +287,7 @@ export default function LandingPage() {
               <span className="text-studio-gold font-display text-2xl">1308</span>
             </div>
             <h4 className="font-display tracking-[0.3em] text-xl">PHOTO STUDIO</h4>
-            <p className="text-gray-500 text-xs mt-2 uppercase">© 2026 PHOTO STUDIO 1308 - TODOS OS DIREITOS RESERVADOS</p>
+            <p className="text-gray-500 text-xs mt-2 uppercase">© 2026 VIRTUAL STUDIO - TODOS OS DIREITOS RESERVADOS</p>
           </div>
           <div className="flex justify-center gap-6 mb-12">
             <a className="text-studio-gold hover:text-white transition" href="#"><Instagram size={20} /></a>

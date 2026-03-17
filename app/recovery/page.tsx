@@ -13,7 +13,7 @@ export default function RecoveryPage() {
             <div className="text-studio-gold">
               <Camera size={32} />
             </div>
-            <h2 className="font-display text-xl font-bold tracking-[0.2em] text-white">PHOTO STUDIO 1308</h2>
+            <h2 className="font-display text-xl font-bold tracking-[0.2em] text-white">VIRTUAL STUDIO</h2>
           </Link>
           <div className="hidden md:block">
             <span className="font-display text-[10px] tracking-[0.3em] text-studio-gold font-medium border border-studio-gold/30 px-4 py-2 rounded-full uppercase">
@@ -48,11 +48,11 @@ export default function RecoveryPage() {
                   E-mail Profissional
                 </label>
                 <div className="relative group">
-                  <input 
-                    className="w-full bg-studio-black border border-white/10 rounded-lg px-4 py-4 text-white placeholder:text-slate-600 focus:ring-1 focus:ring-studio-gold focus:border-studio-gold transition-all duration-300 outline-none text-sm" 
-                    id="email" 
-                    name="email" 
-                    placeholder="exemplo@estudio1308.com" 
+                  <input
+                    className="w-full bg-studio-black border border-white/10 rounded-lg px-4 py-4 text-white placeholder:text-slate-600 focus:ring-1 focus:ring-studio-gold focus:border-studio-gold transition-all duration-300 outline-none text-sm"
+                    id="email"
+                    name="email"
+                    placeholder="exemplo@estudio1308.com"
                     type="email"
                   />
                   <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-studio-gold transition-colors" size={20} />
@@ -74,7 +74,7 @@ export default function RecoveryPage() {
           {/* Footer Branding */}
           <div className="mt-8 text-center">
             <p className="text-slate-600 text-[8px] uppercase tracking-[0.4em]">
-              © 2024 PHOTO STUDIO 1308. All Rights Reserved.
+              © 2024 VIRTUAL STUDIO. All Rights Reserved.
             </p>
           </div>
         </div>

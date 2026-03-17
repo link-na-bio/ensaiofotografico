@@ -60,7 +60,7 @@ export default function LoginPage() {
             <Camera size={32} />
           </div>
           <div className="text-center">
-            <h1 className="text-white text-2xl font-black leading-tight tracking-wider uppercase italic">Photo Studio 1308</h1>
+            <h1 className="text-white text-2xl font-black leading-tight tracking-wider uppercase italic">VIRTUAL STUDIO</h1>
             <p className="text-slate-400 text-xs font-light tracking-[0.2em] mt-1 uppercase">Creative Excellence</p>
           </div>
         </div>
