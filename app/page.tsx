@@ -101,14 +101,17 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div className="relative">
               <div className="absolute -top-10 -left-10 w-40 h-40 border-t border-l border-studio-gold opacity-30"></div>
-              <div className="relative aspect-square overflow-hidden">
-                <Image
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuC79UOKRh1_5DuQ8DaX7S--NWYlaEoyglRsm0en7-egqPNiwE8d--hfhBHFQP9KkBnPFu2O6FBmnNsERPz7pMImaGdD0MzyT2YyWpe6i0qTgIy4Bu5-OXULrjHPa03k1_gtLD8-nwPf_WJ6xlR8XzlEwN1r8PyyJ3b9fyXybGKZgigSBOVtYWipObG7ZAVknMd8wsD_u_KyVB3e-490lXqexXOxdqQiM9FzFFweu20bLKut4Vq54ecu2O98YL1TWIpSZ4p2GNV8EMVN"
-                  alt="Comparison"
-                  fill
-                  className="object-cover grayscale hover:grayscale-0 transition duration-700"
-                  referrerPolicy="no-referrer"
-                />
+              <div className="relative aspect-square overflow-hidden bg-studio-black">
+                {/* Scale-105 e translate-y para jogar a marca d'água para fora do container overflow-hidden */}
+                <div className="absolute inset-0 scale-[1.08] translate-y-3 origin-center">
+                  <Image
+                    src="/humanoide.png"
+                    alt="Comparison"
+                    fill
+                    className="object-cover grayscale hover:grayscale-0 transition duration-700"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
               </div>
             </div>
             <div>
