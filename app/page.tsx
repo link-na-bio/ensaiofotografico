@@ -206,21 +206,7 @@ export default function LandingPage() {
               <p className="text-gray-300 mb-6 font-light leading-relaxed">
                 Diferente de aplicativos genéricos, no VIRTUAL STUDIO cada pixel é revisado por um profissional. Nós não apenas geramos imagens; nós criamos uma narrativa visual que respeita suas características únicas e eleva sua marca pessoal.
               </p>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full border border-studio-gold p-1 overflow-hidden relative">
-                  <Image
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXmbvlUBl5568OLtxMRxujriRI2D4kB0W5Phl6xnPdVqjh7SEiueLa6ceROZI26onU6WCbGMCNeQlRiMgdcTM6Qk6rA0mcEBuv2r_hwNd-IxIkxTrYqvASXY4TX_W0ytTSHbb0ss4kMld_CrQGx5Ro1ULEkS78eFOnDODODQza3IAPLNZt11qNnwMthtXPnEh3txb1jh3ILEj4HpBmqgPeWoNUeecpRvaDW5GXwA7dVw3BtPSPDu4-k8ggHMdD0dFjOpLNgHTEwOeM"
-                    alt="Irina Sova"
-                    fill
-                    className="object-cover rounded-full"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-                <div>
-                  <p className="font-display text-lg">Irina Sova</p>
-                  <p className="text-studio-gold text-xs uppercase">Lead AI Curator</p>
-                </div>
-              </div>
+
             </div>
             <div className="md:w-1/2 order-1 md:order-2">
               <div className="relative aspect-video gold-border-gradient p-4">
@@ -241,48 +227,70 @@ export default function LandingPage() {
       <section className="py-24 bg-studio-black border-t border-white/5" id="precos">
         <div className="container mx-auto px-6">
           <div className="text-center mb-20">
-            <h2 className="text-4xl font-bold mb-4">PLANOS EXCLUSIVOS</h2>
+            <h2 className="text-4xl font-bold mb-4">PACOTES EXCLUSIVOS</h2>
             <p className="text-studio-gold tracking-widest uppercase text-sm">Investimento na sua imagem</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Plan 1 */}
             <div className="p-8 border border-white/10 bg-studio-gray/20 flex flex-col hover:border-studio-gold transition">
-              <h3 className="text-2xl font-display mb-4">BÁSICO</h3>
-              <p className="text-4xl font-bold mb-6">R$ 197<span className="text-sm font-light text-gray-500">/ensaio</span></p>
+              <h3 className="text-2xl font-display mb-8">Pacote ESSENTIAL</h3>
               <ul className="space-y-4 text-sm text-gray-400 mb-10 flex-grow">
-                <li>• 15 fotos em alta resolução</li>
-                <li>• 1 Estilo de cenário</li>
-                <li>• Entrega em 48 horas</li>
-                <li className="line-through opacity-30">• Curadoria manual Premium</li>
+                <li>• 10 Fotos de alta resolução</li>
+                <li>• Até 2 Estilos</li>
               </ul>
               <button className="w-full border border-studio-gold text-studio-gold py-4 font-bold uppercase tracking-widest hover:bg-studio-gold hover:text-studio-black transition">Selecionar</button>
             </div>
             {/* Plan 2 */}
             <div className="p-8 border-2 border-studio-gold bg-studio-black flex flex-col relative scale-105 z-10">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-studio-gold text-studio-black text-[10px] font-bold px-4 py-1 uppercase tracking-tighter">Mais Popular</div>
-              <h3 className="text-2xl font-display mb-4">POPULAR</h3>
-              <p className="text-4xl font-bold mb-6">R$ 397<span className="text-sm font-light text-gray-500">/ensaio</span></p>
+              <h3 className="text-2xl font-display mb-8">Pacote PRO</h3>
               <ul className="space-y-4 text-sm text-gray-200 mb-10 flex-grow">
-                <li>• 50 fotos em alta resolução</li>
-                <li>• 5 Estilos de cenário</li>
-                <li>• Entrega em 24 horas</li>
-                <li>• Curadoria manual Premium</li>
-                <li>• Pack de Retoques Extras</li>
+                <li>• 25 Fotos de alta resolução</li>
+                <li>• Até 5 Estilos</li>
               </ul>
               <button className="w-full bg-studio-gold text-studio-black py-4 font-bold uppercase tracking-widest hover:bg-studio-gold-light transition">Selecionar</button>
             </div>
             {/* Plan 3 */}
             <div className="p-8 border border-white/10 bg-studio-gray/20 flex flex-col hover:border-studio-gold transition">
-              <h3 className="text-2xl font-display mb-4">PRO</h3>
-              <p className="text-4xl font-bold mb-6">R$ 797<span className="text-sm font-light text-gray-500">/ensaio</span></p>
+              <h3 className="text-2xl font-display mb-8">Pacote ULTRA</h3>
               <ul className="space-y-4 text-sm text-gray-400 mb-10 flex-grow">
-                <li>• Fotos ilimitadas</li>
-                <li>• Todos os cenários liberados</li>
-                <li>• Entrega prioritária (12h)</li>
-                <li>• Consultoria de Imagem Personalizada</li>
-                <li>• Direitos comerciais totais</li>
+                <li>• 50 Fotos de alta resolução</li>
+                <li>• Até 10 estilos</li>
               </ul>
               <button className="w-full border border-studio-gold text-studio-gold py-4 font-bold uppercase tracking-widest hover:bg-studio-gold hover:text-studio-black transition">Selecionar</button>
+            </div>
+          </div>
+
+          <div className="mt-24 border-t border-white/10 pt-20">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4">POR QUE ESCOLHER A VIRTUAL STUDIO?</h2>
+              <p className="text-studio-gold tracking-widest uppercase text-sm font-light">Evolua sua imagem com Inteligência</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+              <div className="group">
+                <div className="w-16 h-16 rounded-full border border-studio-gold/30 bg-studio-gold/5 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-studio-gold/20 transition-all duration-300">
+                  <span className="text-studio-gold text-2xl font-bold font-display">01</span>
+                </div>
+                <h3 className="text-xl font-bold font-display uppercase tracking-widest mb-4">Economia Absoluta</h3>
+                <p className="text-gray-400 font-light leading-relaxed">Até <strong className="text-white">90% mais barato</strong> que um estúdio presencial. Sem custos com fotógrafo, aluguel de cenário, figurino, maquiador e deslocamento.</p>
+              </div>
+              
+              <div className="group">
+                <div className="w-16 h-16 rounded-full border border-studio-gold/30 bg-studio-gold/5 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-studio-gold/20 transition-all duration-300">
+                  <span className="text-studio-gold text-2xl font-bold font-display">02</span>
+                </div>
+                <h3 className="text-xl font-bold font-display uppercase tracking-widest mb-4">Agilidade Incomparável</h3>
+                <p className="text-gray-400 font-light leading-relaxed">Sem agendamentos, espera na agenda ou trânsito. Acesso <strong className="text-white">disponível 24/7</strong> para você criar na palma da sua mão a qualquer momento.</p>
+              </div>
+              
+              <div className="group">
+                <div className="w-16 h-16 rounded-full border border-studio-gold/30 bg-studio-gold/5 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-studio-gold/20 transition-all duration-300">
+                  <span className="text-studio-gold text-2xl font-bold font-display">03</span>
+                </div>
+                <h3 className="text-xl font-bold font-display uppercase tracking-widest mb-4">Qualidade Fotorealista</h3>
+                <p className="text-gray-400 font-light leading-relaxed">Nossa <strong className="text-white">tecnologia de IA de ponta</strong> captura e mantém sua essência real, criando sombras, bordas e luzes 100% físicas e convincentes.</p>
+              </div>
             </div>
           </div>
         </div>
