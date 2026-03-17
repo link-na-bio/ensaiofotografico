@@ -317,7 +317,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-6 relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4 font-display">O QUE NOSSOS CLIENTES ESTÃO DIZENDO</h2>
-            <p className="text-studio-gold tracking-widest uppercase text-sm font-light">Mais de +500 ensaios gerados com 100% de satisfação</p>
+            <p className="text-studio-gold tracking-widest uppercase text-sm font-light">Mais de 500 ensaios gerados com 100% de satisfação</p>
           </div>
 
           <div className="relative h-[650px] max-w-7xl mx-auto flex items-center justify-center mt-8 perspective-1000">
