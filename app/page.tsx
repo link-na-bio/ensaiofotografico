@@ -155,8 +155,8 @@ export default function LandingPage() {
             transition={{ delay: 0.6 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Link href="/signup" className="bg-studio-gold text-studio-black px-10 py-4 font-bold uppercase tracking-widest hover:scale-105 transition-transform text-center">
-              Criar Meu Ensaio
+            <Link href="/signup" className="inline-flex items-center justify-center gap-2 bg-studio-gold text-studio-black px-8 py-3.5 font-bold uppercase tracking-widest hover:scale-105 transition-transform text-center text-sm shadow-xl shadow-studio-gold/20 rounded-lg">
+              SOLICITAR MEU ENSAIO <ArrowRight size={16} />
             </Link>
             <button className="border border-white/30 backdrop-blur-sm px-10 py-4 font-bold uppercase tracking-widest hover:bg-white/10 transition text-center opacity-50 cursor-default">
               Ver Galeria
@@ -497,9 +497,12 @@ export default function LandingPage() {
             viewport={{ once: true }}
             className="mt-20 text-center px-4"
           >
-            <button className="w-full md:w-auto px-8 py-5 md:px-12 md:py-6 bg-studio-gold text-studio-black font-extrabold uppercase tracking-[0.1em] md:tracking-[0.2em] hover:bg-studio-gold-light hover:scale-105 transition-all shadow-2xl shadow-studio-gold/30 rounded-xl flex items-center justify-center gap-4 mx-auto text-base md:text-lg">
-              SOLICITAR MEU ENSAIO <ArrowRight className="w-5 h-5 md:w-6 md:h-6" />
-            </button>
+            <Link 
+              href="/signup"
+              className="inline-flex items-center justify-center gap-2 bg-studio-gold text-studio-black px-8 py-3.5 font-bold uppercase tracking-widest hover:scale-105 transition-transform text-center text-sm shadow-xl shadow-studio-gold/20 rounded-lg"
+            >
+              SOLICITAR MEU ENSAIO <ArrowRight size={16} />
+            </Link>
             <p className="mt-8 text-gray-500 text-sm italic font-light tracking-widest uppercase">Comece agora sua jornada definitiva de imagem</p>
           </motion.div>
 
