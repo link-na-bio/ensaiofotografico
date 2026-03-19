@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'motion/react';
-import { Camera, ChevronLeft, ChevronRight, Check, CheckCheck, Star, Play, Instagram, Linkedin, Twitter, Menu, X, ArrowRight, Zap } from 'lucide-react';
+import { Camera, ChevronLeft, ChevronRight, Check, CheckCheck, Star, Play, Instagram, Linkedin, Twitter, Menu, X, ArrowRight, Zap, Phone, Video } from 'lucide-react';
 import Link from 'next/link';
 
 const testimonials = [
@@ -354,37 +354,42 @@ export default function LandingPage() {
                     onClick={() => !isCenter && setActiveTestimonial(index)}
                   >
                     {/* WhatsApp Phone Frame */}
-                    <div className={`bg-[#111b21] rounded-[2.5rem] overflow-hidden shadow-2xl relative border-[6px] border-[#1C1C1E] transition-all duration-500 w-full max-w-[320px] min-w-[320px] ${!isCenter && 'pointer-events-none'}`}>
+                    <div className={`bg-white rounded-[2.5rem] overflow-hidden shadow-2xl relative border-[6px] border-[#1C1C1E] transition-all duration-500 w-full max-w-[320px] min-w-[320px] ${!isCenter && 'pointer-events-none'}`}>
                       {/* Fake Phone Notch */}
                       <div className="absolute top-0 inset-x-0 h-6 bg-[#1C1C1E] rounded-b-2xl mx-16 z-20"></div>
 
                       {/* Header */}
-                      <div className="bg-[#202c33] pt-8 pb-4 px-4 flex items-center gap-3 text-[#e9edef] relative z-10 border-b border-[#2a3942]">
-                        <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 border border-white/10 bg-[#005c4b] flex items-center justify-center">
+                      <div className="bg-[#f0f2f5] pt-8 pb-4 px-4 flex items-center gap-3 text-[#111b21] relative z-10 border-b border-black/5">
+                        <ChevronLeft size={20} className="text-[#008069] -ml-1 cursor-pointer" />
+                        <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 bg-[#dfe5e7] flex items-center justify-center">
                           {test.img ? (
                             <Image src={test.img} alt={test.name} fill className="object-cover" />
                           ) : (
-                            <span className="text-[#e9edef] font-bold text-[15px]">
+                            <span className="text-[#667781] font-bold text-[15px]">
                               {test.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                             </span>
                           )}
                         </div>
                         <div className="flex-1 overflow-hidden">
-                          <p className="font-semibold text-base leading-none text-[#e9edef] truncate">{test.name}</p>
-                          <p className="text-xs text-[#8696a0] mt-1 truncate">{test.status}</p>
+                          <p className="font-semibold text-base leading-none text-[#111b21] truncate">{test.name}</p>
+                          <p className="text-[11px] text-[#00a884] mt-1 truncate">online</p>
+                        </div>
+                        <div className="flex items-center gap-4 text-[#54656f]">
+                          <Video size={18} />
+                          <Phone size={18} />
                         </div>
                       </div>
 
                       {/* Body */}
-                      <div className="p-4 h-[420px] bg-[#0b141a] flex flex-col justify-start gap-2 relative overflow-y-auto custom-scrollbar" style={{ backgroundImage: 'url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png")', backgroundSize: 'cover', backgroundBlendMode: 'overlay', backgroundColor: 'rgba(11, 20, 26, 0.95)' }}>
-                        <div className="bg-[#182229] border border-[#202c33] text-[#8696a0] text-[11px] py-1 px-3 rounded-lg self-center mb-3 mt-1 shadow-sm font-medium">Hoje</div>
+                      <div className="p-4 h-[420px] bg-[#e5ddd5] flex flex-col justify-start gap-2 relative overflow-y-auto custom-scrollbar" style={{ backgroundImage: 'url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png")', backgroundSize: 'cover', backgroundBlendMode: 'overlay', backgroundColor: 'rgba(229, 221, 213, 0.9)' }}>
+                        <div className="bg-white/70 backdrop-blur-sm text-[#54656f] text-[10px] py-1 px-3 rounded-lg self-center mb-3 mt-1 shadow-sm font-medium uppercase tracking-wider">Ontem</div>
 
                         {test.msgs.map((msg, idx) => (
-                          <div key={idx} className={`p-[10px] rounded-xl shadow-md max-w-[90%] relative mt-1 flex flex-col ${msg.sender === 'vs' ? 'bg-[#005c4b] self-end rounded-tr-sm' : 'bg-[#202c33] self-start rounded-tl-sm'}`}>
-                            <p className="text-[#e9edef] text-[13.5px] leading-[1.4] pr-[40px] whitespace-pre-wrap">{msg.text}</p>
-                            <div className="absolute bottom-1 right-2 flex items-center gap-[2px]">
-                              <span className="text-[#8696a0] text-[10px] min-w-[30px] text-right font-medium">{msg.time}</span>
-                              {msg.sender === 'vs' && <CheckCheck size={14} className="text-[#53bdeb]" />}
+                          <div key={idx} className={`p-[8px] px-[10px] rounded-lg shadow-sm max-w-[85%] relative mt-1 flex flex-col ${msg.sender === 'vs' ? 'bg-[#dcf8c6] self-end rounded-tr-none' : 'bg-white self-start rounded-tl-none'}`}>
+                            <p className="text-[#111b21] text-[13px] leading-[1.4] pr-[35px] whitespace-pre-wrap">{msg.text}</p>
+                            <div className="absolute bottom-1 right-1.5 flex items-center gap-[2px]">
+                              <span className="text-[#667781] text-[9px] min-w-[28px] text-right">{msg.time}</span>
+                              {msg.sender === 'vs' && <CheckCheck size={13} className="text-[#53bdeb]" />}
                             </div>
                           </div>
                         ))}
@@ -392,7 +397,7 @@ export default function LandingPage() {
 
                       {/* Interactive Fade Overlay when not in focus */}
                       {!isCenter && (
-                        <div className="absolute inset-0 bg-studio-black/40 z-30 transition-opacity duration-500"></div>
+                        <div className="absolute inset-0 bg-[#e5ddd5]/40 z-30 transition-opacity duration-500"></div>
                       )}
                     </div>
                   </div>
