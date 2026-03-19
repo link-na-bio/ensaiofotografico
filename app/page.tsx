@@ -9,29 +9,29 @@ import Link from 'next/link';
 const testimonials = [
   {
     id: 1,
-    name: "Roberto Tech",
+    name: "Roberto T.(Ensaio)",
     img: "/profile_roberto.png",
     status: "Online",
     msgs: [
       { sender: "client", text: "Fala Bruno, beleza? Cara, passei pra avisar q botei a foto nova do Virtual Studio no LinkedIn ontem.", time: "09:41" },
       { sender: "client", text: "bicho, ja recebi 3 inbounds de recrutador hj! Todo mundo elogiando a foto kkk, disseram q passei mó autoridade. Valeu dms!! 💪🔥", time: "09:42" },
-      { sender: "vs", text: "Tamo junto, Roberto! Sabia que ia dar certo. Foco na autoridade é tudo 🤜", time: "09:45" }
+      { sender: "vs", text: "Tmj, Roberto! Sabia que ia dar certo. Foco na autoridade é tudo 🤜", time: "09:45" }
     ]
   },
   {
     id: 2,
-    name: "Camila Lookbook",
+    name: "Camila (Ensaio)",
     img: "/profile_camila.png",
     status: "Online",
     msgs: [
-      { sender: "client", text: "Amigaaa vc n tem noção! Postei as fotos do ensaio da IA e meu insta EXPLODIU 💥💥💥", time: "20:15" },
+      { sender: "client", text: "Amigooo vc n tem noção! Postei as fotos do ensaio da IA e meu insta EXPLODIU 💥💥💥", time: "20:15" },
       { sender: "client", text: "Todo mundo perguntando se eu viajei pra Milão pra fazer 😂 Ninguém acredita q foi o Virtual Studio. Ficou PERFEITO o rosto, n parece boneco. Ja to marcando o próximo! 😍📸", time: "20:16" },
       { sender: "vs", text: "Hahaha q top Camila! Seus amigos n perdem por esperar. Próximo ensaio já to bolando uns temas massa 💥", time: "20:20" }
     ]
   },
   {
     id: 3,
-    name: "Dr. Andre Card",
+    name: "Dr. Andre (Ensaio)",
     img: "/profile_andre.png",
     status: "visto por último às 15:42",
     msgs: [
@@ -42,57 +42,57 @@ const testimonials = [
   },
   {
     id: 4,
-    name: "Aline Trip",
+    name: "Aline (Ensaio)",
     img: null,
     status: "Online",
     msgs: [
-      { sender: "client", text: "Bicho, acabei de ver as fotos da Noruega q o VS fez. Ninguém acredita q eu n fui kkk. Ficou mto real, os reflexos, tudo.", time: "11:10" },
-      { sender: "vs", text: "Nossa IA simula até a luz ambiente, Aline. Sabia q vc ia curtir a imersão! 🌍🏔️", time: "11:15" }
+      { sender: "client", text: "Nossa, acabei de ver as fotos da Noruega q o VS fez. Ninguém acredita q eu n fui kkk. Ficou mto real, os reflexos, tudo.", time: "11:10" },
+      { sender: "vs", text: "Nossa IA simula até a luz ambiente, Aline. Sabia q vc ia curtir o ensaio! 🌍🏔️", time: "11:15" }
     ]
   },
   {
     id: 5,
-    name: "Carlos Exec",
+    name: "Carlos Exec.(Ensaio)",
     img: null,
     status: "Online",
     msgs: [
-      { sender: "client", text: "R$ 397 pra 50 fotos prontas em 24h? O estúdio aqui cobrou R$ 1.200 e 15 dias pra entregar 10. O VS é o futuro.", time: "14:20" },
+      { sender: "client", text: "R$ 397 pra 50 fotos prontas em tão pouco tempo? O estúdio aqui cobrou R$ 1.200 e 15 dias pra entregar 10. O VS é o futuro.", time: "14:20" },
       { sender: "vs", text: "Tempo é dinheiro, Carlos. A gente entende as dores do executivo. Fico feliz q tenha poupado ambos! 🤝💨", time: "14:25" }
     ]
   },
   {
     id: 6,
-    name: "Juliana Model",
+    name: "Juliana Model(Ensaio)",
     img: null,
     status: "visto por último às 10:00",
     msgs: [
       { sender: "client", text: "Fiz a galeria Editorial de Moda. O resultado superou dms minhas agências reais. To chocada com a curadoria.", time: "10:05" },
-      { sender: "vs", text: "Nossa Lead Irina Sova revisa cada foto, Ju. O olhar artístico é o nosso diferencial. 🤜📸", time: "10:10" }
+      { sender: "vs", text: "Nossa equipe revisa cada foto, Juliana. O olhar artístico é o nosso diferencial. 🤜📸", time: "10:10" }
     ]
   },
   {
     id: 7,
-    name: "Marcos Imóveis",
+    name: "Mauro A.(Ensaio)",
     img: null,
     status: "Online",
     msgs: [
       { sender: "client", text: "Fala time Virtual Studio! O perfil novo do Google Meu Negócio bombou hj kkk. A foto corporativa com IA me deu mó moral.", time: "17:40" },
-      { sender: "vs", text: "Tamo junto, Marcos! A autoridade visual ajuda a fechar mais negócios. Sucesso! 👍🤜", time: "17:45" }
+      { sender: "vs", text: "Tmj, Mauro! A autoridade visual ajuda a fechar mais negócios. Sucesso! 👍🤜", time: "17:45" }
     ]
   },
   {
     id: 8,
-    name: "Paula Mãe",
+    name: "Paula(Ensaio)",
     img: null,
     status: "Online",
     msgs: [
-      { sender: "client", text: "Gente, criei um ensaio Lifestyle Mãe e Filho e chorei kkk. As fotos com meu filho de 3 anos ficaram emocionantes. Mto obrigado.", time: "09:30" },
+      { sender: "client", text: "Gente, criei um ensaio Lifestyle de gestante e chorei kkk. As fotos ficaram emocionantes. Mto obrigado.", time: "09:30" },
       { sender: "vs", text: "Nossa Paula! Esse é o melhor feedback q a gente podia receber. É sobre capturar essência, n só pixels. ❤️👶", time: "09:35" }
     ]
   },
   {
     id: 9,
-    name: "Pedro Burger",
+    name: "Pedro Burger(Ensaio)",
     img: null,
     status: "visto por último ontem",
     msgs: [
@@ -102,7 +102,7 @@ const testimonials = [
   },
   {
     id: 10,
-    name: "Tiago Ator",
+    name: "Tiago A.(Ensaio)",
     img: null,
     status: "Online",
     msgs: [
@@ -205,9 +205,9 @@ export default function LandingPage() {
             <Link href="/signup" className="bg-studio-gold text-studio-black px-10 py-4 font-bold uppercase tracking-widest hover:scale-105 transition-transform text-center">
               Criar Meu Ensaio
             </Link>
-            <Link href="/galeria" className="border border-white/30 backdrop-blur-sm px-10 py-4 font-bold uppercase tracking-widest hover:bg-white/10 transition text-center">
+            <button className="border border-white/30 backdrop-blur-sm px-10 py-4 font-bold uppercase tracking-widest hover:bg-white/10 transition text-center opacity-50 cursor-default">
               Ver Galeria
-            </Link>
+            </button>
           </motion.div>
         </div>
       </section>
@@ -578,7 +578,7 @@ export default function LandingPage() {
           </div>
 
           {/* Botão Único Final */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -610,7 +610,7 @@ export default function LandingPage() {
                   <span className="text-studio-gold text-2xl font-bold font-display">02</span>
                 </div>
                 <h3 className="text-xl font-bold font-display uppercase tracking-widest mb-4">Agilidade Incomparável</h3>
-                <p className="text-gray-400 font-light leading-relaxed">Sem agendamentos, espera na agenda ou trânsito. Acesso <strong className="text-white">disponível 24/7</strong> para você criar na palma da sua mão a qualquer momento.</p>
+                <p className="text-gray-400 font-light leading-relaxed">Sem agendamentos, espera na agenda ou trânsito. Acesso <strong className="text-white">disponível 24/7</strong> na palma da sua mão a qualquer momento.</p>
               </div>
 
               <div className="group">
