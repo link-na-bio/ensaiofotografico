@@ -39,7 +39,8 @@ const testimonials = [
     id: 1,
     name: "Roberto T.(Ensaio)",
     img: "/profile_roberto.png",
-    status: "Online",
+    displayStatus: "online",
+    dateLabel: "Hoje",
     msgs: [
       { sender: "client", text: "Fala Bruno, beleza? Cara, passei pra avisar q botei a foto nova do Virtual Studio no LinkedIn ontem.", time: "09:41" },
       { sender: "client", text: "bicho, ja recebi 3 inbounds de recrutador hj! Todo mundo elogiando a foto kkk, disseram q passei mó autoridade. Valeu dms!! 💪🔥", time: "09:42" },
@@ -50,7 +51,8 @@ const testimonials = [
     id: 2,
     name: "Camila (Ensaio)",
     img: "/profile_camila.png",
-    status: "Online",
+    displayStatus: "online",
+    dateLabel: "Hoje",
     msgs: [
       { sender: "client", text: "Amigooo vc n tem noção! Postei as fotos do ensaio da IA e meu insta EXPLODIU 💥💥💥", time: "20:15" },
       { sender: "client", text: "Todo mundo perguntando se eu viajei pra Milão pra fazer 😂 Ninguém acredita q foi o Virtual Studio. Ficou PERFEITO o rosto, n parece boneco. Ja to marcando o próximo! 😍📸", time: "20:16" },
@@ -61,7 +63,8 @@ const testimonials = [
     id: 3,
     name: "Dr. Andre (Ensaio)",
     img: "/profile_andre.png",
-    status: "visto por último às 15:42",
+    displayStatus: "visto por último hoje às 14:32",
+    dateLabel: "Ontem",
     msgs: [
       { sender: "client", text: "Boa tarde. Confesso que estava cético com essa história de IA, mas o resultado final do Virtual Studio me surpreendeu positivamente.", time: "16:30" },
       { sender: "client", text: "As fotos ficaram naturais e com excelente iluminação profissional. Já configurei meu perfil médico com elas. Trabalho de excelência. Parabéns à equipe. 👍🤝", time: "16:32" },
@@ -72,7 +75,8 @@ const testimonials = [
     id: 4,
     name: "Aline (Ensaio)",
     img: null,
-    status: "Online",
+    displayStatus: "online",
+    dateLabel: "Ontem",
     msgs: [
       { sender: "client", text: "Nossa, acabei de ver as fotos da Noruega q o VS fez. Ninguém acredita q eu n fui kkk. Ficou mto real, os reflexos, tudo.", time: "11:10" },
       { sender: "vs", text: "Nossa IA simula até a luz ambiente, Aline. Sabia q vc ia curtir o ensaio! 🌍🏔️", time: "11:15" }
@@ -82,7 +86,8 @@ const testimonials = [
     id: 5,
     name: "Carlos Exec.(Ensaio)",
     img: null,
-    status: "Online",
+    displayStatus: "visto por último hoje às 11:20",
+    dateLabel: "18/03/2026",
     msgs: [
       { sender: "client", text: "R$ 397 pra 50 fotos prontas em tão pouco tempo? O estúdio aqui cobrou R$ 1.200 e 15 dias pra entregar 10. O VS é o futuro.", time: "14:20" },
       { sender: "vs", text: "Tempo é dinheiro, Carlos. A gente entende as dores do executivo. Fico feliz q tenha poupado ambos! 🤝💨", time: "14:25" }
@@ -92,7 +97,8 @@ const testimonials = [
     id: 6,
     name: "Juliana Model(Ensaio)",
     img: null,
-    status: "visto por último às 10:00",
+    displayStatus: "visto por último às 10:00",
+    dateLabel: "17/03/2026",
     msgs: [
       { sender: "client", text: "Fiz a galeria Editorial de Moda. O resultado superou dms minhas agências reais. To chocada com a curadoria.", time: "10:05" },
       { sender: "vs", text: "Nossa equipe revisa cada foto, Juliana. O olhar artístico é o nosso diferencial. 🤜📸", time: "10:10" }
@@ -102,7 +108,8 @@ const testimonials = [
     id: 7,
     name: "Mauro A.(Ensaio)",
     img: null,
-    status: "Online",
+    displayStatus: "online",
+    dateLabel: "Segunda-feira",
     msgs: [
       { sender: "client", text: "Fala time Virtual Studio! O perfil novo do Google Meu Negócio bombou hj kkk. A foto corporativa com IA me deu mó moral.", time: "17:40" },
       { sender: "vs", text: "Tmj, Mauro! A autoridade visual ajuda a fechar mais negócios. Sucesso! 👍🤜", time: "17:45" }
@@ -112,7 +119,8 @@ const testimonials = [
     id: 8,
     name: "Paula(Ensaio)",
     img: null,
-    status: "Online",
+    displayStatus: "visto por último hoje às 08:30",
+    dateLabel: "Ontem",
     msgs: [
       { sender: "client", text: "Gente, criei um ensaio Lifestyle de gestante e chorei kkk. As fotos ficaram emocionantes. Mto obrigado.", time: "09:30" },
       { sender: "vs", text: "Nossa Paula! Esse é o melhor feedback q a gente podia receber. É sobre capturar essência, n só pixels. ❤️👶", time: "09:35" }
@@ -122,7 +130,8 @@ const testimonials = [
     id: 9,
     name: "Pedro Burger(Ensaio)",
     img: null,
-    status: "visto por último ontem",
+    displayStatus: "visto por último ontem às 21:05",
+    dateLabel: "Terça-feira",
     msgs: [
       { sender: "client", text: "Bicho, as fotos do VS pro cardápio novo e pro Insta ficaram PERFEITAS. Os burguers parecem mais suculentos q os reais 😂", time: "21:00" },
       { sender: "vs", text: "Hahaha q top, Pedro! A IA tbm sabe de gastronomia kkk. Sucesso nas vendas! 🍔💥", time: "21:05" }
@@ -132,7 +141,8 @@ const testimonials = [
     id: 10,
     name: "Tiago A.(Ensaio)",
     img: null,
-    status: "Online",
+    displayStatus: "online",
+    dateLabel: "14/03/2026",
     msgs: [
       { sender: "client", text: "Gastei mó grana com headshots normais q pareciam estáticos. O VS gerou uns com expressões naturais perfeitas pro casting.", time: "13:15" },
       { sender: "vs", text: "Casting natural é o foco, Tiago. Sabia q nossa IA ia te destacar dos concorrentes. Boa sorte! 👍💥", time: "13:20" }
@@ -401,7 +411,9 @@ export default function LandingPage() {
                         </div>
                         <div className="flex-1 overflow-hidden">
                           <p className="font-semibold text-base leading-none text-[#111b21] truncate">{test.name}</p>
-                          <p className="text-[11px] text-[#00a884] mt-1 truncate">online</p>
+                          <p className={`text-[11px] mt-1 truncate ${test.displayStatus === 'online' ? 'text-[#00a884]' : 'text-[#667781]'}`}>
+                            {test.displayStatus}
+                          </p>
                         </div>
                         <div className="flex items-center gap-4 text-[#54656f]">
                           <Video size={18} />
@@ -411,7 +423,7 @@ export default function LandingPage() {
 
                       {/* Body */}
                       <div className="p-4 h-[420px] bg-[#e5ddd5] flex flex-col justify-start gap-2 relative overflow-y-auto custom-scrollbar" style={{ backgroundImage: 'url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png")', backgroundSize: 'cover', backgroundBlendMode: 'overlay', backgroundColor: 'rgba(229, 221, 213, 0.4)' }}>
-                        <div className="bg-white/70 backdrop-blur-sm text-[#54656f] text-[10px] py-1 px-3 rounded-lg self-center mb-3 mt-1 shadow-sm font-medium uppercase tracking-wider">Ontem</div>
+                        <div className="bg-white/70 backdrop-blur-sm text-[#54656f] text-[10px] py-1 px-3 rounded-lg self-center mb-3 mt-1 shadow-sm font-medium uppercase tracking-wider">{test.dateLabel}</div>
 
                         {test.msgs.map((msg, idx) => (
                           <div key={idx} className={`p-[8px] px-[10px] rounded-lg shadow-sm max-w-[85%] relative mt-1 flex flex-col ${msg.sender === 'vs' ? 'bg-[#dcf8c6] self-end rounded-tr-none' : 'bg-white self-start rounded-tl-none'}`}>
