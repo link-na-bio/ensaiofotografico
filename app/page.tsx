@@ -292,7 +292,7 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-studio-gold/5 to-transparent pointer-events-none"></div>
         <div className="container mx-auto px-6 relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 font-display">O QUE NOSSOS CLIENTES ESTÃO DIZENDO</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 font-display italic">O QUE NOSSOS CLIENTES ESTÃO <span className="text-studio-gold">DIZENDO</span> <span className="text-xs opacity-50 ml-2">({activeTestimonial + 1}/{testimonials.length})</span></h2>
             <p className="text-studio-gold tracking-widest uppercase text-sm font-light">Mais de 500 ensaios gerados com 100% de satisfação</p>
           </div>
 
@@ -355,67 +355,80 @@ export default function LandingPage() {
                         src={test.testimonialImage} 
                         alt={test.name} 
                         fill 
-                        className="object-contain" // Use contain to ensure no side cropping
+                        className="object-contain"
                         priority={isCenter}
                       />
                       
-                      {/* Interactive Fade Overlay when not in focus */}
                       {!isCenter && (
-                        <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] z-30 transition-all duration-500 hover:bg-black/20"></div>
+                        <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] z-30 transition-all duration-500"></div>
                       )}
                     </div>
                   </motion.div>
                 );
               })}
             </div>
+          </div>
 
-            {/* Navigation Arrows (Restored Original Style) */}
-            <div className="absolute inset-0 flex items-center justify-between pointer-events-none z-50">
+          {/* Navigation Controls (Moved outside perspective container) */}
+          <div className="flex flex-col items-center mt-12 gap-8 relative z-50">
+            {/* Desktop Arrows Row */}
+            <div className="hidden md:flex items-center gap-12">
               <button
                 onClick={prevTestimonial}
-                className="pointer-events-auto ml-1 w-12 h-12 rounded-full bg-studio-gray/80 border border-white/10 flex md:hidden items-center justify-center text-white backdrop-blur-md shadow-lg"
+                className="w-16 h-16 rounded-full bg-studio-gray/80 border border-white/10 flex items-center justify-center text-white hover:bg-studio-gold hover:text-black transition-all shadow-xl"
                 aria-label="Anterior"
               >
-                <ChevronLeft size={24} />
+                <ChevronLeft size={32} />
               </button>
+              
+              {/* Dots Indicators */}
+              <div className="flex justify-center items-center gap-3">
+                {testimonials.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveTestimonial(i)}
+                    className={`transition-all duration-300 rounded-full cursor-pointer h-2 ${activeTestimonial === i ? 'w-12 bg-studio-gold shadow-[0_0_15px_rgba(255,215,0,0.6)]' : 'w-2 bg-white/20 hover:bg-white/40'}`}
+                    aria-label={`Ir para depoimento ${i + 1}`}
+                  />
+                ))}
+              </div>
+
               <button
                 onClick={nextTestimonial}
-                className="pointer-events-auto mr-1 w-12 h-12 rounded-full bg-studio-gray/80 border border-white/10 flex md:hidden items-center justify-center text-white backdrop-blur-md shadow-lg"
+                className="w-16 h-16 rounded-full bg-studio-gray/80 border border-white/10 flex items-center justify-center text-white hover:bg-studio-gold hover:text-black transition-all shadow-xl"
                 aria-label="Próximo"
               >
-                <ChevronRight size={24} />
+                <ChevronRight size={32} />
               </button>
             </div>
 
-            {/* Desktop Arrows */}
-            <div className="hidden md:block">
+            {/* Mobile Arrows Row */}
+            <div className="flex md:hidden items-center gap-8">
               <button
                 onClick={prevTestimonial}
-                className="absolute left-[-60px] lg:left-[-100px] top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-studio-gray/80 border border-white/10 flex items-center justify-center text-white hover:bg-studio-gold hover:text-black transition-all z-50 backdrop-blur-md shadow-lg"
+                className="w-14 h-14 rounded-full bg-studio-gray/80 border border-white/10 flex items-center justify-center text-white shadow-lg"
                 aria-label="Anterior"
               >
                 <ChevronLeft size={28} />
               </button>
+
+              <div className="flex gap-2">
+                {[...Array(testimonials.length)].map((_, i) => (
+                  <div 
+                    key={i}
+                    className={`w-1.5 h-1.5 rounded-full ${activeTestimonial === i ? 'bg-studio-gold' : 'bg-white/20'}`}
+                  />
+                ))}
+              </div>
+
               <button
                 onClick={nextTestimonial}
-                className="absolute right-[-60px] lg:right-[-100px] top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-studio-gray/80 border border-white/10 flex items-center justify-center text-white hover:bg-studio-gold hover:text-black transition-all z-50 backdrop-blur-md shadow-lg"
+                className="w-14 h-14 rounded-full bg-studio-gray/80 border border-white/10 flex items-center justify-center text-white shadow-lg"
                 aria-label="Próximo"
               >
                 <ChevronRight size={28} />
               </button>
             </div>
-          </div>
-
-          {/* Dots Indicators (Restored Original Logic) */}
-          <div className="flex justify-center items-center gap-3 mt-12 relative z-20">
-            {testimonials.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveTestimonial(i)}
-                className={`transition-all duration-300 rounded-full cursor-pointer h-2 ${activeTestimonial === i ? 'w-10 bg-studio-gold shadow-[0_0_10px_rgba(255,215,0,0.5)]' : 'w-2 bg-white/20 hover:bg-white/40'}`}
-                aria-label={`Ir para depoimento ${i + 1}`}
-              />
-            ))}
           </div>
         </div>
       </section>
