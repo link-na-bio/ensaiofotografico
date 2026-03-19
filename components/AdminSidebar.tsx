@@ -1,5 +1,4 @@
-'use client';
-
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -11,9 +10,11 @@ import {
   Settings, 
   BarChart3,
   MessageSquare,
-  MoreVertical
+  MoreVertical,
+  User
 } from 'lucide-react';
 import Image from 'next/image';
+import { supabase } from '@/lib/supabaseClient';
 
 const navItems = [
   { label: 'Management', type: 'header' },
@@ -29,23 +30,39 @@ const navItems = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const [adminEmail, setAdminEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getAdmin = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setAdminEmail(user.email || null);
+      }
+    };
+    getAdmin();
+  }, []);
+
+  const adminName = adminEmail ? adminEmail.split('@')[0] : 'Admin';
 
   return (
     <aside className="w-64 flex-shrink-0 border-r border-white/5 bg-studio-black flex flex-col h-screen sticky top-0">
-      <div className="p-6 flex items-center gap-3">
-        <div className="bg-studio-gold size-10 rounded-lg flex items-center justify-center text-studio-black">
-          <Camera size={24} />
-        </div>
+      <div className="p-8 flex flex-col items-center text-center border-b border-white/5 mb-4">
         <div className="flex flex-col">
-          <h1 className="text-white text-base font-bold leading-none">Photo AI</h1>
-          <p className="text-slate-500 text-xs font-medium">Control Center</p>
+          <h2 className="text-2xl font-bold font-display uppercase tracking-[0.2em] text-white leading-none mb-1">
+            VIRTUAL <span className="text-studio-gold">STUDIO</span>
+          </h2>
+          <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-studio-gold/50 to-transparent my-2"></div>
+          <p className="text-[10px] text-studio-gold font-bold uppercase tracking-[0.3em] opacity-80">
+            Painel Administrativo
+          </p>
         </div>
       </div>
+      
       <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
         {navItems.map((item, i) => {
           if (item.type === 'header') {
             return (
-              <div key={i} className="text-xs font-bold text-gray-500 uppercase tracking-widest px-3 mb-4 mt-8 first:mt-4 font-display">
+              <div key={i} className="text-[10px] font-bold text-gray-600 uppercase tracking-[0.2em] px-3 mb-3 mt-6 first:mt-2 font-display">
                 {item.label}
               </div>
             );
@@ -58,33 +75,34 @@ export default function AdminSidebar() {
             <Link 
               key={i}
               href={item.href!} 
-              className={`flex items-center gap-3 px-3 py-3 rounded transition-colors group ${isActive ? 'bg-studio-gold/10 text-studio-gold border-r-2 border-studio-gold' : 'text-gray-400 hover:text-studio-gold'}`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-none transition-all group relative ${
+                isActive 
+                  ? 'bg-studio-gold/5 text-studio-gold' 
+                  : 'text-gray-500 hover:text-studio-gold hover:bg-white/[0.02]'
+              }`}
             >
-              <Icon size={18} />
-              <span className="text-sm font-medium uppercase tracking-wider font-display">{item.label}</span>
+              {isActive && (
+                <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-studio-gold shadow-[0_0_10px_rgba(212,175,55,0.5)]"></div>
+              )}
+              <Icon size={18} className={isActive ? 'text-studio-gold' : 'group-hover:text-studio-gold transition-colors'} />
+              <span className="text-[11px] font-bold uppercase tracking-widest font-display">{item.label}</span>
               {item.label === 'Mensagens' && (
-                <span className="ml-auto size-2 bg-red-500 rounded-full"></span>
+                <span className="ml-auto size-1.5 bg-studio-gold rounded-full shadow-[0_0_8px_rgba(212,175,55,1)]"></span>
               )}
             </Link>
           );
         })}
       </nav>
+
       <div className="p-4 border-t border-white/5">
-        <div className="flex items-center gap-3 p-2 bg-white/5 rounded-xl">
-          <div className="size-10 rounded-full border-2 border-studio-gold/20 overflow-hidden relative">
-            <Image 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_4fPLwv0ILRXegI4yYbvYBTywcE9uL_yL1Z_Jmq75sqNPfSmd4VzFTEVzdn4kyVqO-wCGewlfwx4WSJVK_RU31Zec45XWoZI-G94Ql4VueQEWBmGisdYWR29Q1F6h6JXvnQHbTQcYWM3eyu4OoZPib6JLZMC_vG7BXGzDUK4GdYJeSkun08-fRSrMAD5PIfJxitdi3wplfE8yWuOkYXHccsUoMjte8D0rUbrEVKtRhL94KcMIoz3T3r78G2EQec3VTr7Z1OIY5xdS"
-              alt="Admin"
-              fill
-              className="object-cover"
-              referrerPolicy="no-referrer"
-            />
+        <div className="flex items-center gap-3 p-3 bg-white/[0.02] border border-white/5 rounded-none hover:border-studio-gold/30 transition-all group">
+          <div className="size-10 rounded-full border border-studio-gold/30 flex items-center justify-center bg-studio-gold/10 group-hover:bg-studio-gold/20 transition-colors">
+            <User size={20} className="text-studio-gold" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold truncate text-white">Ricardo Admin</p>
-            <p className="text-xs text-slate-500 truncate">System Manager</p>
+            <p className="text-xs font-bold truncate text-white uppercase tracking-widest font-display">{adminName}</p>
+            <p className="text-[9px] text-slate-500 truncate uppercase tracking-tighter opacity-60">Admin Logado</p>
           </div>
-          <MoreVertical size={16} className="text-slate-400" />
         </div>
       </div>
     </aside>
