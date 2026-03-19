@@ -36,6 +36,9 @@ export default function TermosDeUso() {
 
           <h2 className="text-2xl font-bold text-white mt-10 mb-4 font-display">6. Modificações no Serviço</h2>
           <p>O Virtual Studio reserva-se o direito de modificar ou descontinuar, temporária ou permanentemente, o serviço com ou sem aviso prévio.</p>
+
+          <h2 className="text-2xl font-bold text-white mt-10 mb-4 font-display">7. Contato</h2>
+          <p>Para dúvidas sobre estes Termos de Uso, entre em contato através do e-mail: <a href="mailto:suporte@virtualstudio.click" className="text-studio-gold hover:underline">suporte@virtualstudio.click</a></p>
         </div>
       </div>
     </div>

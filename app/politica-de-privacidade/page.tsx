@@ -44,7 +44,7 @@ export default function PoliticaDePrivacidade() {
           <h2 className="text-2xl font-bold text-white mt-10 mb-4 font-display">6. Seus Direitos Legais</h2>
           <p>Sob certas circunstâncias, você tem direitos sob as leis de proteção de dados em relação aos seus dados pessoais, incluindo o direito de solicitar acesso, correção, apagamento (Direito ao Esquecimento) e restrição de processamento de seus dados pessoais.</p>
 
-          <p className="mt-8">Para exercer seus direitos ou para qualquer dúvida relacionada à privacidade, entre em contato através de nossos canais oficiais de suporte.</p>
+          <p className="mt-8 text-center border-t border-white/10 pt-8">Para exercer seus direitos ou para qualquer dúvida relacionada à privacidade, entre em contato através do e-mail: <a href="mailto:suporte@virtualstudio.click" className="text-studio-gold hover:underline">suporte@virtualstudio.click</a></p>
         </div>
       </div>
     </div>

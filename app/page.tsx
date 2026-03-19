@@ -633,12 +633,14 @@ export default function LandingPage() {
               <Image src="/logo.png" alt="Virtual Studio Logo" fill className="object-contain" />
             </div>
             <h4 className="font-display tracking-[0.3em] text-xl relative z-10">VIRTUAL STUDIO</h4>
-            <p className="text-gray-500 text-xs mt-2 uppercase relative z-10">© 2026 VIRTUAL STUDIO - TODOS OS DIREITOS RESERVADOS</p>
           </div>
-          <div className="flex justify-center gap-6 mb-12">
-            <a className="text-studio-gold hover:text-white transition" href="#"><Instagram size={20} /></a>
-            <a className="text-studio-gold hover:text-white transition" href="#"><Linkedin size={20} /></a>
-            <a className="text-studio-gold hover:text-white transition" href="#"><Twitter size={20} /></a>
+          <div className="mb-6 relative z-10">
+            <a href="mailto:suporte@virtualstudio.click" className="text-studio-gold hover:text-studio-gold-light transition-all text-sm tracking-[0.2em] font-display uppercase">
+              suporte@virtualstudio.click
+            </a>
+          </div>
+          <div className="mb-12 relative z-10">
+            <p className="text-gray-500 text-xs uppercase">© 2026 VIRTUAL STUDIO - TODOS OS DIREITOS RESERVADOS</p>
           </div>
           <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 mb-12 text-xs text-gray-400 uppercase tracking-widest font-light">
             <Link href="/termos-de-uso" className="hover:text-studio-gold transition">Termos de Uso</Link>
