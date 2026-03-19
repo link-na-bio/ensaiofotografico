@@ -463,7 +463,7 @@ export default function LandingPage() {
       <section className="py-24 bg-studio-black border-t border-white/5" id="precos">
         <div className="container mx-auto px-6">
           <div className="text-center mb-20">
-            <motion.h2 
+            <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -476,18 +476,18 @@ export default function LandingPage() {
 
           <div className="space-y-12">
             {/* Pacote 1: ESSENTIAL - Staggered Left */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               className="flex flex-col md:flex-row items-center gap-8 md:gap-16 p-8 md:p-12 bg-studio-gray/10 border border-white/5 hover:border-studio-gold/30 transition-all duration-500 rounded-2xl group"
             >
               <div className="md:w-1/3 relative aspect-square rounded-xl overflow-hidden shadow-2xl">
-                 <Image src="/corporativo.png" alt="Essential Package" fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
-                 <div className="absolute inset-0 bg-gradient-to-t from-studio-black/80 to-transparent"></div>
-                 <div className="absolute bottom-4 left-4">
-                   <span className="text-studio-gold font-display text-lg">ESSENTIAL</span>
-                 </div>
+                <Image src="/corporativo.png" alt="Essential Package" fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-studio-black/80 to-transparent"></div>
+                <div className="absolute bottom-4 left-4">
+                  <span className="text-studio-gold font-display text-lg">ESSENTIAL</span>
+                </div>
               </div>
               <div className="md:w-2/3 flex flex-col justify-center">
                 <h3 className="text-2xl md:text-3xl mb-4 text-white">O Começo da Sua Nova Versão</h3>
@@ -509,15 +509,15 @@ export default function LandingPage() {
             </motion.div>
 
             {/* Pacote 2: PRO - Full Width Highlight */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               className="relative p-8 md:p-16 bg-studio-black border-2 border-studio-gold rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(195,157,93,0.15)] group"
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-studio-gold/10 blur-[100px] pointer-events-none"></div>
-              <div className="absolute -top-1 left-1/2 -translate-x-1/2 bg-studio-gold text-studio-black text-[10px] font-bold px-6 py-2 uppercase tracking-widest rounded-b-lg">Preferido pelos Leads</div>
-              
+              <div className="absolute -top-1 left-1/2 -translate-x-1/2 bg-studio-gold text-studio-black text-[10px] font-bold px-6 py-2 uppercase tracking-widest rounded-b-lg">O Mais Escolhido</div>
+
               <div className="flex flex-col md:flex-row gap-12 items-center">
                 <div className="md:w-1/2">
                   <h3 className="text-3xl md:text-5xl mb-6 text-studio-gold italic">PACOTE PRO</h3>
@@ -554,18 +554,18 @@ export default function LandingPage() {
             </motion.div>
 
             {/* Pacote 3: ULTRA - Staggered Right */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               className="flex flex-col md:flex-row-reverse items-center gap-8 md:gap-16 p-8 md:p-12 bg-studio-gray/10 border border-white/5 hover:border-studio-gold/30 transition-all duration-500 rounded-2xl group"
             >
               <div className="md:w-1/3 relative aspect-square rounded-xl overflow-hidden shadow-2xl">
-                 <Image src="/estilo-cinematográfico.jpeg" alt="Ultra Package" fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
-                 <div className="absolute inset-0 bg-gradient-to-t from-studio-black/80 to-transparent"></div>
-                 <div className="absolute bottom-4 left-4">
-                   <span className="text-studio-gold font-display text-lg">ULTRA</span>
-                 </div>
+                <Image src="/estilo-cinematográfico.jpeg" alt="Ultra Package" fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-studio-black/80 to-transparent"></div>
+                <div className="absolute bottom-4 left-4">
+                  <span className="text-studio-gold font-display text-lg">ULTRA</span>
+                </div>
               </div>
               <div className="md:w-2/3 flex flex-col justify-center">
                 <h3 className="text-2xl md:text-3xl mb-4 text-white">Domínio Editorial e Escala Global</h3>
