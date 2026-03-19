@@ -393,31 +393,31 @@ export default function LandingPage() {
             <p className="text-gray-400 tracking-widest uppercase text-sm font-light">Escolha a escala da sua transformação visual</p>
           </div>
 
-          <div className="space-y-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Pacote 1: ESSENTIAL */}
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="flex flex-col md:flex-row items-center gap-8 md:gap-16 p-8 md:p-12 bg-studio-gray/10 border border-white/5 hover:border-studio-gold/30 transition-all duration-500 rounded-2xl group"
+              className="flex flex-col bg-studio-gray/10 border border-white/5 hover:border-studio-gold/30 transition-all duration-500 rounded-3xl group overflow-hidden"
             >
-              <div className="w-full md:w-1/3 relative aspect-square rounded-xl overflow-hidden shadow-2xl order-1">
+              <div className="relative aspect-square w-full overflow-hidden">
                 <Image src="/corporativo.png" alt="Essential Package" fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
-                <div className="absolute inset-0 bg-gradient-to-t from-studio-black/80 to-transparent"></div>
-                <div className="absolute bottom-4 left-4">
-                  <span className="text-studio-gold font-display text-lg">ESSENTIAL</span>
+                <div className="absolute inset-0 bg-gradient-to-t from-studio-black/80 via-transparent to-transparent"></div>
+                <div className="absolute bottom-6 left-6">
+                  <span className="text-studio-gold font-display text-xl tracking-widest">ESSENTIAL</span>
                 </div>
               </div>
-              <div className="md:w-2/3 flex flex-col justify-center order-2">
-                <h3 className="text-2xl md:text-3xl mb-4 text-white">O Começo da Sua Nova Versão</h3>
-                <p className="text-gray-400 mb-8 leading-relaxed font-light text-lg">
-                  Ideal para quem precisa de um impacto imediato. Receba <strong className="text-white">10 fotos de alta resolução</strong> em até 2 estilos distintos. Perfeito para atualizar seu perfil no LinkedIn ou WhatsApp com uma imagem que transmite confiança e profissionalismo de elite.
+              <div className="p-8 flex flex-col flex-grow">
+                <h3 className="text-xl mb-4 text-white font-bold uppercase tracking-tight">O Começo da Sua Nova Versão</h3>
+                <p className="text-gray-400 mb-8 leading-relaxed font-light text-sm flex-grow">
+                  Ideal para quem precisa de um impacto imediato. Receba <strong className="text-white text-base">10 fotos de alta resolução</strong> em até 2 estilos distintos. Perfeito para seu perfil no LinkedIn ou WhatsApp.
                 </p>
-                <div className="flex flex-wrap gap-4 mb-8">
-                  <div className="flex items-center gap-2 text-xs text-gray-300 bg-white/5 px-3 py-1 rounded-full border border-white/10">
+                <div className="space-y-3 pt-6 border-t border-white/5">
+                  <div className="flex items-center gap-3 text-xs text-gray-300">
                     <Check size={14} className="text-studio-gold" /> Curadoria Humana
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-300 bg-white/5 px-3 py-1 rounded-full border border-white/10">
+                  <div className="flex items-center gap-3 text-xs text-gray-300">
                     <Check size={14} className="text-studio-gold" /> Entrega em 24h
                   </div>
                 </div>
@@ -426,68 +426,66 @@ export default function LandingPage() {
 
             {/* Pacote 2: PRO */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="relative p-8 md:p-16 bg-studio-black border-2 border-studio-gold rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(195,157,93,0.15)] group"
+              transition={{ delay: 0.1 }}
+              className="flex flex-col bg-studio-gray/10 border border-white/5 hover:border-studio-gold/30 transition-all duration-500 rounded-3xl group overflow-hidden"
             >
-              <div className="absolute -top-1 left-1/2 -translate-x-1/2 bg-studio-gold text-studio-black text-[10px] font-bold px-6 py-2 uppercase tracking-widest rounded-b-lg">O Mais Escolhido</div>
-              <div className="absolute top-0 right-0 w-64 h-64 bg-studio-gold/10 blur-[100px] pointer-events-none"></div>
-
-              <div className="flex flex-col md:flex-row gap-12 items-center">
-                <div className="md:w-1/2 order-2 md:order-1">
-                  <h3 className="text-3xl md:text-5xl mb-6 text-studio-gold italic">PACOTE PRO</h3>
-                  <p className="text-xl md:text-2xl text-white mb-6 font-display leading-tight">MOLDE UMA IDENTIDADE VISUAL COMPLETA E INESQUECÍVEL</p>
-                  <p className="text-gray-300 mb-8 leading-relaxed font-light text-lg">
-                    A escolha definitiva para empreendedores e criadores. Com <strong className="text-white">25 fotos de nível editorial</strong> em até 5 estilos, você terá conteúdo para meses de postagens de alta autoridade. Nossa IA e curadores trabalham para garantir que sua essência brilhe em cada cenário global.
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
-                    <div className="flex items-center gap-3 text-sm text-gray-200">
-                      <Star size={18} className="text-studio-gold fill-studio-gold" /> 5 Estilos Exclusivos
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-gray-200">
-                      <CheckCheck size={18} className="text-studio-gold" /> Suporte Prioritário
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-gray-200">
-                      <Zap size={18} className="text-studio-gold" /> Processamento Turbo
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-gray-200">
-                      <Check size={18} className="text-studio-gold" /> Licença Comercial Full
-                    </div>
-                  </div>
+              <div className="relative aspect-square w-full overflow-hidden">
+                <Image src="/editorial-de-moda.png" alt="Pro Package" fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-studio-black/80 via-transparent to-transparent"></div>
+                <div className="absolute bottom-6 left-6">
+                  <span className="text-studio-gold font-display text-xl tracking-widest">PRO</span>
                 </div>
-                <div className="w-full md:w-1/2 relative order-1 md:order-2">
-                  <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 md:rotate-2 group-hover:rotate-0 transition-transform duration-700">
-                    <Image src="/editorial-de-moda.png" alt="Pro Package" fill className="object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-tr from-studio-black/40 to-transparent"></div>
+              </div>
+              <div className="p-8 flex flex-col flex-grow">
+                <h3 className="text-xl mb-4 text-white font-bold uppercase tracking-tight">Identidade Visual Completa</h3>
+                <p className="text-gray-400 mb-8 leading-relaxed font-light text-sm flex-grow">
+                  A escolha para empreendedores e criadores. Com <strong className="text-white text-base">25 fotos de nível editorial</strong> em até 5 estilos. Conteúdo para meses de postagens de alta autoridade e confiança.
+                </p>
+                <div className="space-y-3 pt-6 border-t border-white/5">
+                  <div className="flex items-center gap-3 text-xs text-gray-300">
+                    <Star size={14} className="text-studio-gold fill-studio-gold" /> 5 Estilos Exclusivos
                   </div>
-                  <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-studio-gold/20 backdrop-blur-xl rounded-full flex items-center justify-center border border-studio-gold/30 -z-10 animate-pulse hidden md:flex"></div>
+                  <div className="flex items-center gap-3 text-xs text-gray-300">
+                    <CheckCheck size={14} className="text-studio-gold" /> Suporte Prioritário
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-gray-300">
+                    <Zap size={14} className="text-studio-gold" /> Processamento Turbo
+                  </div>
                 </div>
               </div>
             </motion.div>
 
             {/* Pacote 3: ULTRA */}
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="flex flex-col md:flex-row-reverse items-center gap-8 md:gap-16 p-8 md:p-12 bg-studio-gray/10 border border-white/5 hover:border-studio-gold/30 transition-all duration-500 rounded-2xl group"
+              transition={{ delay: 0.2 }}
+              className="flex flex-col bg-studio-gray/10 border border-white/5 hover:border-studio-gold/30 transition-all duration-500 rounded-3xl group overflow-hidden"
             >
-              <div className="w-full md:w-1/3 relative aspect-square rounded-xl overflow-hidden shadow-2xl order-1">
+              <div className="relative aspect-square w-full overflow-hidden">
                 <Image src="/estilo-cinematográfico.jpeg" alt="Ultra Package" fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
-                <div className="absolute inset-0 bg-gradient-to-t from-studio-black/80 to-transparent"></div>
-                <div className="absolute bottom-4 left-4">
-                  <span className="text-studio-gold font-display text-lg">ULTRA</span>
+                <div className="absolute inset-0 bg-gradient-to-t from-studio-black/80 via-transparent to-transparent"></div>
+                <div className="absolute bottom-6 left-6">
+                  <span className="text-studio-gold font-display text-xl tracking-widest">ULTRA</span>
                 </div>
               </div>
-              <div className="md:w-2/3 flex flex-col justify-center order-2">
-                <h3 className="text-2xl md:text-3xl mb-4 text-white">Domínio Editorial e Escala Global</h3>
-                <p className="text-gray-400 mb-8 leading-relaxed font-light text-lg">
-                  Para quem não aceita nada menos que o auge. <strong className="text-white">50 fotos lendárias</strong> abrangendo até 10 estilos cinematográficos. Transforme sua imagem em um império visual com fotos que parecem ter saído das maiores revistas de moda do mundo.
+              <div className="p-8 flex flex-col flex-grow">
+                <h3 className="text-xl mb-4 text-white font-bold uppercase tracking-tight">Domínio Editorial e Escala Global</h3>
+                <p className="text-gray-400 mb-8 leading-relaxed font-light text-sm flex-grow">
+                  Para quem não aceita nada menos que o auge. <strong className="text-white text-base">50 fotos lendárias</strong> em até 10 estilos cinematográficos. Transforme sua imagem em um império visual de elite.
                 </p>
-                <ul className="space-y-3 mb-8">
-                  <li className="flex items-center gap-3 text-sm text-gray-300 font-light italic">"A maior diversidade de poses e cenários para sua marca."</li>
-                </ul>
+                <div className="space-y-3 pt-6 border-t border-white/5">
+                  <div className="flex items-center gap-3 text-xs text-gray-300 italic">
+                    <Check size={14} className="text-studio-gold" /> Estilos revistas de moda
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-gray-300 italic">
+                    <Check size={14} className="text-studio-gold" /> "A maior diversidade de poses"
+                  </div>
+                </div>
               </div>
             </motion.div>
           </div>
