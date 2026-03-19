@@ -437,14 +437,14 @@ export default function LandingPage() {
             {/* Navigation Arrows */}
             <button
               onClick={prevTestimonial}
-              className="absolute left-0 lg:left-[5%] xl:left-[10%] top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-studio-gray/80 border border-white/10 flex items-center justify-center text-white hover:bg-studio-gold hover:border-studio-gold hover:text-black transition-all z-50 backdrop-blur-md shadow-lg"
+              className="absolute left-0 lg:left-[5%] xl:left-[10%] top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-studio-gray/80 border border-white/10 hidden md:flex items-center justify-center text-white hover:bg-studio-gold hover:border-studio-gold hover:text-black transition-all z-50 backdrop-blur-md shadow-lg"
               aria-label="Anterior"
             >
               <ChevronLeft size={24} />
             </button>
             <button
               onClick={nextTestimonial}
-              className="absolute right-0 lg:right-[5%] xl:right-[10%] top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-studio-gray/80 border border-white/10 flex items-center justify-center text-white hover:bg-studio-gold hover:border-studio-gold hover:text-black transition-all z-50 backdrop-blur-md shadow-lg"
+              className="absolute right-0 lg:right-[5%] xl:right-[10%] top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-studio-gray/80 border border-white/10 hidden md:flex items-center justify-center text-white hover:bg-studio-gold hover:border-studio-gold hover:text-black transition-all z-50 backdrop-blur-md shadow-lg"
               aria-label="Próximo"
             >
               <ChevronRight size={24} />
