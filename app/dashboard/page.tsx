@@ -51,10 +51,37 @@ export default function Dashboard() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-
   // Estados do Usuário Logado
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [pedidos, setPedidos] = useState<any[]>([]);
+
+  // Buscar Pedidos do Usuário
+  const fetchPedidos = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('pedidos')
+        .select('*')
+        .eq('user_id', userId)
+        .order('criado_em', { ascending: false });
+
+      if (error) throw error;
+      setPedidos(data || []);
+    } catch (error) {
+      console.error('Erro ao buscar pedidos:', error);
+    }
+  };
+
+  // Helper: Formata data para o padrão brasileiro
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   // EFEITO DE BLINDAGEM: Roda assim que a página abre
   useEffect(() => {
@@ -69,6 +96,8 @@ export default function Dashboard() {
         setUserEmail(session.user.email ?? '');
         setAvatarUrl(session.user.user_metadata?.avatar_url || null);
         setIsLoading(false);
+        // Buscar os pedidos reais
+        fetchPedidos(session.user.id);
       }
     };
 
@@ -121,6 +150,7 @@ export default function Dashboard() {
   };
 
   const handleSendToProduction = async () => {
+    // 1. Validar se o formulário está preenchido
     if (!selectedPackage) {
       alert("Selecione um pacote primeiro.");
       return;
@@ -130,38 +160,67 @@ export default function Dashboard() {
       return;
     }
     if (selectedFiles.length < 5) {
-      alert("Envie pelo menos 5 fotos de rosto.");
+      alert("Envie pelo menos 5 fotos de rosto para treinamento.");
       return;
     }
 
     setIsUploading(true);
 
     try {
+      // 2. Pegar os dados do usuário logado diretamente do Supabase
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+      if (authError || !user) {
+        throw new Error("Usuário não autenticado. Por favor, faça login novamente.");
+      }
+
+      const userId = user.id;
+      const userEmail = user.email;
+
+      // 3. Fazer o upload dos arquivos para o Storage
       for (const file of selectedFiles) {
         const fileName = `${Date.now()}_${file.name}`;
         const filePath = `${userEmail}/${fileName}`;
 
-        const { error } = await supabase.storage
+        const { error: storageError } = await supabase.storage
           .from('fotos_clientes')
           .upload(filePath, file);
 
-        if (error) throw error;
+        if (storageError) throw storageError;
       }
 
-      // Sucesso!
+      // 4. Gravar os dados do pedido na tabela 'pedidos'
+      const { error: dbError } = await supabase
+        .from('pedidos')
+        .insert({
+          user_id: userId,
+          user_email: userEmail,
+          pacote: selectedPackage,
+          estilos: selectedStyles,
+          status: 'Aguardando Produção' // Valor padrão, mas reforçado aqui
+        });
+
+      if (dbError) throw dbError;
+
+      // 5. Sucesso Total: Limpeza e Redirecionamento Visual
+      setAlertMessage("Pedido enviado com sucesso! Em breve sua prévia estará disponível na aba Meus Ensaios.");
       setShowSuccessAlert(true);
       setActiveTab('home');
-      // Resetar estados do pedido
+
+      // Limpar estados do pedido
       setSelectedPackage(null);
       setSelectedStyles([]);
       setSelectedFiles([]);
-      
+
+      // Recarregar a lista de pedidos para atualizar a Home e Meus Ensaios
+      fetchPedidos(userId);
+
       // Esconder alerta após 5 segundos
       setTimeout(() => setShowSuccessAlert(false), 5000);
 
-    } catch (error) {
-      console.error('Erro ao enviar pedido:', error);
-      alert("Erro ao enviar pedido. Tente novamente.");
+    } catch (error: any) {
+      console.error('Erro ao processar pedido:', error);
+      alert(`Falha no envio: ${error.message || "Tente novamente em alguns instantes."}`);
     } finally {
       setIsUploading(false);
     }
@@ -328,20 +387,37 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-y-auto bg-[#121212]">
+        {/* Aba Home */}
         {activeTab === 'home' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="home">
             <header className="mb-10">
               <h2 className="text-3xl font-bold font-display uppercase tracking-wider">Bem-vindo ao Virtual Studio, <span className="text-studio-gold">{userEmail?.split('@')[0]}</span></h2>
               <p className="text-gray-500 mt-2">Sua jornada para a imagem profissional perfeita começa aqui.</p>
             </header>
 
-            {/* Grid de Status Minimalista */}
+            {/* Grid de Status Dinâmico */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
               {[
-                { label: 'Pedidos Recentes', val: '01', icon: Clock },
-                { label: 'Em Processo', val: '00', icon: Zap },
-                { label: 'Prévia Disponível', val: '00', icon: LayoutGrid },
-                { label: 'Ensaios Concluídos', val: '00', icon: CheckCircle2 },
+                {
+                  label: 'Pedidos Totais',
+                  val: pedidos.length.toString().padStart(2, '0'),
+                  icon: Clock
+                },
+                {
+                  label: 'Em Processo',
+                  val: pedidos.filter(p => p.status === 'Aguardando Produção' || p.status === 'Em Produção').length.toString().padStart(2, '0'),
+                  icon: Zap
+                },
+                {
+                  label: 'Prévia Disponível',
+                  val: pedidos.filter(p => p.status === 'Prévia Disponível').length.toString().padStart(2, '0'),
+                  icon: LayoutGrid
+                },
+                {
+                  label: 'Ensaios Concluídos',
+                  val: pedidos.filter(p => p.status === 'Finalizado').length.toString().padStart(2, '0'),
+                  icon: CheckCircle2
+                },
               ].map((stat, i) => (
                 <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-xl hover:border-studio-gold/30 transition-colors group">
                   <div className="flex justify-between items-start mb-4">
@@ -352,6 +428,44 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
+
+            {/* Pedidos Recentes */}
+            {pedidos.length > 0 && (
+              <section className="mb-12">
+                <h3 className="text-lg font-bold font-display uppercase tracking-widest mb-6 flex items-center gap-3">
+                  <Clock size={18} className="text-studio-gold" />
+                  Pedidos Recentes
+                </h3>
+                <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-white/5 border-b border-white/10">
+                      <tr>
+                        <th className="px-6 py-4 text-gray-400 font-medium uppercase tracking-wider text-[10px]">Pacote</th>
+                        <th className="px-6 py-4 text-gray-400 font-medium uppercase tracking-wider text-[10px]">Data</th>
+                        <th className="px-6 py-4 text-gray-400 font-medium uppercase tracking-wider text-[10px]">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {pedidos.slice(0, 3).map((pedido) => (
+                        <tr key={pedido.id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="px-6 py-4 font-bold uppercase tracking-widest text-xs text-studio-gold">{pedido.pacote}</td>
+                          <td className="px-6 py-4 text-gray-500 text-xs">{formatDate(pedido.criado_em)}</td>
+                          <td className="px-6 py-4">
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                              pedido.status === 'Finalizado' ? 'bg-emerald-500/10 text-emerald-500' :
+                              pedido.status === 'Em Produção' ? 'bg-blue-500/10 text-blue-500' :
+                              'bg-amber-500/10 text-amber-500'
+                            }`}>
+                              {pedido.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            )}
 
             {/* Como funciona o seu estúdio */}
             <section className="bg-studio-gold/5 border border-studio-gold/10 p-8 rounded-2xl">
@@ -378,32 +492,73 @@ export default function Dashboard() {
           </motion.div>
         )}
 
+        {/* Aba Meus Ensaios */}
         {activeTab === 'ensaios' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="ensaios">
             <header className="mb-8">
               <h2 className="text-3xl font-bold font-display uppercase tracking-wider">Meus Ensaios</h2>
               <p className="text-gray-500">Acesse aqui todos os seus trabalhos finalizados.</p>
             </header>
 
-            <div className="min-h-[400px] flex flex-col items-center justify-center text-center p-12 bg-white/5 border border-dashed border-white/10 rounded-2xl">
-              <div className="w-16 h-16 rounded-full bg-studio-gold/10 text-studio-gold flex items-center justify-center mb-6">
-                <Archive size={32} />
+            {pedidos.length === 0 ? (
+              <div className="min-h-[400px] flex flex-col items-center justify-center text-center p-12 bg-white/5 border border-dashed border-white/10 rounded-2xl">
+                <div className="w-16 h-16 rounded-full bg-studio-gold/10 text-studio-gold flex items-center justify-center mb-6">
+                  <Archive size={32} />
+                </div>
+                <h3 className="text-xl font-bold font-display uppercase tracking-widest">Você ainda não possui ensaios</h3>
+                <p className="text-gray-500 text-sm mt-3 max-w-xs leading-relaxed">Inicie um novo pedido para começar a transformar suas fotos com nossa tecnologia.</p>
+                <button
+                  onClick={() => setActiveTab('novo')}
+                  className="mt-8 px-8 py-3 bg-studio-gold text-studio-black font-bold uppercase tracking-widest hover:bg-studio-gold-light transition-all flex items-center gap-2"
+                >
+                  <PlusCircle size={18} />
+                  Novo Pedido
+                </button>
               </div>
-              <h3 className="text-xl font-bold font-display uppercase tracking-widest">Você ainda não possui ensaios finalizados</h3>
-              <p className="text-gray-500 text-sm mt-3 max-w-xs leading-relaxed">Inicie um novo pedido para começar a transformar suas fotos com nossa tecnologia.</p>
-              <button
-                onClick={() => setActiveTab('novo')}
-                className="mt-8 px-8 py-3 bg-studio-gold text-studio-black font-bold uppercase tracking-widest hover:bg-studio-gold-light transition-all flex items-center gap-2"
-              >
-                <PlusCircle size={18} />
-                Novo Pedido
-              </button>
-            </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {pedidos.map((pedido) => (
+                  <div key={pedido.id} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden group hover:border-studio-gold/30 transition-all flex flex-col">
+                    <div className="p-6 flex-1">
+                      <div className="flex justify-between items-start mb-4">
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                          pedido.status === 'Finalizado' ? 'bg-emerald-500/10 text-emerald-500' :
+                          pedido.status === 'Em Produção' ? 'bg-blue-500/10 text-blue-500' :
+                          'bg-amber-500/10 text-amber-500'
+                        }`}>
+                          {pedido.status}
+                        </span>
+                        <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{formatDate(pedido.criado_em).split(',')[0]}</span>
+                      </div>
+
+                      <h4 className="text-lg font-bold font-display uppercase tracking-widest text-studio-gold mb-2">{pedido.pacote}</h4>
+
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {pedido.estilos?.map((estilo: string) => (
+                          <span key={estilo} className="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] uppercase tracking-wider text-gray-400">
+                            {estilo}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-white/5 border-t border-white/10 flex justify-between items-center mt-auto">
+                      <div className="flex items-center gap-2 text-[10px] text-gray-500 uppercase tracking-widest font-bold">
+                        <Camera size={14} className="text-studio-gold" />
+                        ID: {pedido.id.slice(0, 8)}
+                      </div>
+                      <ChevronRight size={16} className="text-gray-600 group-hover:text-studio-gold group-hover:translate-x-1 transition-all" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
 
+        {/* Aba Novo Pedido */}
         {activeTab === 'novo' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="novo">
             <header className="mb-8">
               <h2 className="text-2xl font-bold font-display uppercase tracking-widest">Configurar Novo Ensaio</h2>
               <p className="text-gray-500">Personalize seu pedido para obter o melhor resultado.</p>
@@ -495,9 +650,9 @@ export default function Dashboard() {
                     <span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">3</span>
                     <h3 className="text-xl font-bold font-display uppercase tracking-widest">Fotos de Referência</h3>
                   </div>
-                  
+
                   <input type="file" multiple accept="image/jpeg, image/png, image/webp" hidden ref={fileInputRef} onChange={handleFileChange} />
-                  
+
                   <div
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={handleDrop}
@@ -552,13 +707,13 @@ export default function Dashboard() {
                       </span>
                     </div>
                   </div>
-                  
+
                   <button
                     onClick={handleSendToProduction}
                     disabled={isUploading}
                     className="w-full py-4 bg-studio-gold text-studio-black font-display font-black uppercase tracking-widest hover:bg-studio-gold-light transition-all disabled:opacity-50 rounded-lg shadow-xl shadow-studio-gold/10"
                   >
-                    {isUploading ? 'Produzindo...' : 'Enviar para Produção'}
+                    {isUploading ? 'Enviando...' : 'Enviar para Produção'}
                   </button>
                 </div>
               </div>
@@ -566,8 +721,9 @@ export default function Dashboard() {
           </motion.div>
         )}
 
+        {/* Aba Perfil */}
         {activeTab === 'perfil' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="perfil" className="max-w-4xl">
             <header className="mb-10">
               <h2 className="text-3xl font-bold font-display uppercase tracking-wider">Meu Perfil</h2>
               <p className="text-gray-500 mt-2">Gerencie suas informações e segurança da conta.</p>
@@ -595,7 +751,7 @@ export default function Dashboard() {
                   </div>
                   <h3 className="font-bold text-lg font-display uppercase tracking-widest">{userEmail?.split('@')[0]}</h3>
                   <p className="text-gray-500 text-xs truncate mt-1">{userEmail}</p>
-                  
+
                   <div className="mt-8 pt-8 border-t border-white/5 space-y-4 text-left">
                     <div className="flex justify-between items-center text-[10px] uppercase tracking-[0.1em]">
                       <span className="text-gray-500 text-xs">Status da Conta</span>
@@ -616,7 +772,7 @@ export default function Dashboard() {
                     <Zap size={18} className="text-studio-gold" />
                     Segurança da Conta
                   </h3>
-                  
+
                   <div className="space-y-6">
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-2 font-bold">Nova Senha</label>
@@ -638,7 +794,7 @@ export default function Dashboard() {
                         className="w-full bg-white/5 border border-white/10 py-3 px-4 text-white focus:outline-none focus:border-studio-gold transition-colors rounded-lg"
                       />
                     </div>
-                    
+
                     <button
                       type="submit"
                       disabled={isUpdatingProfile || !newPassword}
