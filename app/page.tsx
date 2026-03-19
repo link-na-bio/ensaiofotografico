@@ -65,13 +65,13 @@ export default function LandingPage() {
   const cardRef2 = useRef(null);
   const cardRef3 = useRef(null);
 
-  const { scrollYProgress: s1 } = useScroll({ target: cardRef1, offset: ["start end", "center center"] });
-  const { scrollYProgress: s2 } = useScroll({ target: cardRef2, offset: ["start end", "center center"] });
-  const { scrollYProgress: s3 } = useScroll({ target: cardRef3, offset: ["start end", "center center"] });
+  const { scrollYProgress: s1 } = useScroll({ target: cardRef1, offset: ["start end", "end start"] });
+  const { scrollYProgress: s2 } = useScroll({ target: cardRef2, offset: ["start end", "end start"] });
+  const { scrollYProgress: s3 } = useScroll({ target: cardRef3, offset: ["start end", "end start"] });
 
-  const filter1 = useTransform(s1, [0, 1], ["grayscale(100%)", "grayscale(0%)"]);
-  const filter2 = useTransform(s2, [0, 1], ["grayscale(100%)", "grayscale(0%)"]);
-  const filter3 = useTransform(s3, [0, 1], ["grayscale(100%)", "grayscale(0%)"]);
+  const filter1 = useTransform(s1, [0, 0.3], ["grayscale(100%)", "grayscale(0%)"]);
+  const filter2 = useTransform(s2, [0, 0.3], ["grayscale(100%)", "grayscale(0%)"]);
+  const filter3 = useTransform(s3, [0, 0.3], ["grayscale(100%)", "grayscale(0%)"]);
 
   // Função matemática para o loop infinito
   const getOffset = (index: number) => {
