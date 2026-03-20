@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -19,17 +19,19 @@ import {
   CheckCircle2,
   X,
   Copy,
-  QrCode
+  QrCode,
+  UploadCloud,
+  FileImage
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 // ============================================================================
-// ⚠️ BRUNO: COLOQUE OS SEUS CÓDIGOS "PIX COPIA E COLA" REAIS AQUI ABAIXO ⚠️
+// ⚠️ CHAVES PIX REAIS DO VIRTUAL STUDIO ⚠️
 // ============================================================================
 const PACOTES_INFO: Record<string, { nome: string, preco: number, fotos: number, icon: any, qrCodeImg: string, copiaECola: string }> = {
-  'basico': { nome: 'Essencial', preco: 89.90, fotos: 10, icon: User, qrCodeImg: '/pix-essencial.png', copiaECola: '0002012636br.gov.bcb.pix0114+5561999999999520400005303986540589.905802BR5913Virtual Studio6008Brasilia62070503***6304ABCD' },
-  'popular': { nome: 'Premium', preco: 149.90, fotos: 25, icon: Star, qrCodeImg: '/pix-premium.png', copiaECola: '0002012636br.gov.bcb.pix0114+55619999999995204000053039865406149.905802BR5913Virtual Studio6008Brasilia62070503***6304EFGH' },
-  'pro': { nome: 'Elite', preco: 247.90, fotos: 50, icon: Zap, qrCodeImg: '/pix-elite.png', copiaECola: '0002012636br.gov.bcb.pix0114+55619999999995204000053039865406247.905802BR5913Virtual Studio6008Brasilia62070503***6304IJKL' },
+  'basico': { nome: 'Essencial', preco: 89.90, fotos: 10, icon: User, qrCodeImg: '/pix-essencial.png', copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c520400005303986540589.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62170513VIRTUALSTUDIO6304B78D' },
+  'popular': { nome: 'Premium', preco: 149.90, fotos: 25, icon: Star, qrCodeImg: '/pix-premium.png', copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c5204000053039865406149.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62170513VIRTUALSTUDIO6304F417' },
+  'pro': { nome: 'Elite', preco: 247.90, fotos: 50, icon: Zap, qrCodeImg: '/pix-elite.png', copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c5204000053039865406247.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62170513VIRTUALSTUDIO6304B4F6' },
   // Fallbacks:
   'essencial': { nome: 'Essencial', preco: 89.90, fotos: 10, icon: User, qrCodeImg: '/pix-essencial.png', copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c520400005303986540589.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62170513VIRTUALSTUDIO6304B78D' },
   'premium': { nome: 'Premium', preco: 149.90, fotos: 25, icon: Star, qrCodeImg: '/pix-premium.png', copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c5204000053039865406149.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62170513VIRTUALSTUDIO6304F417' },
@@ -42,15 +44,19 @@ function CheckoutContent() {
   const orderId = searchParams.get('orderId');
 
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const [pedido, setPedido] = useState<any>(null);
+  const [previewPhotos, setPreviewPhotos] = useState<string[]>([]);
 
-  // Estados do Modal PIX
+  // Estados do Modal PIX e Comprovante
   const [showPixModal, setShowPixModal] = useState(false);
   const [isConfirmingPix, setIsConfirmingPix] = useState(false);
   const [copied, setCopied] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [comprovante, setComprovante] = useState<File | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -67,7 +73,8 @@ function CheckoutContent() {
           return;
         }
 
-        const userId = session.user.id;
+        const currentUserId = session.user.id;
+        setUserId(currentUserId);
         setUserEmail(session.user.email ?? '');
         setAvatarUrl(session.user.user_metadata?.avatar_url || null);
 
@@ -78,9 +85,22 @@ function CheckoutContent() {
           .single();
 
         if (orderError || !orderData) throw new Error("Erro ao buscar detalhes do pedido.");
-        if (orderData.user_id !== userId) throw new Error("Acesso negado.");
+        if (orderData.user_id !== currentUserId) throw new Error("Acesso negado.");
 
         setPedido(orderData);
+
+        const path = `${currentUserId}/${orderId}/`;
+        const { data: files, error: filesError } = await supabase.storage.from('previa_ensaios').list(path);
+        if (filesError) throw filesError;
+
+        const validFiles = files ? files.filter(f => f.name !== '.emptyFolderPlaceholder') : [];
+        const urlPromises = validFiles.map(async (file) => {
+          const { data, error } = await supabase.storage.from('previa_ensaios').createSignedUrl(`${path}${file.name}`, 3600);
+          if (error) throw error;
+          return data.signedUrl;
+        });
+
+        setPreviewPhotos(await Promise.all(urlPromises));
       } catch (error: any) {
         console.error(error);
         alert(error.message);
@@ -98,43 +118,77 @@ function CheckoutContent() {
     router.push('/login');
   };
 
-  // Abre o Modal do PIX
   const handleOpenPix = () => {
     setShowPixModal(true);
   };
 
-  // Copia o código PIX
   const handleCopyPix = (codigo: string) => {
     navigator.clipboard.writeText(codigo);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Confirmação de Pagamento PIX (Blindada - Anti-Calote)
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setComprovante(e.target.files[0]);
+    }
+  };
+
+  // Confirmação de Pagamento PIX com Upload Obrigatório
   const handleConfirmPix = async () => {
+    if (!comprovante) {
+      alert("Por favor, anexe a foto ou PDF do comprovante para continuarmos.");
+      return;
+    }
+
     setIsConfirmingPix(true);
 
-    // Simula envio do aviso para o banco de dados
-    setTimeout(async () => {
-      try {
-        // MUDA O STATUS PARA ANÁLISE, E NÃO PARA CONCLUÍDO!
-        const { error } = await supabase
-          .from('pedidos')
-          .update({ status: 'Pagamento em Análise' })
-          .eq('id', orderId);
+    try {
+      // 1. Upload do comprovante no Bucket
+      const fileExt = comprovante.name.split('.').pop();
+      const fileName = `comprovante_${orderId}_${Date.now()}.${fileExt}`;
+      const filePath = `${userId}/${fileName}`;
 
-        if (error) throw error;
+      const { error: uploadError } = await supabase.storage
+        .from('comprovantes_pix')
+        .upload(filePath, comprovante);
 
-        setShowPixModal(false);
-        // Mensagem clara ajustando a expectativa do cliente
-        alert("Aviso de pagamento enviado! Nossa equipe está conferindo o PIX. Assim que confirmado, suas fotos em alta resolução serão liberadas aqui no painel.");
-        router.push('/dashboard');
-      } catch (error: any) {
-        alert("Erro ao atualizar o pedido: " + error.message);
-      } finally {
-        setIsConfirmingPix(false);
-      }
-    }, 2000);
+      if (uploadError) throw uploadError;
+
+      // 2. Disparar a Notificação para o Admin
+      await supabase.from('notificacoes_admin').insert({
+        user_id: userId,
+        user_email: userEmail,
+        order_id: orderId,
+        pacote: pedido.pacote,
+        mensagem: 'Novo PIX para análise com comprovante!'
+      });
+
+      // 3. Salvar na tabela de mensagens (para histórico do admin ver o comprovante)
+      const { data: { publicUrl } } = supabase.storage.from('comprovantes_pix').getPublicUrl(filePath);
+      await supabase.from('mensagens').insert({
+        user_id: userId,
+        order_id: orderId,
+        conteudo: publicUrl,
+        tipo: 'comprovante'
+      });
+
+      // 4. Mudar o Status do Pedido para Análise
+      const { error } = await supabase
+        .from('pedidos')
+        .update({ status: 'Pagamento em Análise' })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      setShowPixModal(false);
+      alert("Comprovante enviado com sucesso! Nossa equipe financeira está conferindo o PIX. Assim que confirmado, suas fotos serão liberadas.");
+      router.push('/dashboard');
+    } catch (error: any) {
+      alert("Erro ao enviar o comprovante: " + error.message);
+    } finally {
+      setIsConfirmingPix(false);
+    }
   };
 
   if (isLoading) {
@@ -151,11 +205,10 @@ function CheckoutContent() {
   return (
     <div className="flex min-h-screen bg-studio-black text-white font-sans selection:bg-studio-gold selection:text-studio-black">
 
-      {/* 🧭 MODAL PIX 🧭 */}
+      {/* 🧭 MODAL PIX COM UPLOAD DE COMPROVANTE 🧭 */}
       {showPixModal && (
-        <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#121212] border border-studio-gold/20 rounded-2xl w-full max-w-md overflow-hidden shadow-[0_0_50px_rgba(212,175,55,0.15)] relative">
-            {/* Header Modal */}
+        <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#121212] border border-studio-gold/20 rounded-2xl w-full max-w-md overflow-hidden shadow-[0_0_50px_rgba(212,175,55,0.15)] relative my-8">
             <div className="bg-white/5 border-b border-white/10 p-4 flex justify-between items-center">
               <div className="flex items-center gap-2 text-studio-gold">
                 <QrCode size={20} />
@@ -166,14 +219,11 @@ function CheckoutContent() {
               </button>
             </div>
 
-            {/* Content Modal */}
             <div className="p-8 flex flex-col items-center text-center">
               <h3 className="text-gray-400 text-xs uppercase tracking-widest font-bold mb-1">Valor a pagar</h3>
               <p className="text-4xl font-display text-white mb-8">R$ {pacoteInfo.preco.toFixed(2)}</p>
 
-              {/* QR Code Image */}
-              <div className="bg-white p-4 rounded-xl mb-8">
-                {/* Aqui ele puxa a imagem correta salva na sua pasta public */}
+              <div className="bg-white p-4 rounded-xl mb-6">
                 <div className="relative w-48 h-48">
                   <Image src={pacoteInfo.qrCodeImg} alt="QR Code PIX" fill className="object-contain" />
                 </div>
@@ -197,19 +247,41 @@ function CheckoutContent() {
                 </div>
               </div>
 
+              {/* Área de Upload do Comprovante */}
+              <div className="w-full mb-8">
+                <input type="file" accept="image/*,.pdf" hidden ref={fileInputRef} onChange={handleFileChange} />
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition-all ${comprovante ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-white/10 hover:border-studio-gold/50 bg-white/5'}`}
+                >
+                  {comprovante ? (
+                    <div className="flex items-center gap-2 text-emerald-400">
+                      <FileImage size={20} />
+                      <span className="text-xs font-bold truncate max-w-[200px]">{comprovante.name}</span>
+                    </div>
+                  ) : (
+                    <>
+                      <UploadCloud size={24} className="text-gray-400 mb-2" />
+                      <p className="text-xs font-bold text-white uppercase tracking-widest">Anexar Comprovante</p>
+                      <p className="text-[9px] text-gray-500 mt-1">Obrigatório para liberação do ensaio</p>
+                    </>
+                  )}
+                </div>
+              </div>
+
               <button
                 onClick={handleConfirmPix}
-                disabled={isConfirmingPix}
+                disabled={isConfirmingPix || !comprovante}
                 className="w-full py-4 bg-studio-gold text-studio-black font-display font-black uppercase tracking-widest hover:bg-studio-gold-light transition-all rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isConfirmingPix ? (
                   <div className="w-5 h-5 border-2 border-studio-black border-t-transparent rounded-full animate-spin"></div>
                 ) : (
-                  <>Já realizei o pagamento</>
+                  <>Enviar Comprovante e Finalizar</>
                 )}
               </button>
               <p className="text-[9px] text-gray-500 mt-4 max-w-xs leading-relaxed uppercase tracking-widest">
-                Após o pagamento, clique no botão acima. Nossa equipe financeira confirmará o recebimento e liberará seu ensaio em instantes.
+                Após enviar o comprovante, nossa equipe financeira confirmará o recebimento e liberará seu ensaio em instantes.
               </p>
             </div>
           </div>
@@ -262,7 +334,7 @@ function CheckoutContent() {
         </div>
       </aside>
 
-      {/* 🛒 MAIN CHECKOUT CONTENT (Centralizado) */}
+      {/* 🛒 MAIN CHECKOUT CONTENT */}
       <main className="flex-1 p-4 md:p-8 overflow-y-auto bg-[#121212] flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
