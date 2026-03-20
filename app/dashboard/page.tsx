@@ -414,12 +414,7 @@ export default function Dashboard() {
                     <motion.div
                       key={idx}
                       onClick={() => !isCenter && setActivePreview(idx)}
-                      className={`absolute w-[220px] h-[400px] md:w-[280px] md:h-[500px] rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] transition-all duration-500 bg-[#121212] ${isCenter ? 'border-2 border-studio-gold shadow-studio-gold/20' : 'border border-white/10 opacity-60'}`}
-                      // O CÓDIGO DEVE FICAR ASSIM:
-                      style={{
-                        pointerEvents: isActive ? "auto" : "none"
-                      }}
-                      onContextMenu={(e) => e.preventDefault()}
+                      className={`absolute w-[220px] h-[400px] md:w-[280px] md:h-[500px] rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] transition-all duration-500 bg-[#121212] ${isCenter ? 'border-2 border-studio-gold shadow-studio-gold/20' : 'border border-white/10 opacity-60'} ${isActive ? 'pointer-events-auto' : 'pointer-events-none'}`}
                       initial={false}
                       animate={{
                         x: offset * distanceX,
@@ -433,12 +428,17 @@ export default function Dashboard() {
                       <img
                         src={url}
                         alt={`Prévia ${idx + 1}`}
-                        className="w-full h-full object-contain pointer-events-none select-none filter blur-[1.2px] brightness-[0.9] contrast-[1.1]"
+                        // onContextMenu foi adicionado direto na imagem e o pointer-events-none também
+                        className="w-full h-full object-contain select-none filter blur-[1.2px] brightness-[0.9] contrast-[1.1] pointer-events-none"
                         draggable={false}
+                        onContextMenu={(e) => e.preventDefault()}
                       />
 
                       {/* 🛡️ Camada 1: Escudo Invisível */}
-                      <div className="absolute inset-0 z-10 cursor-not-allowed"></div>
+                      <div
+                        className="absolute inset-0 z-10 cursor-not-allowed"
+                        onContextMenu={(e) => e.preventDefault()}
+                      ></div>
 
                       {/* 🛡️ Camada 2: Marca d'água */}
                       <div
