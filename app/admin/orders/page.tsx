@@ -102,15 +102,27 @@ export default function AdminOrders() {
     const actionKey = `status-${orderId}`;
     try {
       setActiveAction(prev => ({ ...prev, [actionKey]: true }));
-      const { error } = await supabase
+      
+      const { data, error } = await supabase
         .from('pedidos')
         .update({ status: newStatus })
-        .eq('id', orderId);
+        .eq('id', orderId)
+        .select();
 
       if (error) throw error;
 
-      alert('Status atualizado com sucesso!');
-      await fetchOrders();
+      if (data && data.length > 0) {
+        // Atualizar estado local imediatamente para feedback instantâneo
+        setOrders(prev => prev.map(order => 
+          order.id === orderId ? { ...order, status: newStatus } : order
+        ));
+        console.log('Status atualizado:', data[0]);
+        alert('Status alterado para: ' + newStatus);
+      } else {
+        alert('Atenção: O banco de dados não autorizou a alteração. Verifique se as Policies (RLS) de Admin estão ativas para o seu e-mail.');
+      }
+
+      await fetchOrders(); // Recarregar estatísticas e confirmar dados
     } catch (error: any) {
       alert('Erro ao atualizar status: ' + error.message);
     } finally {
@@ -195,7 +207,7 @@ export default function AdminOrders() {
       // Atualizar status do pedido no banco após upload com sucesso
       const { error: statusError } = await supabase
         .from('pedidos')
-        .update({ status: 'Processing' }) // Ou 'Completed', conforme preferência do admin
+        .update({ status: 'Em Produção' }) 
         .eq('id', uploadingOrder.id);
 
       if (statusError) throw statusError;
@@ -473,16 +485,21 @@ export default function AdminOrders() {
                             </div>
                           ) : (
                             <select
-                              value={order.status}
+                              value={
+                                order.status === 'Processing' ? 'Em Produção' : 
+                                order.status === 'Completed' ? 'Concluído' : 
+                                order.status
+                              }
                               onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                              className={`bg-studio-black border px-2 py-1 text-[10px] font-bold uppercase tracking-widest font-display outline-none cursor-pointer focus:ring-1 focus:ring-studio-gold transition-all ${order.status === 'Completed' ? 'text-emerald-400 border-emerald-400/30' :
-                                  order.status === 'Processing' ? 'text-blue-400 border-blue-400/30' :
-                                    'text-orange-400 border-orange-400/30'
-                                }`}
+                              className={`bg-studio-black border px-2 py-1 text-[10px] font-bold uppercase tracking-widest font-display outline-none cursor-pointer focus:ring-1 focus:ring-studio-gold transition-all ${
+                                (order.status === 'Concluído' || order.status === 'Completed') ? 'text-emerald-400 border-emerald-400/30' :
+                                (order.status === 'Em Produção' || order.status === 'Processing') ? 'text-blue-400 border-blue-400/30' :
+                                'text-orange-400 border-orange-400/30'
+                              }`}
                             >
                               <option value="Aguardando Produção">Aguardando Produção</option>
-                              <option value="Processing">Processing</option>
-                              <option value="Completed">Completed</option>
+                              <option value="Em Produção">Em Produção</option>
+                              <option value="Concluído">Concluído</option>
                             </select>
                           )}
                         </td>

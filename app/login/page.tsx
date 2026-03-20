@@ -34,7 +34,13 @@ export default function LoginPage() {
       setLoading(false);
     } else {
       setMessage('Acesso liberado! Redirecionando...');
-      router.push('/dashboard'); // Agora sim ele vai pra Dashboard do jeito certo!
+      
+      // Role-based Redirection
+      if (email === 'brunomeueditor@gmail.com') {
+        router.push('/admin/orders');
+      } else {
+        router.push('/dashboard');
+      }
     }
   };
 

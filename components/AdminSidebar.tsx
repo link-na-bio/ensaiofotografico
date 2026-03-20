@@ -11,9 +11,11 @@ import {
   BarChart3,
   MessageSquare,
   MoreVertical,
-  User
+  User,
+  LogOut
 } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 
 const navItems = [
@@ -29,6 +31,7 @@ const navItems = [
 ];
 
 export default function AdminSidebar() {
+  const router = useRouter();
   const pathname = usePathname();
   const [adminEmail, setAdminEmail] = useState<string | null>(null);
 
@@ -41,6 +44,16 @@ export default function AdminSidebar() {
     };
     getAdmin();
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      router.push('/signup'); // Ou /login se existir, mas signup parece ser a base de auth aqui
+    } catch (error: any) {
+      console.error('Erro ao sair:', error.message);
+    }
+  };
 
   const adminName = adminEmail ? adminEmail.split('@')[0] : 'Admin';
 
@@ -103,6 +116,13 @@ export default function AdminSidebar() {
             <p className="text-xs font-bold truncate text-white uppercase tracking-widest font-display">{adminName}</p>
             <p className="text-[9px] text-slate-500 truncate uppercase tracking-tighter opacity-60">Admin Logado</p>
           </div>
+          <button 
+            onClick={handleLogout}
+            className="p-2 text-slate-500 hover:text-rose-500 transition-colors"
+            title="Sair do Painel"
+          >
+            <LogOut size={18} />
+          </button>
         </div>
       </div>
     </aside>
