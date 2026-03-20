@@ -111,7 +111,6 @@ export default function Dashboard() {
     }
   };
 
-  // Helper: Formata data para o padrão brasileiro
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR', {
       day: '2-digit',
@@ -122,7 +121,6 @@ export default function Dashboard() {
     });
   };
 
-  // EFEITO DE BLINDAGEM: Roda assim que a página abre
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -136,7 +134,6 @@ export default function Dashboard() {
         fetchPedidos(session.user.id);
       }
     };
-
     checkUser();
   }, [router]);
 
@@ -236,7 +233,7 @@ export default function Dashboard() {
         if (storageError) throw storageError;
       }
 
-      setAlertMessage("Pedido enviado com sucesso! Em breve sua prévia estará disponível na aba Meus Ensaios.");
+      setAlertMessage("Pedido enviado com sucesso! Em breve sua prévia estará disponível.");
       setShowSuccessAlert(true);
       setActiveTab('home');
 
@@ -245,12 +242,10 @@ export default function Dashboard() {
       setSelectedFiles([]);
 
       fetchPedidos(userId);
-
       setTimeout(() => setShowSuccessAlert(false), 5000);
-
     } catch (error: any) {
       console.error('Erro ao processar pedido:', error);
-      alert(`Falha no envio: ${error.message || "Tente novamente em alguns instantes."}`);
+      alert(`Falha no envio: ${error.message}`);
     } finally {
       setIsUploading(false);
     }
@@ -313,13 +308,12 @@ export default function Dashboard() {
       setTimeout(() => setShowSuccessAlert(false), 5000);
     } catch (error: any) {
       console.error('Erro no upload do avatar:', error);
-      alert("Erro ao atualizar avatar: " + (error.message || "Tente novamente."));
+      alert("Erro ao atualizar avatar: " + error.message);
     } finally {
       setIsUpdatingProfile(false);
     }
   };
 
-  // Função para Abrir Prévia Segura (CORRIGIDA COM URL ASSINADA)
   const handleOpenPreview = async (orderId: string) => {
     setIsFetchingPreview(true);
     try {
@@ -333,7 +327,6 @@ export default function Dashboard() {
 
       if (error) throw error;
 
-      // Filtra o placeholder invisível do Supabase
       const validFiles = files ? files.filter(f => f.name !== '.emptyFolderPlaceholder') : [];
 
       if (validFiles.length === 0) {
@@ -341,26 +334,19 @@ export default function Dashboard() {
         return;
       }
 
-      // NOVO: Gerando URLs Assinadas (Temporárias e Seguras) para o cofre privado
       const urlPromises = validFiles.map(async (file) => {
         const { data, error } = await supabase.storage
           .from('previa_ensaios')
-          .createSignedUrl(`${path}${file.name}`, 3600, {
-            transform: {
-              quality: 40
-            }
-          }); // Válido por 1 hora (3600 segundos)
-
+          .createSignedUrl(`${path}${file.name}`, 3600);
         if (error) throw error;
         return data.signedUrl;
       });
 
-      // Espera todas as URLs serem geradas
       const urls = await Promise.all(urlPromises);
 
       setPreviewPhotos(urls);
       setSelectedOrderId(orderId);
-      setActivePreview(0); // Resetar para a primeira foto
+      setActivePreview(0);
       setIsPreviewOpen(true);
     } catch (error: any) {
       console.error('Erro ao buscar prévia:', error);
@@ -389,7 +375,6 @@ export default function Dashboard() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-2xl flex flex-col"
           >
-            {/* Header do Modal */}
             <div className="flex justify-between items-center p-6 border-b border-white/10 bg-studio-black/50">
               <div>
                 <h3 className="text-2xl font-display uppercase tracking-widest text-studio-gold font-bold">Prévia do Ensaio</h3>
@@ -400,7 +385,6 @@ export default function Dashboard() {
               </button>
             </div>
 
-            {/* Área das Fotos Blindadas (Carrossel 3D Estilo Prova Social) */}
             <div className="flex-1 relative flex items-center justify-center overflow-hidden py-12 px-4 select-none">
               <div className="relative w-full max-w-5xl h-[500px] flex items-center justify-center">
                 {previewPhotos.map((url, idx) => {
@@ -414,6 +398,7 @@ export default function Dashboard() {
                     <motion.div
                       key={idx}
                       onClick={() => !isCenter && setActivePreview(idx)}
+                      // O SEGREDO ESTÁ AQUI: Retiramos o onContextMenu e o pointerEvents do style, usando Tailwind puro.
                       className={`absolute w-[220px] h-[400px] md:w-[280px] md:h-[500px] rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] transition-all duration-500 bg-[#121212] ${isCenter ? 'border-2 border-studio-gold shadow-studio-gold/20' : 'border border-white/10 opacity-60'} ${isActive ? 'pointer-events-auto' : 'pointer-events-none'}`}
                       initial={false}
                       animate={{
@@ -424,49 +409,32 @@ export default function Dashboard() {
                       }}
                       transition={{ type: "spring", stiffness: 260, damping: 25 }}
                     >
-                      {/* A Foto */}
                       <img
                         src={url}
                         alt={`Prévia ${idx + 1}`}
-                        // onContextMenu foi adicionado direto na imagem e o pointer-events-none também
-                        className="w-full h-full object-contain select-none filter blur-[1.2px] brightness-[0.9] contrast-[1.1] pointer-events-none"
+                        className="w-full h-full object-contain select-none filter blur-[1px] brightness-[0.9] contrast-[1.1] pointer-events-none"
                         draggable={false}
                         onContextMenu={(e) => e.preventDefault()}
                       />
-
-                      {/* 🛡️ Camada 1: Escudo Invisível */}
+                      <div className="absolute inset-0 z-10 cursor-not-allowed" onContextMenu={(e) => e.preventDefault()}></div>
                       <div
-                        className="absolute inset-0 z-10 cursor-not-allowed"
-                        onContextMenu={(e) => e.preventDefault()}
-                      ></div>
-
-                      {/* 🛡️ Camada 2: Marca d'água */}
-                      <div
-                        className="absolute inset-0 z-20 pointer-events-none opacity-80"
+                        className="absolute inset-0 z-20 pointer-events-none opacity-25 mix-blend-overlay"
                         style={{
-                          backgroundImage: `url("/FOTO PROTEGIDA - NÃO TIRE PRINT.png")`,
-                          backgroundRepeat: 'no-repeat',
-                          backgroundSize: '100% 100%',
-                          backgroundPosition: 'center center'
+                          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cstyle%3E .watermark { font-family: 'sans-serif'; font-size: 10px; font-weight: 900; fill: %23ffffff; text-transform: uppercase; letter-spacing: 0.2em; opacity: 0.6; } %3C/style%3E%3Ctext x='50' y='50' transform='rotate(-45 50 50)' text-anchor='middle' className='watermark'%3EVIRTUAL STUDIO%3C/text%3E%3C/svg%3E")`,
+                          backgroundRepeat: 'repeat',
+                          backgroundSize: '80px 80px'
                         }}
                       ></div>
                     </motion.div>
                   );
                 })}
 
-                {/* Setas de Navegação */}
                 {previewPhotos.length > 1 && (
                   <>
-                    <button
-                      onClick={prevPreview}
-                      className="absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-studio-black/80 backdrop-blur-md border border-studio-gold/50 flex items-center justify-center text-studio-gold hover:bg-studio-gold hover:text-black transition-all shadow-xl z-50 cursor-pointer"
-                    >
+                    <button onClick={prevPreview} className="absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-studio-black/80 backdrop-blur-md border border-studio-gold/50 flex items-center justify-center text-studio-gold hover:bg-studio-gold hover:text-black transition-all shadow-xl z-50 cursor-pointer">
                       <ChevronLeft size={24} />
                     </button>
-                    <button
-                      onClick={nextPreview}
-                      className="absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-studio-black/80 backdrop-blur-md border border-studio-gold/50 flex items-center justify-center text-studio-gold hover:bg-studio-gold hover:text-black transition-all shadow-xl z-50 cursor-pointer"
-                    >
+                    <button onClick={nextPreview} className="absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-studio-black/80 backdrop-blur-md border border-studio-gold/50 flex items-center justify-center text-studio-gold hover:bg-studio-gold hover:text-black transition-all shadow-xl z-50 cursor-pointer">
                       <ChevronRight size={24} />
                     </button>
                   </>
@@ -474,26 +442,18 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Pontos de Navegação (Dots) */}
             <div className="flex justify-center items-center gap-2 pb-8">
               {previewPhotos.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setActivePreview(i)}
-                  className={`transition-all duration-300 rounded-full h-1.5 ${activePreview === i
-                    ? 'w-8 bg-studio-gold shadow-[0_0_10px_rgba(195,157,93,0.5)]'
-                    : 'w-1.5 bg-white/20 hover:bg-white/40'
-                    }`}
+                  className={`transition-all duration-300 rounded-full h-1.5 ${activePreview === i ? 'w-8 bg-studio-gold shadow-[0_0_10px_rgba(195,157,93,0.5)]' : 'w-1.5 bg-white/20 hover:bg-white/40'}`}
                 />
               ))}
             </div>
 
-            {/* Footer Fixo: A grande conversão (Checkout) */}
             <div className="p-6 border-t border-white/10 bg-studio-black/90 backdrop-blur-md flex justify-center">
-              <button
-                onClick={() => router.push(`/checkout?orderId=${selectedOrderId}`)}
-                className="w-full max-w-lg py-5 bg-studio-gold text-studio-black font-display font-black uppercase tracking-widest text-sm md:text-base hover:bg-studio-gold-light hover:scale-[1.02] transition-all rounded-xl shadow-[0_0_40px_rgba(212,175,55,0.4)] flex items-center justify-center gap-3"
-              >
+              <button onClick={() => router.push(`/checkout?orderId=${selectedOrderId}`)} className="w-full max-w-lg py-5 bg-studio-gold text-studio-black font-display font-black uppercase tracking-widest text-sm md:text-base hover:bg-studio-gold-light hover:scale-[1.02] transition-all rounded-xl shadow-[0_0_40px_rgba(212,175,55,0.4)] flex items-center justify-center gap-3">
                 <CheckCircle2 size={24} />
                 Aprovar e Liberar Alta Resolução
               </button>
@@ -501,24 +461,16 @@ export default function Dashboard() {
           </motion.div>
         )}
       </AnimatePresence>
-      {/* 🛡️ FIM DO MODAL BLINDADO 🛡️ */}
 
-      {/* Success Alert */}
       <AnimatePresence>
         {showSuccessAlert && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] bg-emerald-500 text-black px-6 py-3 rounded-full font-bold shadow-2xl flex items-center gap-3"
-          >
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] bg-emerald-500 text-black px-6 py-3 rounded-full font-bold shadow-2xl flex items-center gap-3">
             <CheckCircle2 size={20} />
             <span>{alertMessage}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Sidebar Navigation */}
       <aside className="w-64 border-r border-white/5 bg-studio-black flex flex-col sticky top-0 h-screen hidden md:flex">
         <div className="p-6">
           <div className="flex items-center gap-2 mb-8">
@@ -531,31 +483,19 @@ export default function Dashboard() {
             </div>
           </div>
           <nav className="flex flex-col gap-1">
-            <button
-              onClick={() => setActiveTab('home')}
-              className={`flex items-center gap-3 px-4 py-3 transition-colors ${activeTab === 'home' ? 'bg-studio-gold/10 text-studio-gold border-r-2 border-studio-gold' : 'text-gray-400 hover:text-studio-gold'}`}
-            >
+            <button onClick={() => setActiveTab('home')} className={`flex items-center gap-3 px-4 py-3 transition-colors ${activeTab === 'home' ? 'bg-studio-gold/10 text-studio-gold border-r-2 border-studio-gold' : 'text-gray-400 hover:text-studio-gold'}`}>
               <Home size={18} />
               <span className="text-sm font-medium">Home</span>
             </button>
-            <button
-              onClick={() => setActiveTab('ensaios')}
-              className={`flex items-center gap-3 px-4 py-3 transition-colors ${activeTab === 'ensaios' ? 'bg-studio-gold/10 text-studio-gold border-r-2 border-studio-gold' : 'text-gray-400 hover:text-studio-gold'}`}
-            >
+            <button onClick={() => setActiveTab('ensaios')} className={`flex items-center gap-3 px-4 py-3 transition-colors ${activeTab === 'ensaios' ? 'bg-studio-gold/10 text-studio-gold border-r-2 border-studio-gold' : 'text-gray-400 hover:text-studio-gold'}`}>
               <Library size={18} />
               <span className="text-sm font-medium">Meus Ensaios</span>
             </button>
-            <button
-              onClick={() => setActiveTab('novo')}
-              className={`flex items-center gap-3 px-4 py-3 transition-colors ${activeTab === 'novo' ? 'bg-studio-gold/10 text-studio-gold border-r-2 border-studio-gold' : 'text-gray-400 hover:text-studio-gold'}`}
-            >
+            <button onClick={() => setActiveTab('novo')} className={`flex items-center gap-3 px-4 py-3 transition-colors ${activeTab === 'novo' ? 'bg-studio-gold/10 text-studio-gold border-r-2 border-studio-gold' : 'text-gray-400 hover:text-studio-gold'}`}>
               <PlusCircle size={18} />
               <span className="text-sm font-semibold">Novo Pedido</span>
             </button>
-            <button
-              onClick={() => setActiveTab('perfil')}
-              className={`flex items-center gap-3 px-4 py-3 transition-colors ${activeTab === 'perfil' ? 'bg-studio-gold/10 text-studio-gold border-r-2 border-studio-gold' : 'text-gray-400 hover:text-studio-gold'}`}
-            >
+            <button onClick={() => setActiveTab('perfil')} className={`flex items-center gap-3 px-4 py-3 transition-colors ${activeTab === 'perfil' ? 'bg-studio-gold/10 text-studio-gold border-r-2 border-studio-gold' : 'text-gray-400 hover:text-studio-gold'}`}>
               <User size={18} />
               <span className="text-sm font-medium">Perfil</span>
             </button>
@@ -567,19 +507,14 @@ export default function Dashboard() {
               {avatarUrl ? (
                 <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
               ) : (
-                <div className="w-full h-full bg-studio-gold text-studio-black flex items-center justify-center font-bold text-lg">
-                  {userEmail?.charAt(0).toUpperCase()}
-                </div>
+                <div className="w-full h-full bg-studio-gold text-studio-black flex items-center justify-center font-bold text-lg">{userEmail?.charAt(0).toUpperCase()}</div>
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold truncate font-display tracking-widest">
-                {userEmail ? userEmail.split('@')[0] : 'Usuário'}
-              </p>
+              <p className="text-sm font-bold truncate font-display tracking-widest">{userEmail ? userEmail.split('@')[0] : 'Usuário'}</p>
               <p className="text-gray-500 text-[10px] truncate">{userEmail}</p>
             </div>
             <div className="relative flex gap-2">
-              <Settings className="text-gray-500 cursor-pointer hover:text-studio-gold transition-colors" size={18} />
               <button onClick={handleLogout} title="Sair da conta">
                 <LogOut className="text-red-500 cursor-pointer hover:text-red-400 transition-colors" size={18} />
               </button>
@@ -588,10 +523,7 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 overflow-y-auto bg-[#121212] pt-20 pb-24 md:pt-8 md:pb-8 relative">
-
-        {/* MOBILE HEADER (TOP) */}
         <header className="fixed top-0 left-0 right-0 h-16 bg-studio-black/80 backdrop-blur-xl border-b border-white/5 z-[100] flex items-center justify-between px-6 md:hidden">
           <div className="flex items-center gap-2">
             <div className="relative w-8 h-8">
@@ -604,37 +536,19 @@ export default function Dashboard() {
           </button>
         </header>
 
-        {/* Aba Home */}
         {activeTab === 'home' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="home">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="home" className="px-8">
             <header className="mb-10">
               <h2 className="text-3xl font-bold font-display uppercase tracking-wider">Bem-vindo ao Virtual Studio, <span className="text-studio-gold">{userEmail?.split('@')[0]}</span></h2>
               <p className="text-gray-500 mt-2">Sua jornada para a imagem profissional perfeita começa aqui.</p>
             </header>
 
-            {/* Grid de Status Dinâmico */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
               {[
-                {
-                  label: 'Aguardando',
-                  val: pedidos.filter(p => !p.status || p.status === 'Aguardando Produção').length.toString().padStart(2, '0'),
-                  icon: Clock
-                },
-                {
-                  label: 'Em Produção',
-                  val: pedidos.filter(p => p.status === 'Em Produção' || p.status === 'Processing').length.toString().padStart(2, '0'),
-                  icon: Zap
-                },
-                {
-                  label: 'Prévia Disponível',
-                  val: pedidos.filter(p => p.status === 'Prévia Disponível').length.toString().padStart(2, '0'),
-                  icon: LayoutGrid
-                },
-                {
-                  label: 'Ensaios Concluídos',
-                  val: pedidos.filter(p => p.status === 'Ensaio Concluído' || p.status === 'Finalizado').length.toString().padStart(2, '0'),
-                  icon: CheckCircle2
-                },
+                { label: 'Aguardando', val: pedidos.filter(p => !p.status || p.status === 'Aguardando Produção').length.toString().padStart(2, '0'), icon: Clock },
+                { label: 'Em Produção', val: pedidos.filter(p => p.status === 'Em Produção' || p.status === 'Processing').length.toString().padStart(2, '0'), icon: Zap },
+                { label: 'Prévia Disponível', val: pedidos.filter(p => p.status === 'Prévia Disponível').length.toString().padStart(2, '0'), icon: LayoutGrid },
+                { label: 'Ensaios Concluídos', val: pedidos.filter(p => p.status === 'Ensaio Concluído' || p.status === 'Finalizado').length.toString().padStart(2, '0'), icon: CheckCircle2 },
               ].map((stat, i) => (
                 <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-xl hover:border-studio-gold/30 transition-colors group">
                   <div className="flex justify-between items-start mb-4">
@@ -646,12 +560,10 @@ export default function Dashboard() {
               ))}
             </div>
 
-            {/* Pedidos Recentes */}
             {pedidos.length > 0 && (
               <section className="mb-12">
                 <h3 className="text-lg font-bold font-display uppercase tracking-widest mb-6 flex items-center gap-3">
-                  <Clock size={18} className="text-studio-gold" />
-                  Pedidos Recentes
+                  <Clock size={18} className="text-studio-gold" /> Pedidos Recentes
                 </h3>
                 <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
                   <table className="w-full text-left text-sm">
@@ -668,11 +580,7 @@ export default function Dashboard() {
                           <td className="px-6 py-4 font-bold uppercase tracking-widest text-xs text-studio-gold">{pedido.pacote}</td>
                           <td className="px-6 py-4 text-gray-500 text-xs">{formatDate(pedido.criado_em)}</td>
                           <td className="px-6 py-4">
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${(pedido.status === 'Ensaio Concluído' || pedido.status === 'Finalizado') ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                              pedido.status === 'Em Produção' ? 'bg-blue-900/20 text-blue-400 border-blue-400/30' :
-                                pedido.status === 'Prévia Disponível' ? 'bg-studio-gold/10 text-studio-gold border-studio-gold/20' :
-                                  'bg-orange-500/10 text-orange-400 border-orange-500/20'
-                              }`}>
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${(pedido.status === 'Ensaio Concluído' || pedido.status === 'Finalizado') ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : pedido.status === 'Em Produção' ? 'bg-blue-900/20 text-blue-400 border-blue-400/30' : pedido.status === 'Prévia Disponível' ? 'bg-studio-gold/10 text-studio-gold border-studio-gold/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'}`}>
                               {pedido.status === 'Finalizado' ? 'Ensaio Concluído' : pedido.status}
                             </span>
                           </td>
@@ -684,11 +592,9 @@ export default function Dashboard() {
               </section>
             )}
 
-            {/* Como funciona o seu estúdio */}
             <section className="bg-studio-gold/5 border border-studio-gold/10 p-8 rounded-2xl">
               <h3 className="text-lg font-bold font-display uppercase tracking-widest mb-8 flex items-center gap-3">
-                <Info size={18} className="text-studio-gold" />
-                Como funciona o seu estúdio
+                <Info size={18} className="text-studio-gold" /> Como funciona o seu estúdio
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                 {[
@@ -709,9 +615,8 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* Aba Meus Ensaios */}
         {activeTab === 'ensaios' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="ensaios">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="ensaios" className="px-8">
             <header className="mb-8">
               <h2 className="text-3xl font-bold font-display uppercase tracking-wider">Meus Ensaios</h2>
               <p className="text-gray-500">Acesse aqui todos os seus trabalhos finalizados.</p>
@@ -719,17 +624,11 @@ export default function Dashboard() {
 
             {pedidos.length === 0 ? (
               <div className="min-h-[400px] flex flex-col items-center justify-center text-center p-12 bg-white/5 border border-dashed border-white/10 rounded-2xl">
-                <div className="w-16 h-16 rounded-full bg-studio-gold/10 text-studio-gold flex items-center justify-center mb-6">
-                  <Archive size={32} />
-                </div>
+                <div className="w-16 h-16 rounded-full bg-studio-gold/10 text-studio-gold flex items-center justify-center mb-6"><Archive size={32} /></div>
                 <h3 className="text-xl font-bold font-display uppercase tracking-widest">Você ainda não possui ensaios</h3>
                 <p className="text-gray-500 text-sm mt-3 max-w-xs leading-relaxed">Inicie um novo pedido para começar a transformar suas fotos com nossa tecnologia.</p>
-                <button
-                  onClick={() => setActiveTab('novo')}
-                  className="mt-8 px-8 py-3 bg-studio-gold text-studio-black font-bold uppercase tracking-widest hover:bg-studio-gold-light transition-all flex items-center gap-2"
-                >
-                  <PlusCircle size={18} />
-                  Novo Pedido
+                <button onClick={() => setActiveTab('novo')} className="mt-8 px-8 py-3 bg-studio-gold text-studio-black font-bold uppercase tracking-widest hover:bg-studio-gold-light transition-all flex items-center gap-2">
+                  <PlusCircle size={18} /> Novo Pedido
                 </button>
               </div>
             ) : (
@@ -738,46 +637,27 @@ export default function Dashboard() {
                   <div key={pedido.id} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden group hover:border-studio-gold/30 transition-all flex flex-col">
                     <div className="p-6 flex-1">
                       <div className="flex justify-between items-start mb-4">
-                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${(pedido.status === 'Ensaio Concluído' || pedido.status === 'Finalizado') ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                          pedido.status === 'Em Produção' ? 'bg-blue-900/20 text-blue-400 border-blue-400/30' :
-                            pedido.status === 'Prévia Disponível' ? 'bg-studio-gold/10 text-studio-gold border-studio-gold/20' :
-                              'bg-orange-500/10 text-orange-400 border-orange-500/20'
-                          }`}>
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${(pedido.status === 'Ensaio Concluído' || pedido.status === 'Finalizado') ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : pedido.status === 'Em Produção' ? 'bg-blue-900/20 text-blue-400 border-blue-400/30' : pedido.status === 'Prévia Disponível' ? 'bg-studio-gold/10 text-studio-gold border-studio-gold/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'}`}>
                           {pedido.status === 'Finalizado' ? 'Ensaio Concluído' : pedido.status}
                         </span>
                         <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{formatDate(pedido.criado_em).split(',')[0]}</span>
                       </div>
-
                       <h4 className="text-lg font-bold font-display uppercase tracking-widest text-studio-gold mb-2">{pedido.pacote}</h4>
-
                       <div className="flex flex-wrap gap-2 mb-6">
                         {pedido.estilos?.map((estilo: string) => (
-                          <span key={estilo} className="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] uppercase tracking-wider text-gray-400">
-                            {estilo}
-                          </span>
+                          <span key={estilo} className="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] uppercase tracking-wider text-gray-400">{estilo}</span>
                         ))}
                       </div>
-
                       {pedido.status === 'Prévia Disponível' && (
-                        <button
-                          onClick={() => handleOpenPreview(pedido.id)}
-                          disabled={isFetchingPreview}
-                          className="w-full mt-4 py-3 bg-studio-gold text-studio-black font-bold uppercase tracking-widest text-[10px] hover:bg-studio-gold-light transition-all flex items-center justify-center gap-2 group/btn"
-                        >
-                          {isFetchingPreview && selectedOrderId === pedido.id ? (
-                            <div className="w-3 h-3 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                          ) : (
-                            <Eye size={14} className="group-hover/btn:scale-110 transition-transform" />
-                          )}
+                        <button onClick={() => handleOpenPreview(pedido.id)} disabled={isFetchingPreview} className="w-full mt-4 py-3 bg-studio-gold text-studio-black font-bold uppercase tracking-widest text-[10px] hover:bg-studio-gold-light transition-all flex items-center justify-center gap-2 group/btn">
+                          {isFetchingPreview && selectedOrderId === pedido.id ? <div className="w-3 h-3 border-2 border-black border-t-transparent rounded-full animate-spin"></div> : <Eye size={14} className="group-hover/btn:scale-110 transition-transform" />}
                           Visualizar Prévia
                         </button>
                       )}
                     </div>
-
                     <div className="p-4 bg-white/5 border-t border-white/10 flex justify-between items-center mt-auto">
                       <div className="flex items-center gap-2 text-[10px] text-gray-500 uppercase tracking-widest font-bold">
-                        <Camera size={14} className="text-studio-gold" />
-                        ID: {pedido.id.slice(0, 8)}
+                        <Camera size={14} className="text-studio-gold" /> ID: {pedido.id.slice(0, 8)}
                       </div>
                       <ChevronRight size={16} className="text-gray-600 group-hover:text-studio-gold group-hover:translate-x-1 transition-all" />
                     </div>
@@ -788,9 +668,8 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* Aba Novo Pedido */}
         {activeTab === 'novo' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="novo">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="novo" className="px-8">
             <header className="mb-8">
               <h2 className="text-2xl font-bold font-display uppercase tracking-widest">Configurar Novo Ensaio</h2>
               <p className="text-gray-500">Personalize seu pedido para obter o melhor resultado.</p>
@@ -798,7 +677,6 @@ export default function Dashboard() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-12 pb-20">
-                {/* Passo 1: Pacotes */}
                 <section>
                   <div className="flex items-center gap-4 mb-8">
                     <span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">1</span>
@@ -810,22 +688,9 @@ export default function Dashboard() {
                       { id: 'premium', title: 'Premium', styles: '3 Estilos', price: 'R$ 149,90', icon: Sparkles, popular: true },
                       { id: 'elite', title: 'Elite', styles: '5 Estilos', price: 'R$ 247,90', icon: Zap },
                     ].map((pkg) => (
-                      <button
-                        key={pkg.id}
-                        onClick={() => {
-                          setSelectedPackage(pkg.id as any);
-                          setSelectedStyles([]);
-                        }}
-                        className={`p-6 border text-left rounded-xl transition-all relative overflow-hidden group ${selectedPackage === pkg.id ? 'border-studio-gold bg-studio-gold/5 shadow-lg' : 'border-white/10 hover:border-studio-gold/30'}`}
-                      >
-                        {pkg.popular && (
-                          <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[8px] font-bold px-2 py-0.5 uppercase tracking-tighter">Mais Vendido</div>
-                        )}
-                        {selectedPackage === pkg.id && (
-                          <div className="absolute top-2 right-2 text-studio-gold">
-                            <CheckCircle2 size={16} />
-                          </div>
-                        )}
+                      <button key={pkg.id} onClick={() => { setSelectedPackage(pkg.id as any); setSelectedStyles([]); }} className={`p-6 border text-left rounded-xl transition-all relative overflow-hidden group ${selectedPackage === pkg.id ? 'border-studio-gold bg-studio-gold/5 shadow-lg' : 'border-white/10 hover:border-studio-gold/30'}`}>
+                        {pkg.popular && <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[8px] font-bold px-2 py-0.5 uppercase tracking-tighter">Mais Vendido</div>}
+                        {selectedPackage === pkg.id && <div className="absolute top-2 right-2 text-studio-gold"><CheckCircle2 size={16} /></div>}
                         <pkg.icon className={`mb-4 transition-colors ${selectedPackage === pkg.id ? 'text-studio-gold' : 'text-gray-500'}`} size={24} />
                         <h4 className="font-bold uppercase tracking-widest text-sm mb-1">{pkg.title}</h4>
                         <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-4">{pkg.styles}</p>
@@ -835,7 +700,6 @@ export default function Dashboard() {
                   </div>
                 </section>
 
-                {/* Passo 2: Estilos (Carousel) */}
                 {selectedPackage && (
                   <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                     <div className="flex justify-between items-end mb-8">
@@ -843,11 +707,8 @@ export default function Dashboard() {
                         <span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">2</span>
                         <h3 className="text-xl font-bold font-display uppercase tracking-widest">Selecione os Estilos</h3>
                       </div>
-                      <span className="text-gray-500 text-xs font-bold tracking-widest uppercase">
-                        Selecionados: <span className={selectedStyles.length === getStyleLimit() ? 'text-studio-gold' : 'text-white'}>{selectedStyles.length}/{getStyleLimit()}</span>
-                      </span>
+                      <span className="text-gray-500 text-xs font-bold tracking-widest uppercase">Selecionados: <span className={selectedStyles.length === getStyleLimit() ? 'text-studio-gold' : 'text-white'}>{selectedStyles.length}/{getStyleLimit()}</span></span>
                     </div>
-
                     <div className="flex overflow-x-auto snap-x gap-4 pb-6 no-scrollbar">
                       {[
                         { id: 'LinkedIn', title: 'LinkedIn Pro', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80' },
@@ -859,19 +720,11 @@ export default function Dashboard() {
                         { id: 'Tech', title: 'Modern Tech', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80' },
                         { id: 'Urban', title: 'Urban Lifestyle', img: 'https://images.unsplash.com/photo-1488161628813-04466f872be2?w=400&q=80' },
                       ].map((style) => (
-                        <div
-                          key={style.id}
-                          onClick={() => toggleStyle(style.id)}
-                          className={`min-w-[180px] h-[240px] snap-start relative rounded-xl overflow-hidden cursor-pointer border-2 transition-all ${selectedStyles.includes(style.id) ? 'border-studio-gold scale-[0.98]' : 'border-white/5 hover:border-studio-gold/40'}`}
-                        >
+                        <div key={style.id} onClick={() => toggleStyle(style.id)} className={`min-w-[180px] h-[240px] snap-start relative rounded-xl overflow-hidden cursor-pointer border-2 transition-all ${selectedStyles.includes(style.id) ? 'border-studio-gold scale-[0.98]' : 'border-white/5 hover:border-studio-gold/40'}`}>
                           <Image src={style.img} alt={style.title} fill className="object-cover" unoptimized />
                           <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent flex flex-col justify-end p-4 transition-all ${selectedStyles.includes(style.id) ? 'bg-studio-gold/20' : 'opacity-80'}`}>
                             <p className="text-[10px] font-bold uppercase tracking-widest text-white">{style.title}</p>
-                            {selectedStyles.includes(style.id) && (
-                              <div className="absolute top-2 right-2 bg-studio-gold text-studio-black rounded-full p-1">
-                                <Check size={10} strokeWidth={4} />
-                              </div>
-                            )}
+                            {selectedStyles.includes(style.id) && <div className="absolute top-2 right-2 bg-studio-gold text-studio-black rounded-full p-1"><Check size={10} strokeWidth={4} /></div>}
                           </div>
                         </div>
                       ))}
@@ -879,40 +732,23 @@ export default function Dashboard() {
                   </motion.section>
                 )}
 
-                {/* Passo 3: Fotos */}
                 <section>
                   <div className="flex items-center gap-4 mb-8">
                     <span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">3</span>
                     <h3 className="text-xl font-bold font-display uppercase tracking-widest">Fotos de Referência</h3>
                   </div>
-
                   <input type="file" multiple accept="image/jpeg, image/png, image/webp" hidden ref={fileInputRef} onChange={handleFileChange} />
-
-                  <div
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-white/10 p-12 flex flex-col items-center justify-center text-center bg-white/5 hover:border-studio-gold/30 transition-all cursor-pointer group rounded-2xl"
-                  >
-                    <div className="w-16 h-16 rounded-full bg-studio-gold/5 text-studio-gold flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-studio-gold/10 transition-all">
-                      <CloudUpload size={32} />
-                    </div>
+                  <div onDragOver={(e) => e.preventDefault()} onDrop={handleDrop} onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-white/10 p-12 flex flex-col items-center justify-center text-center bg-white/5 hover:border-studio-gold/30 transition-all cursor-pointer group rounded-2xl">
+                    <div className="w-16 h-16 rounded-full bg-studio-gold/5 text-studio-gold flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-studio-gold/10 transition-all"><CloudUpload size={32} /></div>
                     <h4 className="text-lg font-bold font-display uppercase tracking-widest">Arraste aqui as suas fotos</h4>
                     <p className="text-gray-500 text-xs mt-2 max-w-xs">Precisamos de 5 a 10 fotos nítidas do seu rosto para o treinamento perfeito.</p>
                   </div>
-
-                  {/* Preview Grid */}
                   {selectedFiles.length > 0 && (
                     <div className="grid grid-cols-3 md:grid-cols-5 gap-3 mt-8">
                       {selectedFiles.map((file, index) => (
                         <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-white/10 group">
                           <Image src={URL.createObjectURL(file)} alt={`Preview ${index}`} fill className="object-cover" />
-                          <button
-                            onClick={(e) => { e.stopPropagation(); removeFile(index); }}
-                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <X size={12} />
-                          </button>
+                          <button onClick={(e) => { e.stopPropagation(); removeFile(index); }} className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"><X size={12} /></button>
                         </div>
                       ))}
                     </div>
@@ -920,34 +756,15 @@ export default function Dashboard() {
                 </section>
               </div>
 
-              {/* Sidebar do Pedido */}
               <div className="space-y-6">
                 <div className="bg-white/5 border border-white/10 p-6 rounded-2xl sticky top-8">
                   <h3 className="text-lg font-bold mb-6 font-display uppercase tracking-widest border-b border-white/5 pb-4">Resumo do Pedido</h3>
                   <div className="space-y-4 mb-8">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-gray-500 uppercase tracking-widest">Pacote</span>
-                      <span className="font-bold text-white uppercase">{selectedPackage || 'Não selecionado'}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-gray-500 uppercase tracking-widest">Estilos</span>
-                      <span className={`font-bold ${selectedStyles.length === getStyleLimit() ? 'text-studio-gold' : 'text-white'}`}>
-                        {selectedStyles.length}/{getStyleLimit()}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-gray-500 uppercase tracking-widest">Fotos Env.</span>
-                      <span className={`font-bold ${selectedFiles.length >= 5 ? 'text-emerald-400' : 'text-red-500'}`}>
-                        {selectedFiles.length}/10
-                      </span>
-                    </div>
+                    <div className="flex justify-between items-center text-xs"><span className="text-gray-500 uppercase tracking-widest">Pacote</span><span className="font-bold text-white uppercase">{selectedPackage || 'Não selecionado'}</span></div>
+                    <div className="flex justify-between items-center text-xs"><span className="text-gray-500 uppercase tracking-widest">Estilos</span><span className={`font-bold ${selectedStyles.length === getStyleLimit() ? 'text-studio-gold' : 'text-white'}`}>{selectedStyles.length}/{getStyleLimit()}</span></div>
+                    <div className="flex justify-between items-center text-xs"><span className="text-gray-500 uppercase tracking-widest">Fotos Env.</span><span className={`font-bold ${selectedFiles.length >= 5 ? 'text-emerald-400' : 'text-red-500'}`}>{selectedFiles.length}/10</span></div>
                   </div>
-
-                  <button
-                    onClick={handleSendToProduction}
-                    disabled={isUploading}
-                    className="w-full py-4 bg-studio-gold text-studio-black font-display font-black uppercase tracking-widest hover:bg-studio-gold-light transition-all disabled:opacity-50 rounded-lg shadow-xl shadow-studio-gold/10"
-                  >
+                  <button onClick={handleSendToProduction} disabled={isUploading} className="w-full py-4 bg-studio-gold text-studio-black font-display font-black uppercase tracking-widest hover:bg-studio-gold-light transition-all disabled:opacity-50 rounded-lg shadow-xl shadow-studio-gold/10">
                     {isUploading ? 'Enviando...' : 'Enviar para Produção'}
                   </button>
                 </div>
@@ -956,172 +773,49 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* Aba Perfil */}
         {activeTab === 'perfil' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="perfil" className="max-w-4xl">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="perfil" className="max-w-4xl px-8">
             <header className="mb-10">
               <h2 className="text-3xl font-bold font-display uppercase tracking-wider">Meu Perfil</h2>
               <p className="text-gray-500 mt-2">Gerencie suas informações e segurança da conta.</p>
             </header>
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Coluna da Esquerda: Avatar e Info Básica */}
               <div className="space-y-6">
                 <div className="bg-white/5 border border-white/10 p-8 rounded-2xl text-center">
                   <div className="relative w-32 h-32 mx-auto mb-6">
                     <div className="w-full h-full rounded-full bg-studio-gold/10 flex items-center justify-center overflow-hidden border-2 border-studio-gold/30">
-                      {avatarUrl ? (
-                        <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
-                      ) : (
-                        <User size={64} className="text-studio-gold opacity-50" />
-                      )}
+                      {avatarUrl ? <Image src={avatarUrl} alt="Avatar" fill className="object-cover" /> : <User size={64} className="text-studio-gold opacity-50" />}
                     </div>
-                    <button
-                      onClick={() => avatarInputRef.current?.click()}
-                      className="absolute bottom-0 right-0 w-10 h-10 bg-studio-gold text-studio-black rounded-full flex items-center justify-center border-4 border-[#121212] hover:scale-110 transition-transform"
-                    >
-                      <Camera size={18} />
-                    </button>
+                    <button onClick={() => avatarInputRef.current?.click()} className="absolute bottom-0 right-0 w-10 h-10 bg-studio-gold text-studio-black rounded-full flex items-center justify-center border-4 border-[#121212] hover:scale-110 transition-transform"><Camera size={18} /></button>
                     <input type="file" ref={avatarInputRef} hidden accept="image/*" onChange={handleAvatarUpload} />
                   </div>
                   <h3 className="font-bold text-lg font-display uppercase tracking-widest">{userEmail?.split('@')[0]}</h3>
                   <p className="text-gray-500 text-xs truncate mt-1">{userEmail}</p>
-
-                  <div className="mt-8 pt-8 border-t border-white/5 space-y-4 text-left">
-                    <div className="flex justify-between items-center text-[10px] uppercase tracking-[0.1em]">
-                      <span className="text-gray-500 text-xs">Status da Conta</span>
-                      <span className="text-studio-gold font-bold">Premium VIP</span>
-                    </div>
-                    <div className="flex justify-between items-center text-[10px] uppercase tracking-[0.1em]">
-                      <span className="text-gray-500 text-xs">Membro desde</span>
-                      <span className="text-white">Março 2024</span>
-                    </div>
-                  </div>
                 </div>
               </div>
-
-              {/* Coluna da Direita: Alterar Senha */}
               <div className="md:col-span-2 space-y-6">
                 <form onSubmit={handleUpdatePassword} className="bg-white/5 border border-white/10 p-8 rounded-2xl">
-                  <h3 className="text-lg font-bold font-display uppercase tracking-widest mb-6 flex items-center gap-3">
-                    <Zap size={18} className="text-studio-gold" />
-                    Segurança da Conta
-                  </h3>
-
+                  <h3 className="text-lg font-bold font-display uppercase tracking-widest mb-6 flex items-center gap-3"><Zap size={18} className="text-studio-gold" /> Segurança da Conta</h3>
                   <div className="space-y-6">
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-2 font-bold">Nova Senha</label>
-                      <input
-                        type="password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full bg-white/5 border border-white/10 py-3 px-4 text-white focus:outline-none focus:border-studio-gold transition-colors rounded-lg"
-                      />
+                      <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" className="w-full bg-white/5 border border-white/10 py-3 px-4 text-white focus:outline-none focus:border-studio-gold transition-colors rounded-lg" />
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-2 font-bold">Confirmar Nova Senha</label>
-                      <input
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full bg-white/5 border border-white/10 py-3 px-4 text-white focus:outline-none focus:border-studio-gold transition-colors rounded-lg"
-                      />
+                      <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full bg-white/5 border border-white/10 py-3 px-4 text-white focus:outline-none focus:border-studio-gold transition-colors rounded-lg" />
                     </div>
-
-                    <button
-                      type="submit"
-                      disabled={isUpdatingProfile || !newPassword}
-                      className="w-full py-4 bg-studio-gold text-studio-black font-display font-black uppercase tracking-widest hover:bg-studio-gold-light transition-all disabled:opacity-50 rounded-lg shadow-xl shadow-studio-gold/10 flex items-center justify-center gap-2"
-                    >
-                      {isUpdatingProfile ? (
-                        <div className="w-5 h-5 border-2 border-studio-black border-t-transparent rounded-full animate-spin"></div>
-                      ) : (
-                        <>
-                          <CheckCheck size={18} />
-                          Atualizar Senha
-                        </>
-                      )}
+                    <button type="submit" disabled={isUpdatingProfile || !newPassword} className="w-full py-4 bg-studio-gold text-studio-black font-display font-black uppercase tracking-widest hover:bg-studio-gold-light transition-all disabled:opacity-50 rounded-lg shadow-xl shadow-studio-gold/10 flex items-center justify-center gap-2">
+                      {isUpdatingProfile ? <div className="w-5 h-5 border-2 border-studio-black border-t-transparent rounded-full animate-spin"></div> : <><CheckCheck size={18} /> Atualizar Senha</>}
                     </button>
                   </div>
                 </form>
-
-                <div className="bg-studio-gold/5 border border-studio-gold/10 p-6 rounded-2xl flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-studio-gold/10 flex items-center justify-center shrink-0">
-                    <Info size={24} className="text-studio-gold" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-white uppercase tracking-wider">Dica de Segurança</p>
-                    <p className="text-xs text-gray-500 mt-1 leading-relaxed">Use uma senha forte com pelo menos 8 caracteres, incluindo números e símbolos para proteger seus ensaios.</p>
-                  </div>
-                </div>
               </div>
             </div>
           </motion.div>
         )}
       </main>
 
-      {/* Floating Chat Button */}
-      <button
-        onClick={() => setIsChatOpen(!isChatOpen)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-studio-gold text-studio-black rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform z-50 transition-all font-bold"
-      >
-        <MessageSquare size={28} />
-        <span className="absolute top-3 right-3 flex h-3 w-3">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600 border border-studio-black"></span>
-        </span>
-      </button>
-
-      {/* Elegant Chat Window */}
-      <AnimatePresence>
-        {isChatOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-24 right-6 w-80 md:w-96 bg-studio-black border border-studio-gold/30 shadow-2xl z-50 flex flex-col overflow-hidden rounded-2xl"
-          >
-            {/* Header */}
-            <div className="bg-studio-gold p-4 flex justify-between items-center text-studio-black">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-studio-black flex items-center justify-center">
-                  <Headset className="text-studio-gold" size={16} />
-                </div>
-                <div>
-                  <h4 className="font-bold font-display uppercase text-sm tracking-wider">Suporte VIP</h4>
-                  <p className="opacity-70 text-[10px] uppercase font-bold">Online agora</p>
-                </div>
-              </div>
-              <button onClick={() => setIsChatOpen(false)} className="hover:rotate-90 transition-transform">
-                <X size={20} />
-              </button>
-            </div>
-            {/* Chat Content */}
-            <div className="p-6 h-80 overflow-y-auto space-y-4 bg-[#121212]/50">
-              <div className="flex gap-2">
-                <div className="w-6 h-6 rounded-full bg-studio-gold/20 flex items-center justify-center shrink-0">
-                  <Sparkles size={12} className="text-studio-gold" />
-                </div>
-                <div className="bg-white/5 p-3 rounded-xl">
-                  <p className="text-xs text-gray-300">Olá! Sou seu assistente de estilo. Como posso ajudar com seu novo ensaio hoje?</p>
-                </div>
-              </div>
-            </div>
-            {/* Input Area */}
-            <div className="p-4 border-t border-white/5 bg-studio-black">
-              <div className="relative">
-                <input className="w-full bg-white/5 border border-studio-gold/20 py-2 pl-4 pr-10 text-sm text-white focus:outline-none focus:border-studio-gold placeholder-gray-600 rounded-lg" placeholder="Digite sua mensagem..." type="text" />
-                <button className="absolute right-2 top-1/2 -translate-y-1/2 text-studio-gold hover:translate-x-1 transition-transform">
-                  <Send size={18} />
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      {/* MOBILE BOTTOM NAVIGATION (BOTTOM) */}
       <nav className="fixed bottom-0 left-0 right-0 h-20 bg-studio-black/90 backdrop-blur-2xl border-t border-white/5 z-[100] flex items-center justify-around px-2 md:hidden">
         {[
           { id: 'home', icon: Home, label: 'Home' },
@@ -1129,17 +823,7 @@ export default function Dashboard() {
           { id: 'novo', icon: PlusCircle, label: 'Novo', primary: true },
           { id: 'perfil', icon: User, label: 'Perfil' },
         ].map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setActiveTab(item.id as any)}
-            className={`flex flex-col items-center justify-center gap-1 transition-all duration-300 relative ${item.primary
-              ? 'w-14 h-14 -mt-10 bg-studio-gold text-studio-black rounded-full shadow-[0_0_20px_rgba(212,175,55,0.4)]'
-              : activeTab === item.id ? 'text-studio-gold' : 'text-gray-500'
-              }`}
-          >
-            {activeTab === item.id && !item.primary && (
-              <motion.div layoutId="activeMobileTab" className="absolute -top-3 w-1.5 h-1.5 bg-studio-gold rounded-full" />
-            )}
+          <button key={item.id} onClick={() => setActiveTab(item.id as any)} className={`flex flex-col items-center justify-center gap-1 transition-all duration-300 relative ${item.primary ? 'w-14 h-14 -mt-10 bg-studio-gold text-studio-black rounded-full shadow-[0_0_20px_rgba(212,175,55,0.4)]' : activeTab === item.id ? 'text-studio-gold' : 'text-gray-500'}`}>
             <item.icon size={item.primary ? 28 : 22} strokeWidth={item.primary ? 3 : 2} />
             {!item.primary && <span className="text-[10px] font-bold uppercase tracking-wider">{item.label}</span>}
           </button>
