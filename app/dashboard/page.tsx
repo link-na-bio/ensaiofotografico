@@ -370,14 +370,16 @@ export default function Dashboard() {
               {previewPhotos.map((url, idx) => (
                 <div
                   key={idx}
-                  className="relative max-w-3xl w-full shadow-[0_0_50px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden"
+                  // O SEGREDO ESTÁ AQUI: shrink-0 impede que a foto seja esmagada!
+                  className="relative max-w-2xl w-full shrink-0 shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-xl overflow-hidden bg-[#121212] border border-white/5"
                   onContextMenu={(e) => e.preventDefault()} // Bloqueia botão direito
                 >
-                  {/* A Foto (Não arrastável, sem eventos de ponteiro para não deixar segurar) */}
+                  {/* A Foto */}
                   <img
                     src={url}
                     alt={`Prévia ${idx + 1}`}
-                    className="w-full h-auto object-contain pointer-events-none select-none"
+                    // block e h-auto garantem a proporção real da imagem
+                    className="w-full h-auto block pointer-events-none select-none"
                     draggable={false}
                   />
 
