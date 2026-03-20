@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation'; // <-- Importante para os redirecionamentos
-import { supabase } from '@/lib/supabaseClient'; // <-- O nosso cano de conexão
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabaseClient';
 import {
   Camera,
   Home,
@@ -29,7 +29,8 @@ import {
   ChevronRight,
   Info,
   CreditCard,
-  Zap
+  Zap,
+  Eye
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -51,6 +52,7 @@ export default function Dashboard() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
   // Estados do Usuário Logado
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -95,14 +97,11 @@ export default function Dashboard() {
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
-        // Se não tem sessão (não logou), expulsa pro login!
         router.push('/login');
       } else {
-        // Se logou, pega o e-mail e libera a tela
         setUserEmail(session.user.email ?? '');
         setAvatarUrl(session.user.user_metadata?.avatar_url || null);
         setIsLoading(false);
-        // Buscar os pedidos reais
         fetchPedidos(session.user.id);
       }
     };
@@ -110,7 +109,6 @@ export default function Dashboard() {
     checkUser();
   }, [router]);
 
-  // Função para Deslogar (Sair)
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push('/login');
@@ -156,7 +154,6 @@ export default function Dashboard() {
   };
 
   const handleSendToProduction = async () => {
-    // 1. Validar se o formulário está preenchido
     if (!selectedPackage) {
       alert("Selecione um pacote primeiro.");
       return;
@@ -173,7 +170,6 @@ export default function Dashboard() {
     setIsUploading(true);
 
     try {
-      // 2. Pegar os dados do usuário logado diretamente do Supabase
       const { data: { user }, error: authError } = await supabase.auth.getUser();
 
       if (authError || !user) {
@@ -183,7 +179,6 @@ export default function Dashboard() {
       const userId = user.id;
       const userEmail = user.email;
 
-      // 3. Gravar os dados do pedido primeiro para obter o ID do pedido (UUID)
       const { data: orderData, error: dbError } = await supabase
         .from('pedidos')
         .insert({
@@ -199,7 +194,6 @@ export default function Dashboard() {
       if (dbError) throw dbError;
       const orderId = orderData.id;
 
-      // 4. Fazer o upload dos arquivos para o Storage (Caminho: userId/orderId/fileName)
       for (const file of selectedFiles) {
         const fileName = `${Date.now()}_${file.name}`;
         const filePath = `${userId}/${orderId}/${fileName}`;
@@ -211,20 +205,16 @@ export default function Dashboard() {
         if (storageError) throw storageError;
       }
 
-      // 5. Sucesso Total: Limpeza e Redirecionamento Visual
       setAlertMessage("Pedido enviado com sucesso! Em breve sua prévia estará disponível na aba Meus Ensaios.");
       setShowSuccessAlert(true);
       setActiveTab('home');
 
-      // Limpar estados do pedido
       setSelectedPackage(null);
       setSelectedStyles([]);
       setSelectedFiles([]);
 
-      // Recarregar a lista de pedidos para atualizar a Home e Meus Ensaios
       fetchPedidos(userId);
 
-      // Esconder alerta após 5 segundos
       setTimeout(() => setShowSuccessAlert(false), 5000);
 
     } catch (error: any) {
@@ -311,12 +301,16 @@ export default function Dashboard() {
         .list(path);
 
       if (error) throw error;
-      if (!files || files.length === 0) {
+
+      // Filtra o placeholder invisível do Supabase
+      const validFiles = files ? files.filter(f => f.name !== '.emptyFolderPlaceholder') : [];
+
+      if (validFiles.length === 0) {
         alert("Nenhuma prévia encontrada. Nossa equipe está finalizando seu ensaio!");
         return;
       }
 
-      const urls = files.map(file => {
+      const urls = validFiles.map(file => {
         const { data: { publicUrl } } = supabase.storage
           .from('previa_ensaios')
           .getPublicUrl(`${path}${file.name}`);
@@ -334,7 +328,6 @@ export default function Dashboard() {
     }
   };
 
-  // Tela de carregamento enquanto o Supabase verifica a chave
   if (isLoading) {
     return (
       <div className="min-h-screen bg-studio-black flex items-center justify-center">
@@ -345,6 +338,73 @@ export default function Dashboard() {
 
   return (
     <div className="flex min-h-screen bg-studio-black text-white relative">
+
+      {/* 🛡️ MODAL DE PRÉVIA BLINDADO 🛡️ */}
+      <AnimatePresence>
+        {isPreviewOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-2xl flex flex-col"
+          >
+            {/* Header do Modal */}
+            <div className="flex justify-between items-center p-6 border-b border-white/10 bg-studio-black/50">
+              <div>
+                <h3 className="text-2xl font-display uppercase tracking-widest text-studio-gold font-bold">Prévia do Ensaio</h3>
+                <p className="text-gray-400 text-xs mt-1">Protegido com marca d'água. Aprove para liberar a versão final em alta resolução sem marcas.</p>
+              </div>
+              <button onClick={() => setIsPreviewOpen(false)} className="text-white hover:text-studio-gold transition-colors p-2 bg-white/5 rounded-full hover:bg-white/10">
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Área das Fotos Blindadas */}
+            <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center gap-12 select-none">
+              {previewPhotos.map((url, idx) => (
+                <div
+                  key={idx}
+                  className="relative max-w-3xl w-full shadow-[0_0_50px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden"
+                  onContextMenu={(e) => e.preventDefault()} // Bloqueia botão direito
+                >
+                  {/* A Foto (Não arrastável, sem eventos de ponteiro para não deixar segurar) */}
+                  <img
+                    src={url}
+                    alt={`Prévia ${idx + 1}`}
+                    className="w-full h-auto object-contain pointer-events-none select-none"
+                    draggable={false}
+                  />
+
+                  {/* Camada 1: Escudo Invisível anti-Drag & Drop e anti-clique */}
+                  <div className="absolute inset-0 z-10 cursor-not-allowed"></div>
+
+                  {/* Camada 2: Marca d'água agressiva */}
+                  <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden flex items-center justify-center opacity-30 mix-blend-overlay">
+                    <div className="w-[150%] h-[150%] -rotate-45 flex flex-wrap gap-x-8 gap-y-16 justify-center items-center text-4xl md:text-5xl font-display font-black uppercase tracking-[0.3em] text-white/50">
+                      {Array.from({ length: 40 }).map((_, i) => (
+                        <span key={i} className="whitespace-nowrap">VIRTUAL STUDIO</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Footer Fixo: A grande conversão (Checkout) */}
+            <div className="p-6 border-t border-white/10 bg-studio-black/90 backdrop-blur-md flex justify-center">
+              <button
+                onClick={() => router.push(`/checkout?orderId=${selectedOrderId}`)}
+                className="w-full max-w-lg py-5 bg-studio-gold text-studio-black font-display font-black uppercase tracking-widest text-sm md:text-base hover:bg-studio-gold-light hover:scale-[1.02] transition-all rounded-xl shadow-[0_0_40px_rgba(212,175,55,0.4)] flex items-center justify-center gap-3"
+              >
+                <CheckCircle2 size={24} />
+                Aprovar e Liberar Alta Resolução
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* 🛡️ FIM DO MODAL BLINDADO 🛡️ */}
+
       {/* Success Alert */}
       <AnimatePresence>
         {showSuccessAlert && (
@@ -496,12 +556,11 @@ export default function Dashboard() {
                           <td className="px-6 py-4 font-bold uppercase tracking-widest text-xs text-studio-gold">{pedido.pacote}</td>
                           <td className="px-6 py-4 text-gray-500 text-xs">{formatDate(pedido.criado_em)}</td>
                           <td className="px-6 py-4">
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
-                              (pedido.status === 'Ensaio Concluído' || pedido.status === 'Finalizado') ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                              pedido.status === 'Em Produção' ? 'bg-blue-900/20 text-blue-400 border-blue-400/30' :
-                              pedido.status === 'Prévia Disponível' ? 'bg-studio-gold/10 text-studio-gold border-studio-gold/20' :
-                              'bg-orange-500/10 text-orange-400 border-orange-500/20'
-                            }`}>
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${(pedido.status === 'Ensaio Concluído' || pedido.status === 'Finalizado') ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
+                                pedido.status === 'Em Produção' ? 'bg-blue-900/20 text-blue-400 border-blue-400/30' :
+                                  pedido.status === 'Prévia Disponível' ? 'bg-studio-gold/10 text-studio-gold border-studio-gold/20' :
+                                    'bg-orange-500/10 text-orange-400 border-orange-500/20'
+                              }`}>
                               {pedido.status === 'Finalizado' ? 'Ensaio Concluído' : pedido.status}
                             </span>
                           </td>
@@ -567,12 +626,11 @@ export default function Dashboard() {
                   <div key={pedido.id} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden group hover:border-studio-gold/30 transition-all flex flex-col">
                     <div className="p-6 flex-1">
                       <div className="flex justify-between items-start mb-4">
-                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
-                          (pedido.status === 'Ensaio Concluído' || pedido.status === 'Finalizado') ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                          pedido.status === 'Em Produção' ? 'bg-blue-900/20 text-blue-400 border-blue-400/30' :
-                          pedido.status === 'Prévia Disponível' ? 'bg-studio-gold/10 text-studio-gold border-studio-gold/20' :
-                          'bg-orange-500/10 text-orange-400 border-orange-500/20'
-                        }`}>
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${(pedido.status === 'Ensaio Concluído' || pedido.status === 'Finalizado') ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
+                            pedido.status === 'Em Produção' ? 'bg-blue-900/20 text-blue-400 border-blue-400/30' :
+                              pedido.status === 'Prévia Disponível' ? 'bg-studio-gold/10 text-studio-gold border-studio-gold/20' :
+                                'bg-orange-500/10 text-orange-400 border-orange-500/20'
+                          }`}>
                           {pedido.status === 'Finalizado' ? 'Ensaio Concluído' : pedido.status}
                         </span>
                         <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{formatDate(pedido.criado_em).split(',')[0]}</span>
