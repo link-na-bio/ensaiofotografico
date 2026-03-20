@@ -366,34 +366,34 @@ export default function Dashboard() {
             </div>
 
             {/* Área das Fotos Blindadas */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center gap-12 select-none">
+            <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center gap-6 select-none bg-black/40">
               {previewPhotos.map((url, idx) => (
                 <div
                   key={idx}
-                  // O SEGREDO ESTÁ AQUI: shrink-0 impede que a foto seja esmagada!
-                  className="relative max-w-2xl w-full shrink-0 shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-xl overflow-hidden bg-[#121212] border border-white/5"
-                  onContextMenu={(e) => e.preventDefault()} // Bloqueia botão direito
+                  // LUXO: max-w-xs (320px) cria uma miniatura elegante e profissional
+                  className="relative max-w-xs w-full shrink-0 shadow-[0_20px_50px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden bg-[#0A0A0A] border border-white/10 group"
+                  onContextMenu={(e) => e.preventDefault()}
                 >
                   {/* A Foto */}
                   <img
                     src={url}
                     alt={`Prévia ${idx + 1}`}
-                    // block e h-auto garantem a proporção real da imagem
-                    className="w-full h-auto block pointer-events-none select-none"
+                    className="w-full h-auto block pointer-events-none select-none grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700"
                     draggable={false}
                   />
 
-                  {/* Camada 1: Escudo Invisível anti-Drag & Drop e anti-clique */}
-                  <div className="absolute inset-0 z-10 cursor-not-allowed"></div>
+                  {/* Camada 1: Escudo Invisível anti-Drag & Drop */}
+                  <div className="absolute inset-0 z-10 cursor-default"></div>
 
-                  {/* Camada 2: Marca d'água agressiva */}
-                  <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden flex items-center justify-center opacity-30 mix-blend-overlay">
-                    <div className="w-[150%] h-[150%] -rotate-45 flex flex-wrap gap-x-8 gap-y-16 justify-center items-center text-4xl md:text-5xl font-display font-black uppercase tracking-[0.3em] text-white/50">
-                      {Array.from({ length: 40 }).map((_, i) => (
-                        <span key={i} className="whitespace-nowrap">VIRTUAL STUDIO</span>
-                      ))}
-                    </div>
-                  </div>
+                  {/* Camada 2: Marca d'água de Luxo (Grade Diagonal Densa SVG) */}
+                  <div 
+                    className="absolute inset-0 z-20 pointer-events-none opacity-20 mix-blend-overlay"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50%25' y='50%25' fill='white' font-size='6' font-family='sans-serif' text-anchor='middle' dominant-baseline='middle' transform='rotate(-45 40 40)' opacity='0.8'%3EVIRTUAL STUDIO%3C/text%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'repeat',
+                      backgroundSize: '80px 80px'
+                    }}
+                  />
                 </div>
               ))}
             </div>
