@@ -384,19 +384,14 @@ export default function Dashboard() {
                   {/* 🛡️ Camada 1: Escudo Invisível anti-Drag & Drop e anti-clique */}
                   <div className="absolute inset-0 z-10 cursor-not-allowed"></div>
 
-                  {/* 🛡️ Camada 2: A Blindagem Definitiva (Hierarquia de Branding - Estilo Fotto Pro) 🛡️ */}
+                  {/* 🛡️ Camada 2: Marca d'água Personalizada (Imagem Única Cobrindo Tudo) 🛡️ */}
                   <div
-                    className="absolute inset-0 z-20 pointer-events-none opacity-20 mix-blend-overlay"
+                    className="absolute inset-0 z-20 pointer-events-none opacity-80"
                     style={{
-                      // MULTI-SCALE LOGO SYSTEM: Logos grandes e pequenos intercalados com a grade de segurança
-                      backgroundImage: `
-                        url("/logo.2.png"), 
-                        url("/logo.2.png"),
-                        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Cline x1='0' y1='0' x2='150' y2='150' stroke='white' stroke-width='0.5' opacity='0.15' /%3E%3Cline x1='150' y1='0' x2='0' y2='150' stroke='white' stroke-width='0.5' opacity='0.15' /%3E%3Ctext x='75' y='105' text-anchor='middle' fill='white' font-size='9' font-family='sans-serif' font-weight='900' opacity='0.5' letter-spacing='0.1em'%3EVIRTUAL STUDIO%3C/text%3E%3Ctext x='75' y='118' text-anchor='middle' fill='white' font-size='6' font-family='sans-serif' font-weight='700' opacity='0.3'%3EFOTO PROTEGIDA • NÃO TIRE PRINT%3C/text%3E%3C/svg%3E")
-                      `,
-                      backgroundRepeat: 'repeat, repeat, repeat',
-                      backgroundSize: '120px 120px, 40px 40px, 150px 150px',
-                      backgroundPosition: 'center center, 40px 40px, 0 0',
+                      backgroundImage: `url("/FOTO PROTEGIDA - NÃO TIRE PRINT.png")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundSize: '100% 100%',
+                      backgroundPosition: 'center center'
                     }}
                   ></div>
                 </div>
@@ -1045,8 +1040,8 @@ export default function Dashboard() {
             key={item.id}
             onClick={() => setActiveTab(item.id as any)}
             className={`flex flex-col items-center justify-center gap-1 transition-all duration-300 relative ${item.primary
-                ? 'w-14 h-14 -mt-10 bg-studio-gold text-studio-black rounded-full shadow-[0_0_20px_rgba(212,175,55,0.4)]'
-                : activeTab === item.id ? 'text-studio-gold' : 'text-gray-500'
+              ? 'w-14 h-14 -mt-10 bg-studio-gold text-studio-black rounded-full shadow-[0_0_20px_rgba(212,175,55,0.4)]'
+              : activeTab === item.id ? 'text-studio-gold' : 'text-gray-500'
               }`}
           >
             {activeTab === item.id && !item.primary && (
