@@ -416,9 +416,9 @@ export default function Dashboard() {
                       onClick={() => !isCenter && setActivePreview(idx)}
                       className={`absolute w-[220px] h-[400px] md:w-[280px] md:h-[500px] rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] transition-all duration-500 bg-[#121212] ${isCenter ? 'border-2 border-studio-gold shadow-studio-gold/20' : 'border border-white/10 opacity-60'}`}
                       style={{
-                        pointerEvents: isActive ? "auto" : "none",
-                        onContextMenu: (e: any) => e.preventDefault()
+                        pointerEvents: isActive ? "auto" : "none"
                       }}
+                      onContextMenu={(e: any) => e.preventDefault()}
                       initial={false}
                       animate={{
                         x: offset * distanceX,
