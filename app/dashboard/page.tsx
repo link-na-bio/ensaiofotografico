@@ -27,6 +27,7 @@ import {
   LayoutGrid,
   CheckCircle2,
   ChevronRight,
+  ChevronLeft,
   Info,
   CreditCard,
   Zap,
@@ -63,6 +64,36 @@ export default function Dashboard() {
   const [previewPhotos, setPreviewPhotos] = useState<string[]>([]);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [isFetchingPreview, setIsFetchingPreview] = useState(false);
+  const [activePreview, setActivePreview] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(1200);
+
+  // Efeito para largura da janela (responsividade do carrossel)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setWindowWidth(window.innerWidth);
+      const handleResize = () => setWindowWidth(window.innerWidth);
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
+
+  // Função matemática para o loop infinito do carrossel
+  const getOffset = (index: number) => {
+    let offset = index - activePreview;
+    const total = previewPhotos.length;
+    if (total === 0) return 0;
+    if (offset > Math.floor(total / 2)) offset -= total;
+    if (offset < -Math.floor(total / 2)) offset += total;
+    return offset;
+  };
+
+  const nextPreview = () => {
+    if (previewPhotos.length > 0) setActivePreview((prev) => (prev + 1) % previewPhotos.length);
+  };
+
+  const prevPreview = () => {
+    if (previewPhotos.length > 0) setActivePreview((prev) => (prev - 1 + previewPhotos.length) % previewPhotos.length);
+  };
 
   // Buscar Pedidos do Usuário
   const fetchPedidos = async (userId: string) => {
@@ -329,6 +360,7 @@ export default function Dashboard() {
 
       setPreviewPhotos(urls);
       setSelectedOrderId(orderId);
+      setActivePreview(0); // Resetar para a primeira foto
       setIsPreviewOpen(true);
     } catch (error: any) {
       console.error('Erro ao buscar prévia:', error);
@@ -368,37 +400,90 @@ export default function Dashboard() {
               </button>
             </div>
 
-            {/* Área das Fotos Blindadas */}
-            <div className="flex-1 overflow-x-auto p-4 md:p-8 flex flex-row items-center justify-start md:justify-center gap-6 select-none no-scrollbar">
-              {previewPhotos.map((url, idx) => (
-                <div
-                  key={idx}
-                  // 📐 Tamanho Elegante e Premium: max-w-xs (aproximadamente 320px)
-                  className="relative max-w-[160px] md:max-w-[240px] w-full shrink-0 shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-xl overflow-hidden bg-[#121212] border border-white/5"
-                  onContextMenu={(e) => e.preventDefault()} // 🛡️ Bloqueio botão direito
-                >
-                  {/* A Foto */}
-                  <img
-                    src={url}
-                    alt={`Prévia ${idx + 1}`}
-                    className="w-full h-auto block pointer-events-none select-none filter blur-[1.2px] brightness-[0.9] contrast-[1.1]"
-                    draggable={false}
-                  />
+            {/* Área das Fotos Blindadas (Carrossel 3D Estilo Prova Social) */}
+            <div className="flex-1 relative flex items-center justify-center overflow-hidden py-12 px-4 select-none">
+              <div className="relative w-full max-w-5xl h-[500px] flex items-center justify-center">
+                {previewPhotos.map((url, idx) => {
+                  const offset = getOffset(idx);
+                  const absOffset = Math.abs(offset);
+                  const isActive = absOffset <= 2;
+                  const isCenter = offset === 0;
+                  const distanceX = windowWidth < 768 ? 160 : 320;
 
-                  {/* 🛡️ Camada 1: Escudo Invisível anti-Drag & Drop e anti-clique */}
-                  <div className="absolute inset-0 z-10 cursor-not-allowed"></div>
+                  return (
+                    <motion.div
+                      key={idx}
+                      onClick={() => !isCenter && setActivePreview(idx)}
+                      className={`absolute w-[220px] h-[400px] md:w-[280px] md:h-[500px] rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] transition-all duration-500 bg-[#121212] ${isCenter ? 'border-2 border-studio-gold shadow-studio-gold/20' : 'border border-white/10 opacity-60'}`}
+                      style={{ 
+                        pointerEvents: isActive ? "auto" : "none",
+                        onContextMenu: (e: any) => e.preventDefault()
+                      }}
+                      initial={false}
+                      animate={{
+                        x: offset * distanceX,
+                        scale: isActive ? 1 - absOffset * 0.15 : 0.5,
+                        zIndex: 20 - absOffset,
+                        opacity: isActive ? (1 - absOffset * 0.3) : 0,
+                      }}
+                      transition={{ type: "spring", stiffness: 260, damping: 25 }}
+                    >
+                      {/* A Foto */}
+                      <img
+                        src={url}
+                        alt={`Prévia ${idx + 1}`}
+                        className="w-full h-full object-contain pointer-events-none select-none filter blur-[1.2px] brightness-[0.9] contrast-[1.1]"
+                        draggable={false}
+                      />
 
-                  {/* 🛡️ Camada 2: Marca d'água Personalizada (Imagem Única Cobrindo Tudo) 🛡️ */}
-                  <div
-                    className="absolute inset-0 z-20 pointer-events-none opacity-80"
-                    style={{
-                      backgroundImage: `url("/FOTO PROTEGIDA - NÃO TIRE PRINT.png")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundSize: '100% 100%',
-                      backgroundPosition: 'center center'
-                    }}
-                  ></div>
-                </div>
+                      {/* 🛡️ Camada 1: Escudo Invisível */}
+                      <div className="absolute inset-0 z-10 cursor-not-allowed"></div>
+
+                      {/* 🛡️ Camada 2: Marca d'água */}
+                      <div
+                        className="absolute inset-0 z-20 pointer-events-none opacity-80"
+                        style={{
+                          backgroundImage: `url("/FOTO PROTEGIDA - NÃO TIRE PRINT.png")`,
+                          backgroundRepeat: 'no-repeat',
+                          backgroundSize: '100% 100%',
+                          backgroundPosition: 'center center'
+                        }}
+                      ></div>
+                    </motion.div>
+                  );
+                })}
+
+                {/* Setas de Navegação */}
+                {previewPhotos.length > 1 && (
+                  <>
+                    <button
+                      onClick={prevPreview}
+                      className="absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-studio-black/80 backdrop-blur-md border border-studio-gold/50 flex items-center justify-center text-studio-gold hover:bg-studio-gold hover:text-black transition-all shadow-xl z-50 cursor-pointer"
+                    >
+                      <ChevronLeft size={24} />
+                    </button>
+                    <button
+                      onClick={nextPreview}
+                      className="absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-studio-black/80 backdrop-blur-md border border-studio-gold/50 flex items-center justify-center text-studio-gold hover:bg-studio-gold hover:text-black transition-all shadow-xl z-50 cursor-pointer"
+                    >
+                      <ChevronRight size={24} />
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Pontos de Navegação (Dots) */}
+            <div className="flex justify-center items-center gap-2 pb-8">
+              {previewPhotos.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActivePreview(i)}
+                  className={`transition-all duration-300 rounded-full h-1.5 ${activePreview === i
+                    ? 'w-8 bg-studio-gold shadow-[0_0_10px_rgba(195,157,93,0.5)]'
+                    : 'w-1.5 bg-white/20 hover:bg-white/40'
+                    }`}
+                />
               ))}
             </div>
 
