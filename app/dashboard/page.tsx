@@ -365,12 +365,12 @@ export default function Dashboard() {
             </div>
 
             {/* Área das Fotos Blindadas */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center gap-12 select-none">
+            <div className="flex-1 overflow-x-auto p-4 md:p-8 flex flex-row items-center justify-start md:justify-center gap-6 select-none no-scrollbar">
               {previewPhotos.map((url, idx) => (
                 <div
                   key={idx}
                   // 📐 Tamanho Elegante e Premium: max-w-xs (aproximadamente 320px)
-                  className="relative max-w-xs w-full shrink-0 shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-xl overflow-hidden bg-[#121212] border border-white/5"
+                  className="relative w-48 md:w-64 shrink-0 shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-xl overflow-hidden bg-[#121212] border border-white/5"
                   onContextMenu={(e) => e.preventDefault()} // 🛡️ Bloqueio botão direito
                 >
                   {/* A Foto */}

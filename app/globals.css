@@ -31,6 +31,15 @@
     border: 1px solid transparent;
     border-image: linear-gradient(to bottom right, #c39d5d, #171510) 1;
   }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 @keyframes float {
