@@ -221,8 +221,8 @@ export default function AdminMessages() {
                         <div key={idx} className={`flex flex-col ${isAdmin ? 'items-end' : 'items-start'}`}>
                           <div className={`max-w-[70%] rounded-2xl p-4 shadow-xl ${isAdmin ? 'bg-studio-gold text-black rounded-tr-sm' : 'bg-white/10 text-white rounded-tl-sm border border-white/5'}`}>
 
-                            {/* Renderizar Comprovante ou Texto */}
-                            {msg.tipo === 'comprovante' ? (
+                            {/* Renderizar Comprovante, Imagem ou Texto */}
+                            {msg.tipo === 'comprovante' || msg.tipo === 'imagem' ? (
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2 mb-2 opacity-60">
                                   <FileImage size={14} /> <span className="text-[10px] font-bold uppercase tracking-widest">Comprovante Recebido</span>
