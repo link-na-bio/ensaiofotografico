@@ -89,12 +89,29 @@ export default function AdminOrders() {
   useEffect(() => {
     fetchOrders();
 
+    // ESCUTADOR REAL-TIME DA TABELA DE PEDIDOS
+    const channel = supabase
+      .channel('admin_pedidos_changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'pedidos' },
+        (payload) => {
+          // Atualiza a tabela imediatamente quando houver qualquer alteração no banco
+          fetchOrders();
+        }
+      )
+      .subscribe();
+
     if (!window.JSZip) {
       const script = document.createElement('script');
       script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
       script.async = true;
       document.body.appendChild(script);
     }
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
@@ -412,10 +429,10 @@ export default function AdminOrders() {
                               value={order.status === 'Processing' ? 'Em Produção' : order.status === 'Completed' ? 'Ensaio Concluído' : order.status}
                               onChange={(e) => handleStatusChange(order.id, e.target.value)}
                               className={`bg-studio-black border px-2 py-1 text-[10px] font-bold uppercase tracking-widest font-display outline-none cursor-pointer focus:ring-1 focus:ring-studio-gold transition-all ${(order.status === 'Ensaio Concluído' || order.status === 'Completed') ? 'text-emerald-400 border-emerald-400/30' :
-                                  (order.status === 'Pagamento em Análise') ? 'text-rose-400 border-rose-400/30 bg-rose-900/10 animate-pulse' :
-                                    (order.status === 'Em Produção' || order.status === 'Processing') ? 'text-blue-400 border-blue-400/20 bg-blue-900/10' :
-                                      (order.status === 'Prévia Disponível') ? 'text-studio-gold border-studio-gold/30' :
-                                        'text-orange-400 border-orange-400/30'
+                                (order.status === 'Pagamento em Análise') ? 'text-rose-400 border-rose-400/30 bg-rose-900/10 animate-pulse' :
+                                  (order.status === 'Em Produção' || order.status === 'Processing') ? 'text-blue-400 border-blue-400/20 bg-blue-900/10' :
+                                    (order.status === 'Prévia Disponível') ? 'text-studio-gold border-studio-gold/30' :
+                                      'text-orange-400 border-orange-400/30'
                                 }`}
                             >
                               <option value="Aguardando Produção">Aguardando Produção</option>
