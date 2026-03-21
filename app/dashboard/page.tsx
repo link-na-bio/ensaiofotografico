@@ -329,14 +329,14 @@ export default function Dashboard() {
   const renderActionButtons = (pedido: any) => {
     if (pedido.status === 'Prévia Disponível') {
       return (
-        <button onClick={() => handleOpenPreview(pedido.id)} disabled={isFetchingPreview} className="w-full mt-4 py-3 bg-studio-gold text-studio-black font-bold uppercase tracking-widest text-[10px] hover:bg-studio-gold-light transition-all flex items-center justify-center gap-2 group/btn">
-          {isFetchingPreview && selectedOrderId === pedido.id ? <div className="w-3 h-3 border-2 border-black border-t-transparent rounded-full animate-spin"></div> : <Eye size={14} className="group-hover/btn:scale-110 transition-transform" />} Visualizar Prévia
+        <button onClick={() => handleOpenPreview(pedido.id)} disabled={isFetchingPreview} className="relative z-50 w-full py-3 bg-studio-gold text-studio-black font-bold uppercase tracking-widest text-[10px] hover:bg-studio-gold-light transition-all flex items-center justify-center gap-2 group/btn cursor-pointer disabled:opacity-50 rounded-xl">
+          {isFetchingPreview && selectedOrderId === pedido.id ? <Loader2 size={14} className="animate-spin" /> : <Eye size={14} className="group-hover/btn:scale-110 transition-transform" />} Visualizar Prévia
         </button>
       );
     }
     if (pedido.status === 'Pagamento em Análise') {
       return (
-        <button disabled className="w-full mt-4 py-3 bg-white/5 border border-white/10 text-gray-400 font-bold uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 cursor-not-allowed">
+        <button disabled className="relative w-full py-3 bg-white/5 border border-white/10 text-gray-400 font-bold uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 cursor-not-allowed rounded-xl">
           <Clock size={14} /> Analisando Pagamento...
         </button>
       );
@@ -346,9 +346,9 @@ export default function Dashboard() {
         <button
           onClick={() => handleDownloadFinal(pedido.id)}
           disabled={isDownloading === pedido.id}
-          className="w-full mt-4 py-3 bg-emerald-500 text-black font-bold uppercase tracking-widest text-[10px] hover:bg-emerald-400 transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.2)] disabled:opacity-50"
+          className="relative z-50 w-full py-3 bg-emerald-500 text-black font-bold uppercase tracking-widest text-[10px] hover:bg-emerald-400 transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.2)] disabled:opacity-50 cursor-pointer rounded-xl"
         >
-          {isDownloading === pedido.id ? <div className="size-3 border-2 border-black border-t-transparent rounded-full animate-spin"></div> : <Download size={14} />}
+          {isDownloading === pedido.id ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
           Baixar Fotos em Alta
         </button>
       );
@@ -476,6 +476,9 @@ export default function Dashboard() {
           </motion.div>
         )}
 
+        {/* ========================================================= */}
+        {/* ABA ENSAIOS - RESTAURADA COM ESTILOS E BOTÃO Z-INDEX 50   */}
+        {/* ========================================================= */}
         {activeTab === 'ensaios' && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="ensaios" className="px-8">
             <header className="mb-8"><h2 className="text-3xl font-bold font-display uppercase tracking-wider">Os Meus Ensaios</h2></header>
@@ -489,8 +492,8 @@ export default function Dashboard() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {pedidos.map((pedido) => (
-                  <div key={pedido.id} className={`bg-white/5 border rounded-2xl overflow-hidden flex flex-col transition-all ${pedido.status === 'Ensaio Concluído' ? 'border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'border-white/10 hover:border-studio-gold/30'}`}>
-                    <div className="p-6 flex-1">
+                  <div key={pedido.id} className={`relative bg-white/5 border rounded-2xl overflow-hidden flex flex-col transition-all ${pedido.status === 'Ensaio Concluído' ? 'border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'border-white/10 hover:border-studio-gold/30'}`}>
+                    <div className="p-6 flex-1 flex flex-col relative z-10">
                       <div className="flex justify-between items-start mb-4">
                         <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${(pedido.status === 'Ensaio Concluído') ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
                             (pedido.status === 'Pagamento em Análise') ? 'bg-blue-900/20 text-blue-400 border-blue-400/30 animate-pulse' :
@@ -501,8 +504,25 @@ export default function Dashboard() {
                         </span>
                         <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{formatDate(pedido.criado_em)}</span>
                       </div>
+
                       <h4 className="text-lg font-bold font-display uppercase tracking-widest text-studio-gold mb-2">{pedido.pacote}</h4>
-                      {renderActionButtons(pedido)}
+
+                      {/* ESTILOS RESTAURADOS */}
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {pedido.estilos?.map((estilo: string) => (
+                          <span key={estilo} className="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] uppercase tracking-wider text-gray-400">{estilo}</span>
+                        ))}
+                      </div>
+
+                      {/* BOTÕES GARANTIDOS NA CAMADA DA FRENTE */}
+                      <div className="mt-auto relative z-50">
+                        {renderActionButtons(pedido)}
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-white/5 border-t border-white/10 flex justify-between items-center relative z-10">
+                      <div className="flex items-center gap-2 text-[10px] text-gray-500 uppercase tracking-widest font-bold"><Camera size={14} className="text-studio-gold" /> ID: {pedido.id.slice(0, 8)}</div>
+                      <ChevronRight size={16} className="text-gray-600 group-hover:text-studio-gold group-hover:translate-x-1 transition-all" />
                     </div>
                   </div>
                 ))}
@@ -511,7 +531,7 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* 💬 NOVO CHAT: LAYOUT DUAS COLUNAS 💬 */}
+        {/* CHAT COM LAYOUT SIMÉTRICO AO ADMIN */}
         {activeTab === 'mensagens' && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="mensagens" className="px-4 md:px-8 h-full flex flex-col pb-8">
             <header className="mb-6 shrink-0">
@@ -521,7 +541,6 @@ export default function Dashboard() {
 
             <div className="flex-1 flex flex-col md:flex-row gap-6 min-h-[500px] max-h-[70vh]">
 
-              {/* COLUNA ESQUERDA: Lista de Pedidos (Esconde no mobile se tiver chat aberto) */}
               <div className={`w-full md:w-80 flex-col bg-[#121212] border border-white/5 rounded-2xl overflow-hidden shadow-2xl flex-shrink-0 ${chatOrderId ? 'hidden md:flex' : 'flex'}`}>
                 <div className="p-4 border-b border-white/5 bg-white/[0.02]">
                   <h2 className="font-display font-bold uppercase tracking-widest text-studio-gold text-sm flex items-center gap-2">
@@ -559,7 +578,6 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* COLUNA DIREITA: Área do Chat */}
               <div className={`flex-1 flex-col bg-[#121212] border border-white/5 rounded-2xl overflow-hidden shadow-2xl relative ${!chatOrderId ? 'hidden md:flex' : 'flex'}`}>
                 {!chatOrderId ? (
                   <div className="h-full flex flex-col items-center justify-center text-gray-500 space-y-3">
