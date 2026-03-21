@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { Search, Plus, Trash2, X, UploadCloud, Loader2 } from 'lucide-react';
+// 👇 Olha o Sparkles adicionado aqui nesta linha!
+import { Search, Plus, Trash2, X, UploadCloud, Loader2, Sparkles } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -10,13 +11,11 @@ export default function AdminStyles() {
   const [styles, setStyles] = useState<any[]>([]);
   const [filteredStyles, setFilteredStyles] = useState<any[]>([]);
 
-  // Estados de UI
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Estado do Formulário Lateral
   const [editingStyle, setEditingStyle] = useState<any | null>(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -38,7 +37,6 @@ export default function AdminStyles() {
     fetchStyles();
   }, []);
 
-  // Lógica de Filtro e Pesquisa
   useEffect(() => {
     let result = styles;
     if (activeCategory !== 'Todos') {
@@ -50,7 +48,6 @@ export default function AdminStyles() {
     setFilteredStyles(result);
   }, [searchQuery, activeCategory, styles]);
 
-  // Manipulador de Upload de Imagem no painel lateral
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -59,7 +56,6 @@ export default function AdminStyles() {
     }
   };
 
-  // Abrir painel para NOVO estilo
   const handleAddNew = () => {
     setEditingStyle(null);
     setIsAddingNew(true);
@@ -67,7 +63,6 @@ export default function AdminStyles() {
     setPreviewUrl(null);
   };
 
-  // Abrir painel para EDITAR estilo
   const handleEdit = (style: any) => {
     setIsAddingNew(false);
     setEditingStyle(style);
@@ -82,7 +77,6 @@ export default function AdminStyles() {
     setPreviewUrl(null);
   };
 
-  // SALVAR (Criar ou Atualizar)
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSaving(true);
@@ -91,11 +85,12 @@ export default function AdminStyles() {
     const titulo = formData.get('titulo') as string;
     const categoria = formData.get('categoria') as string;
     const descricao = formData.get('descricao') as string;
+    const genero = formData.get('genero') as string;
+    const dica_roupa = formData.get('dica_roupa') as string;
 
     try {
       let finalImgUrl = editingStyle?.img_url || '';
 
-      // Se escolheu uma imagem nova, faz upload pro Supabase
       if (selectedFile) {
         const fileExt = selectedFile.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
@@ -114,13 +109,11 @@ export default function AdminStyles() {
       }
 
       if (isAddingNew) {
-        // CRIAR NOVO
-        const { error } = await supabase.from('estilos').insert([{ titulo, categoria, descricao, img_url: finalImgUrl }]);
+        const { error } = await supabase.from('estilos').insert([{ titulo, categoria, descricao, genero, dica_roupa, img_url: finalImgUrl }]);
         if (error) throw error;
         alert('Estilo adicionado com sucesso!');
       } else if (editingStyle) {
-        // ATUALIZAR EXISTENTE
-        const { error } = await supabase.from('estilos').update({ titulo, categoria, descricao, img_url: finalImgUrl }).eq('id', editingStyle.id);
+        const { error } = await supabase.from('estilos').update({ titulo, categoria, descricao, genero, dica_roupa, img_url: finalImgUrl }).eq('id', editingStyle.id);
         if (error) throw error;
         alert('Estilo atualizado!');
       }
@@ -134,10 +127,8 @@ export default function AdminStyles() {
     }
   };
 
-  // DELETAR ESTILO
   const handleDelete = async (id: string) => {
     if (!confirm('Tem certeza que deseja apagar este estilo do portfólio?')) return;
-
     try {
       const { error } = await supabase.from('estilos').delete().eq('id', id);
       if (error) throw error;
@@ -176,15 +167,12 @@ export default function AdminStyles() {
 
         <div className="flex-1 overflow-y-auto p-8 bg-[#121212]">
           <div className="flex flex-col lg:flex-row gap-8">
-
-            {/* GRID DE ESTILOS */}
             <div className="flex-1">
               <div className="mb-10">
                 <h1 className="text-3xl font-display uppercase tracking-widest font-bold mb-2">Gestão de Estilos</h1>
                 <p className="text-slate-500 text-xs tracking-widest uppercase">Curadoria de portfólio para a sua Inteligência Artificial</p>
               </div>
 
-              {/* Filtros */}
               <div className="flex gap-2 overflow-x-auto pb-4 mb-8 custom-scrollbar">
                 {['Todos', 'Retrato', 'Editorial', 'Comercial', 'Evento'].map((cat) => (
                   <button
@@ -210,8 +198,9 @@ export default function AdminStyles() {
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-700"
                         />
-                        <div className="absolute top-4 left-4">
+                        <div className="absolute top-4 left-4 flex gap-2">
                           <span className="bg-studio-gold text-studio-black text-[9px] font-bold uppercase tracking-widest px-3 py-1.5">{style.categoria}</span>
+                          <span className="bg-black/60 backdrop-blur-md border border-white/10 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1.5">{style.genero}</span>
                         </div>
                       </div>
                       <div className="p-6 flex flex-col flex-1">
@@ -236,7 +225,6 @@ export default function AdminStyles() {
                     </div>
                   ))}
 
-                  {/* Card de Adicionar Novo */}
                   <div onClick={handleAddNew} className="border border-dashed border-white/10 bg-white/[0.02] flex flex-col items-center justify-center p-12 hover:border-studio-gold hover:bg-studio-gold/5 transition-all cursor-pointer group min-h-[400px]">
                     <div className="w-16 h-16 rounded-full bg-studio-gold/10 flex items-center justify-center text-studio-gold mb-6 group-hover:scale-110 group-hover:bg-studio-gold group-hover:text-studio-black transition-all">
                       <Plus size={24} />
@@ -248,7 +236,6 @@ export default function AdminStyles() {
               )}
             </div>
 
-            {/* PAINEL LATERAL: ADICIONAR / EDITAR */}
             {(editingStyle || isAddingNew) && (
               <aside className="w-full lg:w-[400px] shrink-0">
                 <form onSubmit={handleSave} className="sticky top-8 bg-studio-black border border-studio-gold/30 shadow-[0_0_50px_rgba(212,175,55,0.05)]">
@@ -261,8 +248,7 @@ export default function AdminStyles() {
                     </button>
                   </div>
 
-                  <div className="p-6 space-y-6">
-                    {/* Upload de Imagem */}
+                  <div className="p-6 space-y-6 h-[75vh] overflow-y-auto custom-scrollbar">
                     <div className="space-y-3">
                       <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 flex justify-between">
                         Imagem de Referência
@@ -291,7 +277,6 @@ export default function AdminStyles() {
                       </div>
                     </div>
 
-                    {/* Campos do Formulário */}
                     <div className="space-y-5">
                       <div className="space-y-2">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Nome do Estilo</label>
@@ -305,19 +290,34 @@ export default function AdminStyles() {
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Categoria</label>
-                        <select
-                          name="categoria"
-                          required
-                          className="w-full px-4 py-3 bg-[#121212] border border-white/10 focus:border-studio-gold outline-none text-xs font-bold uppercase tracking-widest text-white transition-colors appearance-none cursor-pointer"
-                          defaultValue={editingStyle?.categoria || 'Retrato'}
-                        >
-                          <option value="Retrato">Retrato</option>
-                          <option value="Editorial">Editorial</option>
-                          <option value="Comercial">Comercial</option>
-                          <option value="Evento">Evento</option>
-                        </select>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Categoria</label>
+                          <select
+                            name="categoria"
+                            required
+                            className="w-full px-4 py-3 bg-[#121212] border border-white/10 focus:border-studio-gold outline-none text-xs font-bold uppercase tracking-widest text-white transition-colors appearance-none cursor-pointer"
+                            defaultValue={editingStyle?.categoria || 'Retrato'}
+                          >
+                            <option value="Retrato">Retrato</option>
+                            <option value="Editorial">Editorial</option>
+                            <option value="Comercial">Comercial</option>
+                            <option value="Evento">Evento</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Gênero</label>
+                          <select
+                            name="genero"
+                            required
+                            className="w-full px-4 py-3 bg-[#121212] border border-white/10 focus:border-studio-gold outline-none text-xs font-bold uppercase tracking-widest text-white transition-colors appearance-none cursor-pointer"
+                            defaultValue={editingStyle?.genero || 'Ambos'}
+                          >
+                            <option value="Ambos">Ambos</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Feminino">Feminino</option>
+                          </select>
+                        </div>
                       </div>
 
                       <div className="space-y-2">
@@ -327,13 +327,24 @@ export default function AdminStyles() {
                           required
                           placeholder="Descreva o impacto visual deste estilo..."
                           className="w-full px-4 py-3 bg-[#121212] border border-white/10 focus:border-studio-gold outline-none text-xs leading-relaxed text-white resize-none transition-colors custom-scrollbar"
-                          rows={4}
+                          rows={3}
                           defaultValue={editingStyle?.descricao || ''}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 text-studio-gold flex items-center gap-2"><Sparkles size={12} /> Dica de Dress Code (Roupa)</label>
+                        <textarea
+                          name="dica_roupa"
+                          required
+                          placeholder="Ex: Use blazers escuros e evite estampas..."
+                          className="w-full px-4 py-3 bg-studio-gold/5 border border-studio-gold/30 focus:border-studio-gold outline-none text-xs leading-relaxed text-white resize-none transition-colors custom-scrollbar"
+                          rows={3}
+                          defaultValue={editingStyle?.dica_roupa || 'Prefira roupas lisas, blazers ou camisas de cores neutras. Evite estampas muito chamativas para um resultado mais elegante com a IA.'}
                         />
                       </div>
                     </div>
 
-                    {/* Botões de Ação */}
                     <div className="pt-6 border-t border-white/5 flex flex-col gap-3">
                       <button
                         type="submit"

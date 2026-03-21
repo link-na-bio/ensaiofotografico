@@ -20,6 +20,9 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<'home' | 'ensaios' | 'novo' | 'perfil' | 'mensagens'>('home');
   const [chatOrderId, setChatOrderId] = useState<string | null>(null);
 
+  // Filtro de Gênero
+  const [genderFilter, setGenderFilter] = useState<'Feminino' | 'Masculino'>('Feminino');
+
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -28,6 +31,14 @@ export default function Dashboard() {
   const [alertMessage, setAlertMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const stylesScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollStyles = (direction: 'left' | 'right') => {
+    if (stylesScrollRef.current) {
+      const scrollAmount = 300;
+      stylesScrollRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+    }
+  };
 
   // Estados do Perfil
   const [newPassword, setNewPassword] = useState('');
@@ -364,6 +375,9 @@ export default function Dashboard() {
     return null;
   };
 
+  // Filtragem dos estilos baseada no Gênero selecionado (ESSA LINHA QUE FALTAVA!)
+  const displayStyles = dbStyles.filter(s => s.genero === genderFilter || s.genero === 'Ambos');
+
   return (
     <div className="flex min-h-screen bg-studio-black text-white relative">
       <AnimatePresence>
@@ -484,9 +498,6 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* ========================================================= */}
-        {/* ABA ENSAIOS - RESTAURADA COM ESTILOS E BOTÃO Z-INDEX 50   */}
-        {/* ========================================================= */}
         {activeTab === 'ensaios' && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="ensaios" className="px-8">
             <header className="mb-8"><h2 className="text-3xl font-bold font-display uppercase tracking-wider">Os Meus Ensaios</h2></header>
@@ -515,14 +526,12 @@ export default function Dashboard() {
 
                       <h4 className="text-lg font-bold font-display uppercase tracking-widest text-studio-gold mb-2">{pedido.pacote}</h4>
 
-                      {/* ESTILOS RESTAURADOS */}
                       <div className="flex flex-wrap gap-2 mb-6">
                         {pedido.estilos?.map((estilo: string) => (
                           <span key={estilo} className="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] uppercase tracking-wider text-gray-400">{estilo}</span>
                         ))}
                       </div>
 
-                      {/* BOTÕES GARANTIDOS NA CAMADA DA FRENTE */}
                       <div className="mt-auto relative z-50">
                         {renderActionButtons(pedido)}
                       </div>
@@ -539,10 +548,8 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* CHAT COM LAYOUT SIMÉTRICO AO ADMIN (HEADER FIXO) */}
         {activeTab === 'mensagens' && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="mensagens" className="px-4 md:px-8 h-full flex flex-col pb-8">
-            {/* O cabeçalho agora fica FORA das colunas para estar sempre visível */}
             <header className="mb-6 shrink-0">
               <h2 className="text-2xl font-bold font-display uppercase tracking-wider">Central de Suporte</h2>
               <p className="text-gray-500 text-sm mt-1">Fale com a nossa equipa sobre os seus pedidos.</p>
@@ -550,7 +557,6 @@ export default function Dashboard() {
 
             <div className="flex-1 flex flex-col md:flex-row gap-6 min-h-[500px] max-h-[70vh]">
 
-              {/* LISTA DE PEDIDOS */}
               <div className={`w-full md:w-80 flex-col bg-[#121212] border border-white/5 rounded-2xl overflow-hidden shadow-2xl flex-shrink-0 ${chatOrderId ? 'hidden md:flex' : 'flex'}`}>
                 <div className="p-4 border-b border-white/5 bg-white/[0.02]">
                   <h2 className="font-display font-bold uppercase tracking-widest text-studio-gold text-sm flex items-center gap-2">
@@ -588,7 +594,6 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* ÁREA DE CHAT */}
               <div className={`flex-1 flex-col bg-[#121212] border border-white/5 rounded-2xl overflow-hidden shadow-2xl relative ${!chatOrderId ? 'hidden md:flex' : 'flex'}`}>
                 {!chatOrderId ? (
                   <div className="h-full flex flex-col items-center justify-center text-gray-500 space-y-3">
@@ -691,7 +696,6 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* ... resto do código (novo, perfil, nav mobile) mantido igual ... */}
         {activeTab === 'novo' && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="novo" className="px-8">
             <header className="mb-8"><h2 className="text-2xl font-bold font-display uppercase tracking-widest">Configurar Novo Ensaio</h2><p className="text-gray-500">Personalize o seu pedido para obter o melhor resultado.</p></header>
@@ -719,22 +723,58 @@ export default function Dashboard() {
 
                 {selectedPackage && (
                   <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                    <div className="flex justify-between items-end mb-8"><div className="flex items-center gap-4"><span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">2</span><h3 className="text-xl font-bold font-display uppercase tracking-widest">Selecione os Estilos</h3></div><span className="text-gray-500 text-xs font-bold tracking-widest uppercase">Selecionados: <span className={selectedStyles.length === getStyleLimit() ? 'text-studio-gold' : 'text-white'}>{selectedStyles.length}/{getStyleLimit()}</span></span></div>
-                    <div className="flex overflow-x-auto snap-x gap-4 pb-6 no-scrollbar">
-                      {dbStyles.length === 0 ? (
-                        <p className="text-gray-500 text-xs italic p-4">Nenhum estilo disponível no catálogo ainda.</p>
-                      ) : (
-                        dbStyles.map((style) => (
-                          <div key={style.id} onClick={() => toggleStyle(style.titulo)} className={`min-w-[180px] h-[240px] snap-start relative rounded-xl overflow-hidden cursor-pointer border-2 transition-all ${selectedStyles.includes(style.titulo) ? 'border-studio-gold scale-[0.98]' : 'border-white/5 hover:border-studio-gold/40'}`}>
-                            <Image src={style.img_url} alt={style.titulo} fill className="object-cover" unoptimized />
-                            <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent flex flex-col justify-end p-4 transition-all ${selectedStyles.includes(style.titulo) ? 'bg-studio-gold/20' : 'opacity-80'}`}>
-                              <p className="text-[10px] font-bold uppercase tracking-widest text-white">{style.titulo}</p>
-                              {selectedStyles.includes(style.titulo) && <div className="absolute top-2 right-2 bg-studio-gold text-studio-black rounded-full p-1"><Check size={10} strokeWidth={4} /></div>}
-                            </div>
-                          </div>
-                        ))
-                      )}
+                    <div className="flex justify-between items-end mb-6">
+                      <div className="flex items-center gap-4">
+                        <span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">2</span>
+                        <h3 className="text-xl font-bold font-display uppercase tracking-widest">Selecione os Estilos</h3>
+                      </div>
+                      <span className="text-gray-500 text-xs font-bold tracking-widest uppercase">Selecionados: <span className={selectedStyles.length === getStyleLimit() ? 'text-studio-gold' : 'text-white'}>{selectedStyles.length}/{getStyleLimit()}</span></span>
                     </div>
+
+                    <div className="flex bg-[#121212] border border-white/10 rounded-lg p-1 w-fit mb-6">
+                      <button onClick={() => setGenderFilter('Feminino')} className={`px-6 py-2 rounded-md text-[10px] font-bold uppercase tracking-widest transition-colors ${genderFilter === 'Feminino' ? 'bg-studio-gold text-black' : 'text-gray-400 hover:text-white'}`}>Feminino</button>
+                      <button onClick={() => setGenderFilter('Masculino')} className={`px-6 py-2 rounded-md text-[10px] font-bold uppercase tracking-widest transition-colors ${genderFilter === 'Masculino' ? 'bg-studio-gold text-black' : 'text-gray-400 hover:text-white'}`}>Masculino</button>
+                    </div>
+
+                    <div className="relative group">
+                      <button type="button" onClick={() => scrollStyles('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -ml-4 z-10 w-10 h-10 bg-[#121212] border border-white/10 rounded-full flex items-center justify-center text-white hover:text-studio-gold hover:border-studio-gold transition-all shadow-xl opacity-0 group-hover:opacity-100 hidden md:flex"><ChevronLeft size={20} className="pr-[2px] pt-[1px]" /></button>
+
+                      <div ref={stylesScrollRef} className="flex overflow-x-auto snap-x gap-4 pb-6 no-scrollbar scroll-smooth">
+                        {dbStyles.filter(s => s.genero === genderFilter || s.genero === 'Ambos').length === 0 ? (
+                          <p className="text-gray-500 text-xs italic p-4">Nenhum estilo disponível nesta categoria.</p>
+                        ) : (
+                          dbStyles.filter(s => s.genero === genderFilter || s.genero === 'Ambos').map((style) => (
+                            <div key={style.id} onClick={() => toggleStyle(style.titulo)} className={`min-w-[180px] h-[240px] snap-start relative rounded-xl overflow-hidden cursor-pointer border-2 transition-all ${selectedStyles.includes(style.titulo) ? 'border-studio-gold scale-[0.98]' : 'border-white/5 hover:border-studio-gold/40'}`}>
+                              <Image src={style.img_url} alt={style.titulo} fill className="object-cover" unoptimized />
+                              <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent flex flex-col justify-end p-4 transition-all ${selectedStyles.includes(style.titulo) ? 'bg-studio-gold/20' : 'opacity-80'}`}>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-white">{style.titulo}</p>
+                                {selectedStyles.includes(style.titulo) && <div className="absolute top-2 right-2 bg-studio-gold text-studio-black rounded-full p-1"><Check size={10} strokeWidth={4} /></div>}
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      <button type="button" onClick={() => scrollStyles('right')} className="absolute right-0 top-1/2 -translate-y-1/2 -mr-4 z-10 w-10 h-10 bg-[#121212] border border-white/10 rounded-full flex items-center justify-center text-white hover:text-studio-gold hover:border-studio-gold transition-all shadow-xl opacity-0 group-hover:opacity-100 hidden md:flex"><ChevronRight size={20} className="pl-[2px] pt-[1px]" /></button>
+                    </div>
+
+                    {selectedStyles.length > 0 && (
+                      <div className="mt-2 p-5 border border-studio-gold/30 bg-studio-gold/5 rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.05)]">
+                        <h4 className="text-studio-gold font-bold text-xs uppercase tracking-widest mb-3 flex items-center gap-2"><Sparkles size={14} /> Dicas de Dress Code (Roupas)</h4>
+                        <div className="space-y-3">
+                          {selectedStyles.map(st => {
+                            const styleInfo = dbStyles.find(d => d.titulo === st);
+                            if (!styleInfo?.dica_roupa) return null;
+                            return (
+                              <div key={st} className="text-xs text-gray-300 leading-relaxed bg-black/20 p-3 rounded-lg border border-white/5">
+                                <strong className="text-white block mb-1">{st}</strong>
+                                {styleInfo.dica_roupa}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </motion.section>
                 )}
 
