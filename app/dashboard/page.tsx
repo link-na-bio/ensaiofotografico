@@ -39,6 +39,13 @@ export default function Dashboard() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [pedidos, setPedidos] = useState<any[]>([]);
+  const [dbStyles, setDbStyles] = useState<any[]>([]);
+
+  // Função para buscar estilos no Supabase
+  const fetchDbStyles = async () => {
+    const { data, error } = await supabase.from('estilos').select('*').order('criado_em', { ascending: false });
+    if (data) setDbStyles(data);
+  };
 
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewPhotos, setPreviewPhotos] = useState<string[]>([]);
@@ -104,6 +111,7 @@ export default function Dashboard() {
         setAvatarUrl(session.user.user_metadata?.avatar_url || null);
         setIsLoading(false);
         fetchPedidos(session.user.id);
+        fetchDbStyles();
       }
     };
     checkUser();
@@ -459,9 +467,9 @@ export default function Dashboard() {
                           <td className="px-6 py-4 text-gray-500 text-xs">{formatDate(pedido.criado_em)}</td>
                           <td className="px-6 py-4">
                             <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${(pedido.status === 'Ensaio Concluído' || pedido.status === 'Finalizado') ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                                (pedido.status === 'Pagamento em Análise') ? 'bg-blue-900/20 text-blue-400 border-blue-400/30' :
-                                  (pedido.status === 'Prévia Disponível') ? 'bg-studio-gold/10 text-studio-gold border-studio-gold/20' :
-                                    'bg-orange-500/10 text-orange-400 border-orange-500/20'
+                              (pedido.status === 'Pagamento em Análise') ? 'bg-blue-900/20 text-blue-400 border-blue-400/30' :
+                                (pedido.status === 'Prévia Disponível') ? 'bg-studio-gold/10 text-studio-gold border-studio-gold/20' :
+                                  'bg-orange-500/10 text-orange-400 border-orange-500/20'
                               }`}>
                               {pedido.status === 'Finalizado' ? 'Ensaio Concluído' : pedido.status}
                             </span>
@@ -496,9 +504,9 @@ export default function Dashboard() {
                     <div className="p-6 flex-1 flex flex-col relative z-10">
                       <div className="flex justify-between items-start mb-4">
                         <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${(pedido.status === 'Ensaio Concluído') ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                            (pedido.status === 'Pagamento em Análise') ? 'bg-blue-900/20 text-blue-400 border-blue-400/30 animate-pulse' :
-                              (pedido.status === 'Prévia Disponível') ? 'bg-studio-gold/10 text-studio-gold border-studio-gold/20' :
-                                'bg-orange-500/10 text-orange-400 border-orange-500/20'
+                          (pedido.status === 'Pagamento em Análise') ? 'bg-blue-900/20 text-blue-400 border-blue-400/30 animate-pulse' :
+                            (pedido.status === 'Prévia Disponível') ? 'bg-studio-gold/10 text-studio-gold border-studio-gold/20' :
+                              'bg-orange-500/10 text-orange-400 border-orange-500/20'
                           }`}>
                           {pedido.status === 'Finalizado' ? 'Ensaio Concluído' : pedido.status}
                         </span>
@@ -531,9 +539,10 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* CHAT COM LAYOUT SIMÉTRICO AO ADMIN */}
+        {/* CHAT COM LAYOUT SIMÉTRICO AO ADMIN (HEADER FIXO) */}
         {activeTab === 'mensagens' && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="mensagens" className="px-4 md:px-8 h-full flex flex-col pb-8">
+            {/* O cabeçalho agora fica FORA das colunas para estar sempre visível */}
             <header className="mb-6 shrink-0">
               <h2 className="text-2xl font-bold font-display uppercase tracking-wider">Central de Suporte</h2>
               <p className="text-gray-500 text-sm mt-1">Fale com a nossa equipa sobre os seus pedidos.</p>
@@ -541,6 +550,7 @@ export default function Dashboard() {
 
             <div className="flex-1 flex flex-col md:flex-row gap-6 min-h-[500px] max-h-[70vh]">
 
+              {/* LISTA DE PEDIDOS */}
               <div className={`w-full md:w-80 flex-col bg-[#121212] border border-white/5 rounded-2xl overflow-hidden shadow-2xl flex-shrink-0 ${chatOrderId ? 'hidden md:flex' : 'flex'}`}>
                 <div className="p-4 border-b border-white/5 bg-white/[0.02]">
                   <h2 className="font-display font-bold uppercase tracking-widest text-studio-gold text-sm flex items-center gap-2">
@@ -578,6 +588,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
+              {/* ÁREA DE CHAT */}
               <div className={`flex-1 flex-col bg-[#121212] border border-white/5 rounded-2xl overflow-hidden shadow-2xl relative ${!chatOrderId ? 'hidden md:flex' : 'flex'}`}>
                 {!chatOrderId ? (
                   <div className="h-full flex flex-col items-center justify-center text-gray-500 space-y-3">
@@ -680,6 +691,7 @@ export default function Dashboard() {
           </motion.div>
         )}
 
+        {/* ... resto do código (novo, perfil, nav mobile) mantido igual ... */}
         {activeTab === 'novo' && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="novo" className="px-8">
             <header className="mb-8"><h2 className="text-2xl font-bold font-display uppercase tracking-widest">Configurar Novo Ensaio</h2><p className="text-gray-500">Personalize o seu pedido para obter o melhor resultado.</p></header>
@@ -709,14 +721,19 @@ export default function Dashboard() {
                   <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                     <div className="flex justify-between items-end mb-8"><div className="flex items-center gap-4"><span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">2</span><h3 className="text-xl font-bold font-display uppercase tracking-widest">Selecione os Estilos</h3></div><span className="text-gray-500 text-xs font-bold tracking-widest uppercase">Selecionados: <span className={selectedStyles.length === getStyleLimit() ? 'text-studio-gold' : 'text-white'}>{selectedStyles.length}/{getStyleLimit()}</span></span></div>
                     <div className="flex overflow-x-auto snap-x gap-4 pb-6 no-scrollbar">
-                      {[
-                        { id: 'LinkedIn', title: 'LinkedIn Pro', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80' }, { id: 'Cyber', title: 'Cyberpunk', img: 'https://images.unsplash.com/photo-1535295972055-1c762f4483e5?w=400&q=80' }, { id: 'Casual', title: 'Casual', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&q=80' }, { id: 'Editorial', title: 'Moda Editorial', img: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&q=80' }, { id: 'PretoBranco', title: 'Fine Art P&B', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80' }, { id: 'Vogue', title: 'Vogue Estilo', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80' }, { id: 'Tech', title: 'Modern Tech', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80' }, { id: 'Urban', title: 'Urban Lifestyle', img: 'https://images.unsplash.com/photo-1488161628813-04466f872be2?w=400&q=80' },
-                      ].map((style) => (
-                        <div key={style.id} onClick={() => toggleStyle(style.id)} className={`min-w-[180px] h-[240px] snap-start relative rounded-xl overflow-hidden cursor-pointer border-2 transition-all ${selectedStyles.includes(style.id) ? 'border-studio-gold scale-[0.98]' : 'border-white/5 hover:border-studio-gold/40'}`}>
-                          <Image src={style.img} alt={style.title} fill className="object-cover" unoptimized />
-                          <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent flex flex-col justify-end p-4 transition-all ${selectedStyles.includes(style.id) ? 'bg-studio-gold/20' : 'opacity-80'}`}><p className="text-[10px] font-bold uppercase tracking-widest text-white">{style.title}</p>{selectedStyles.includes(style.id) && <div className="absolute top-2 right-2 bg-studio-gold text-studio-black rounded-full p-1"><Check size={10} strokeWidth={4} /></div>}</div>
-                        </div>
-                      ))}
+                      {dbStyles.length === 0 ? (
+                        <p className="text-gray-500 text-xs italic p-4">Nenhum estilo disponível no catálogo ainda.</p>
+                      ) : (
+                        dbStyles.map((style) => (
+                          <div key={style.id} onClick={() => toggleStyle(style.titulo)} className={`min-w-[180px] h-[240px] snap-start relative rounded-xl overflow-hidden cursor-pointer border-2 transition-all ${selectedStyles.includes(style.titulo) ? 'border-studio-gold scale-[0.98]' : 'border-white/5 hover:border-studio-gold/40'}`}>
+                            <Image src={style.img_url} alt={style.titulo} fill className="object-cover" unoptimized />
+                            <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent flex flex-col justify-end p-4 transition-all ${selectedStyles.includes(style.titulo) ? 'bg-studio-gold/20' : 'opacity-80'}`}>
+                              <p className="text-[10px] font-bold uppercase tracking-widest text-white">{style.titulo}</p>
+                              {selectedStyles.includes(style.titulo) && <div className="absolute top-2 right-2 bg-studio-gold text-studio-black rounded-full p-1"><Check size={10} strokeWidth={4} /></div>}
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </motion.section>
                 )}

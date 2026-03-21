@@ -1,201 +1,357 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { 
-  Search, 
-  Plus, 
-  Trash2, 
-  Edit3, 
-  X, 
-  UploadCloud,
-  Camera
-} from 'lucide-react';
+import { Search, Plus, Trash2, X, UploadCloud, Loader2 } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
-
-const styles = [
-  { 
-    id: 1, 
-    title: 'Retrato Corporativo Luxury', 
-    category: 'Retrato', 
-    desc: 'Fotografia executiva com iluminação de alto contraste e acabamento cinematográfico para líderes.',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDh1JZyuanitceIP4aWXng9aM7IGrGCh76LJBXzN4fafgFo2uk5k6DFYynA4IJSmcZG3XrO-Ak8IbYOcGiQH0F9_8FfJc3n7DK8MiutiOtj0SPEzNWfKtSrTfBiMwuwbyGLSLqM5wOpwcR0IH60W-CU2CQx1ObhXwNHBoEV3QxMPcybLMWgkgRAooinNIGmwkki7YXEBwFpAz8lIAqK-EPrd7aA0WzZMb6q8r8wgHFNq-m42jlXGv5Zr5ihJvM0AwTgT09eTZBZJZN9'
-  },
-  { 
-    id: 2, 
-    title: 'Moda & Editorial', 
-    category: 'Editorial', 
-    desc: 'Foco em composições artísticas, cores vibrantes e narrativas visuais para marcas de luxo.',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCkcR36BDOIBCYhKhlp8-11olLvnseCLfB36VU1CdiO_JRMgaJgv4hfQSd4L6VqOy_1BKoFnU45rsYOQ04DGrol21sRGZahHOWRri6n9ch3uMXQpJ9y5qNPjvcLCy9nw_5JtFE56t4j_Xr8oJarafShvFGM9twlK7RiXVgUzvT2Wg8_5gy9HjDyDgftfcrrhCiGhyyAAspG-EaZGf5I5q_tofoEmfwx_2gBpKAfvUqMl3gTBt2P5sevuwt-YL3deQoXMT3RBCc0VzDW'
-  },
-  { 
-    id: 3, 
-    title: 'Comercial de Produtos', 
-    category: 'Comercial', 
-    desc: 'Still life de luxo, ideal para joalheria, perfumaria e acessórios premium.',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDNZpqTmhhH2Ztbhy3n1p_lZOiTzpPAsDgwL7d9D_0LSA8G6BXYS4nCeKULassb3DGFQ7x7MMJG1fNsZOsMtR6MXuIMpQGJtyiqGGPwNSRHw-FR3_RLQIAi9MSAJH8_DoLjI0Kl7XSKdK0n1xo3dR5vRKdf8nsZNDjlsPsbHzOcuUijLltKVYFA5KCfUcTXfaNs17REOzLXj__tkt7m8eCT_9Iaa2TG39m1nby_7JCikpGumhVO-wp2XK2uTy7LpzcQECF7-Cdw1aWO'
-  },
-];
+import { supabase } from '@/lib/supabaseClient';
 
 export default function AdminStyles() {
-  const [editingStyle, setEditingStyle] = useState<any>(styles[0]);
+  const [styles, setStyles] = useState<any[]>([]);
+  const [filteredStyles, setFilteredStyles] = useState<any[]>([]);
+
+  // Estados de UI
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState('Todos');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Estado do Formulário Lateral
+  const [editingStyle, setEditingStyle] = useState<any | null>(null);
+  const [isAddingNew, setIsAddingNew] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const fetchStyles = async () => {
+    setIsLoading(true);
+    const { data, error } = await supabase.from('estilos').select('*').order('criado_em', { ascending: false });
+    if (!error && data) {
+      setStyles(data);
+      setFilteredStyles(data);
+    }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchStyles();
+  }, []);
+
+  // Lógica de Filtro e Pesquisa
+  useEffect(() => {
+    let result = styles;
+    if (activeCategory !== 'Todos') {
+      result = result.filter(s => s.categoria === activeCategory);
+    }
+    if (searchQuery) {
+      result = result.filter(s => s.titulo.toLowerCase().includes(searchQuery.toLowerCase()) || s.descricao.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+    setFilteredStyles(result);
+  }, [searchQuery, activeCategory, styles]);
+
+  // Manipulador de Upload de Imagem no painel lateral
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  // Abrir painel para NOVO estilo
+  const handleAddNew = () => {
+    setEditingStyle(null);
+    setIsAddingNew(true);
+    setSelectedFile(null);
+    setPreviewUrl(null);
+  };
+
+  // Abrir painel para EDITAR estilo
+  const handleEdit = (style: any) => {
+    setIsAddingNew(false);
+    setEditingStyle(style);
+    setSelectedFile(null);
+    setPreviewUrl(style.img_url);
+  };
+
+  const closePanel = () => {
+    setEditingStyle(null);
+    setIsAddingNew(false);
+    setSelectedFile(null);
+    setPreviewUrl(null);
+  };
+
+  // SALVAR (Criar ou Atualizar)
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSaving(true);
+
+    const formData = new FormData(e.currentTarget);
+    const titulo = formData.get('titulo') as string;
+    const categoria = formData.get('categoria') as string;
+    const descricao = formData.get('descricao') as string;
+
+    try {
+      let finalImgUrl = editingStyle?.img_url || '';
+
+      // Se escolheu uma imagem nova, faz upload pro Supabase
+      if (selectedFile) {
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage.from('estilos_imagens').upload(fileName, selectedFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage.from('estilos_imagens').getPublicUrl(fileName);
+        finalImgUrl = publicUrl;
+      }
+
+      if (!finalImgUrl && isAddingNew) {
+        alert("Por favor, adicione uma imagem para o novo estilo.");
+        setIsSaving(false);
+        return;
+      }
+
+      if (isAddingNew) {
+        // CRIAR NOVO
+        const { error } = await supabase.from('estilos').insert([{ titulo, categoria, descricao, img_url: finalImgUrl }]);
+        if (error) throw error;
+        alert('Estilo adicionado com sucesso!');
+      } else if (editingStyle) {
+        // ATUALIZAR EXISTENTE
+        const { error } = await supabase.from('estilos').update({ titulo, categoria, descricao, img_url: finalImgUrl }).eq('id', editingStyle.id);
+        if (error) throw error;
+        alert('Estilo atualizado!');
+      }
+
+      closePanel();
+      fetchStyles();
+    } catch (err: any) {
+      alert('Erro ao salvar: ' + err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // DELETAR ESTILO
+  const handleDelete = async (id: string) => {
+    if (!confirm('Tem certeza que deseja apagar este estilo do portfólio?')) return;
+
+    try {
+      const { error } = await supabase.from('estilos').delete().eq('id', id);
+      if (error) throw error;
+      fetchStyles();
+      if (editingStyle?.id === id) closePanel();
+    } catch (err: any) {
+      alert('Erro ao apagar: ' + err.message);
+    }
+  };
 
   return (
     <div className="flex h-screen overflow-hidden bg-studio-black text-white">
       <AdminSidebar />
 
-      {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="h-16 bg-studio-black border-b border-white/5 flex items-center justify-between px-8">
+        <header className="h-20 bg-studio-black border-b border-white/5 flex items-center justify-between px-8 bg-gradient-to-b from-white/[0.02] to-transparent sticky top-0 z-50">
           <div className="flex items-center gap-4 flex-1">
             <div className="relative w-full max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input 
-                className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-none text-sm focus:ring-1 focus:ring-studio-gold transition-all outline-none text-white" 
-                placeholder="Buscar estilos (ex: Retrato, Editorial...)" 
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-none text-xs font-bold uppercase tracking-widest focus:ring-1 focus:ring-studio-gold transition-all outline-none text-white"
+                placeholder="Pesquisar estilos..."
                 type="text"
               />
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <button className="h-10 px-6 bg-studio-gold text-studio-black rounded-none text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-studio-gold-light transition-all font-display">
+            <button onClick={handleAddNew} className="h-10 px-6 bg-studio-gold text-studio-black rounded-none text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-studio-gold-light transition-all font-display shadow-[0_0_20px_rgba(212,175,55,0.15)]">
               <Plus size={16} />
               Novo Estilo
             </button>
           </div>
         </header>
 
-        {/* Content Area */}
         <div className="flex-1 overflow-y-auto p-8 bg-[#121212]">
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Left Content: Grid */}
+
+            {/* GRID DE ESTILOS */}
             <div className="flex-1">
               <div className="mb-10">
-                <h1 className="text-4xl font-black mb-2 tracking-tight">Gestão de Estilos</h1>
-                <p className="text-slate-500">Curadoria de experiências fotográficas premium para o seu portfólio.</p>
+                <h1 className="text-3xl font-display uppercase tracking-widest font-bold mb-2">Gestão de Estilos</h1>
+                <p className="text-slate-500 text-xs tracking-widest uppercase">Curadoria de portfólio para a sua Inteligência Artificial</p>
               </div>
 
-              {/* Filter Tabs */}
-              <div className="flex gap-2 overflow-x-auto pb-4 mb-8">
-                {['Todos', 'Retrato', 'Editorial', 'Comercial'].map((cat) => (
-                  <button key={cat} className={`px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-colors ${cat === 'Todos' ? 'bg-studio-gold text-studio-black' : 'bg-white/5 border border-white/10 hover:border-studio-gold'}`}>
+              {/* Filtros */}
+              <div className="flex gap-2 overflow-x-auto pb-4 mb-8 custom-scrollbar">
+                {['Todos', 'Retrato', 'Editorial', 'Comercial', 'Evento'].map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`px-5 py-2.5 rounded-none text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors ${activeCategory === cat ? 'bg-studio-gold text-studio-black border border-studio-gold' : 'bg-white/5 border border-white/10 text-slate-400 hover:border-studio-gold hover:text-studio-gold'}`}
+                  >
                     {cat}
                   </button>
                 ))}
               </div>
 
-              {/* Style Cards Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {styles.map((style) => (
-                  <div key={style.id} className="group bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-studio-gold transition-all">
-                    <div className="aspect-[16/10] overflow-hidden relative">
-                      <Image 
-                        src={style.img} 
-                        alt={style.title} 
-                        fill 
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        referrerPolicy="no-referrer"
-                      />
-                      <div className="absolute top-4 left-4">
-                        <span className="bg-studio-gold text-studio-black text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">{style.category}</span>
-                      </div>
-                    </div>
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold mb-2">{style.title}</h3>
-                      <p className="text-slate-500 text-sm leading-relaxed mb-6">{style.desc}</p>
-                      <div className="flex items-center gap-3">
-                        <button 
-                          onClick={() => setEditingStyle(style)}
-                          className="flex-1 py-2 rounded-lg border border-studio-gold text-studio-gold text-sm font-bold hover:bg-studio-gold hover:text-studio-black transition-all"
-                        >
-                          Editar
-                        </button>
-                        <button className="p-2 rounded-lg border border-white/10 text-slate-400 hover:text-red-500 hover:border-red-500 transition-all">
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                {/* Add New Placeholder */}
-                <div className="border-2 border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center p-12 hover:border-studio-gold transition-all cursor-pointer group">
-                  <div className="w-16 h-16 rounded-full bg-studio-gold/10 flex items-center justify-center text-studio-gold mb-4 group-hover:bg-studio-gold group-hover:text-studio-black transition-all">
-                    <Plus size={32} />
-                  </div>
-                  <span className="text-lg font-bold">Adicionar Novo Estilo</span>
-                  <p className="text-slate-500 text-sm mt-1">Clique para expandir o catálogo</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Side Panel: Editar Estilo */}
-            {editingStyle && (
-              <aside className="w-full lg:w-96">
-                <div className="sticky top-8 bg-studio-black border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-                  <div className="p-6 border-b border-white/10 bg-white/5 flex items-center justify-between">
-                    <h2 className="text-xl font-bold">Editar Estilo</h2>
-                    <button onClick={() => setEditingStyle(null)} className="text-slate-400 hover:text-white">
-                      <X size={20} />
-                    </button>
-                  </div>
-                  <div className="p-6 space-y-6">
-                    {/* Image Upload Placeholder */}
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Imagem de Exemplo</label>
-                      <div className="relative group aspect-video rounded-xl overflow-hidden border border-white/10">
-                        <Image 
-                          src={editingStyle.img} 
-                          alt="Preview" 
-                          fill 
-                          className="object-cover"
-                          referrerPolicy="no-referrer"
+              {isLoading ? (
+                <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-studio-gold" size={40} /></div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {filteredStyles.map((style) => (
+                    <div key={style.id} className="group bg-studio-black border border-white/10 rounded-none overflow-hidden hover:border-studio-gold hover:shadow-[0_0_30px_rgba(212,175,55,0.1)] transition-all flex flex-col">
+                      <div className="aspect-[4/5] overflow-hidden relative">
+                        <Image
+                          src={style.img_url}
+                          alt={style.titulo}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-700"
                         />
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity cursor-pointer">
-                          <UploadCloud size={32} className="text-white mb-1" />
-                          <span className="text-white text-[10px] font-bold uppercase">Trocar Imagem</span>
+                        <div className="absolute top-4 left-4">
+                          <span className="bg-studio-gold text-studio-black text-[9px] font-bold uppercase tracking-widest px-3 py-1.5">{style.categoria}</span>
+                        </div>
+                      </div>
+                      <div className="p-6 flex flex-col flex-1">
+                        <h3 className="text-lg font-display uppercase tracking-widest font-bold mb-2">{style.titulo}</h3>
+                        <p className="text-slate-500 text-xs leading-relaxed mb-6 flex-1 line-clamp-3">{style.descricao}</p>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => handleEdit(style)}
+                            className="flex-1 py-3 border border-studio-gold/30 text-studio-gold text-[10px] uppercase tracking-widest font-bold hover:bg-studio-gold hover:text-studio-black transition-all"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDelete(style.id)}
+                            className="p-3 border border-white/10 text-slate-400 hover:text-rose-500 hover:border-rose-500 hover:bg-rose-500/10 transition-all"
+                            title="Apagar estilo"
+                          >
+                            <Trash2 size={16} />
+                          </button>
                         </div>
                       </div>
                     </div>
-                    {/* Form Fields */}
-                    <div className="space-y-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Nome do Estilo</label>
-                        <input 
-                          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:ring-1 focus:ring-studio-gold outline-none text-sm" 
-                          type="text" 
-                          defaultValue={editingStyle.title}
+                  ))}
+
+                  {/* Card de Adicionar Novo */}
+                  <div onClick={handleAddNew} className="border border-dashed border-white/10 bg-white/[0.02] flex flex-col items-center justify-center p-12 hover:border-studio-gold hover:bg-studio-gold/5 transition-all cursor-pointer group min-h-[400px]">
+                    <div className="w-16 h-16 rounded-full bg-studio-gold/10 flex items-center justify-center text-studio-gold mb-6 group-hover:scale-110 group-hover:bg-studio-gold group-hover:text-studio-black transition-all">
+                      <Plus size={24} />
+                    </div>
+                    <span className="text-sm font-display uppercase tracking-widest font-bold text-white group-hover:text-studio-gold transition-colors">Adicionar Novo Estilo</span>
+                    <p className="text-slate-500 text-[10px] uppercase tracking-widest mt-2">Expandir o catálogo</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* PAINEL LATERAL: ADICIONAR / EDITAR */}
+            {(editingStyle || isAddingNew) && (
+              <aside className="w-full lg:w-[400px] shrink-0">
+                <form onSubmit={handleSave} className="sticky top-8 bg-studio-black border border-studio-gold/30 shadow-[0_0_50px_rgba(212,175,55,0.05)]">
+                  <div className="p-6 border-b border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent flex items-center justify-between">
+                    <h2 className="text-sm font-display font-bold uppercase tracking-widest text-studio-gold">
+                      {isAddingNew ? 'Cadastrar Novo Estilo' : 'Editar Estilo'}
+                    </h2>
+                    <button type="button" onClick={closePanel} className="text-slate-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full">
+                      <X size={18} />
+                    </button>
+                  </div>
+
+                  <div className="p-6 space-y-6">
+                    {/* Upload de Imagem */}
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 flex justify-between">
+                        Imagem de Referência
+                        {!previewUrl && <span className="text-rose-500">*Obrigatório</span>}
+                      </label>
+                      <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" hidden />
+
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        className="relative group aspect-[4/5] bg-[#121212] overflow-hidden border border-white/10 hover:border-studio-gold transition-colors cursor-pointer flex flex-col items-center justify-center"
+                      >
+                        {previewUrl ? (
+                          <>
+                            <Image src={previewUrl} alt="Preview" fill className="object-cover" />
+                            <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-all backdrop-blur-sm">
+                              <UploadCloud size={32} className="text-studio-gold mb-2" />
+                              <span className="text-white text-[10px] font-bold uppercase tracking-widest">Trocar Imagem</span>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <UploadCloud size={32} className="text-slate-600 mb-3 group-hover:text-studio-gold transition-colors" />
+                            <span className="text-slate-500 text-[10px] font-bold uppercase tracking-widest group-hover:text-studio-gold transition-colors">Clique para enviar imagem</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Campos do Formulário */}
+                    <div className="space-y-5">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Nome do Estilo</label>
+                        <input
+                          name="titulo"
+                          required
+                          className="w-full px-4 py-3 bg-[#121212] border border-white/10 focus:border-studio-gold outline-none text-xs font-bold uppercase tracking-widest text-white transition-colors"
+                          type="text"
+                          placeholder="Ex: Retrato Corporativo"
+                          defaultValue={editingStyle?.titulo || ''}
                         />
                       </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Categoria</label>
-                        <select className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:ring-1 focus:ring-studio-gold outline-none text-sm appearance-none">
-                          <option>Retrato</option>
-                          <option>Editorial</option>
-                          <option>Comercial</option>
-                          <option>Evento</option>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Categoria</label>
+                        <select
+                          name="categoria"
+                          required
+                          className="w-full px-4 py-3 bg-[#121212] border border-white/10 focus:border-studio-gold outline-none text-xs font-bold uppercase tracking-widest text-white transition-colors appearance-none cursor-pointer"
+                          defaultValue={editingStyle?.categoria || 'Retrato'}
+                        >
+                          <option value="Retrato">Retrato</option>
+                          <option value="Editorial">Editorial</option>
+                          <option value="Comercial">Comercial</option>
+                          <option value="Evento">Evento</option>
                         </select>
                       </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Descrição</label>
-                        <textarea 
-                          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:ring-1 focus:ring-studio-gold outline-none text-sm resize-none" 
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Descrição Comercial</label>
+                        <textarea
+                          name="descricao"
+                          required
+                          placeholder="Descreva o impacto visual deste estilo..."
+                          className="w-full px-4 py-3 bg-[#121212] border border-white/10 focus:border-studio-gold outline-none text-xs leading-relaxed text-white resize-none transition-colors custom-scrollbar"
                           rows={4}
-                          defaultValue={editingStyle.desc}
+                          defaultValue={editingStyle?.descricao || ''}
                         />
                       </div>
                     </div>
-                    {/* Actions */}
-                    <div className="pt-4 flex flex-col gap-3">
-                      <button className="w-full bg-studio-gold text-studio-black py-3.5 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-studio-gold-light transition-all">
-                        Salvar Alterações
+
+                    {/* Botões de Ação */}
+                    <div className="pt-6 border-t border-white/5 flex flex-col gap-3">
+                      <button
+                        type="submit"
+                        disabled={isSaving}
+                        className="w-full bg-studio-gold text-studio-black py-4 font-black uppercase tracking-widest text-[10px] hover:bg-studio-gold-light transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                      >
+                        {isSaving ? <Loader2 className="animate-spin" size={16} /> : 'Salvar no Portfólio'}
                       </button>
-                      <button onClick={() => setEditingStyle(null)} className="w-full py-3.5 rounded-xl text-slate-400 font-bold text-xs hover:text-slate-100 transition-all">
-                        Descartar
+                      <button
+                        type="button"
+                        onClick={closePanel}
+                        className="w-full py-4 border border-white/10 text-slate-400 font-bold uppercase tracking-widest text-[10px] hover:text-white hover:bg-white/5 transition-all"
+                      >
+                        Cancelar
                       </button>
                     </div>
                   </div>
-                </div>
+                </form>
               </aside>
             )}
           </div>
