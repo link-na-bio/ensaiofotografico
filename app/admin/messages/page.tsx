@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import {
   Search, Send, FileImage, User, MessageSquare,
-  CheckCheck, Archive, Loader2, ArrowLeft, Clock, FileText
+  CheckCheck, Archive, Loader2, ArrowLeft, Clock, FileText, Paperclip
 } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
 import AdminHeader from '@/components/AdminHeader';
@@ -23,6 +23,7 @@ export default function AdminMessages() {
   const [isSending, setIsSending] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatFileInputRef = useRef<HTMLInputElement>(null);
 
   // 1. Carrega o ID do Admin e a lista de contatos (Pedidos)
   useEffect(() => {
@@ -109,7 +110,7 @@ export default function AdminMessages() {
     setIsSending(true);
     try {
       const { error } = await supabase.from('mensagens').insert({
-        user_id: adminId, // Identifica que foi o Admin que mandou
+        user_id: adminId,
         order_id: selectedOrder.id,
         conteudo: newMessage.trim(),
         tipo: 'texto'
@@ -121,6 +122,41 @@ export default function AdminMessages() {
       alert("Erro ao enviar mensagem: " + error.message);
     } finally {
       setIsSending(false);
+    }
+  };
+
+  // 6. NOVO: Enviar Imagens no Chat
+  const handleSendImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedOrder || !adminId) return;
+
+    setIsSending(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `chat_admin_${Date.now()}.${fileExt}`;
+      // Guarda na pasta do cliente para organização
+      const filePath = `${selectedOrder.user_id}/chat/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('comprovantes_pix')
+        .upload(filePath, file);
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('comprovantes_pix')
+        .getPublicUrl(filePath);
+
+      await supabase.from('mensagens').insert({
+        user_id: adminId,
+        order_id: selectedOrder.id,
+        conteudo: publicUrl,
+        tipo: 'imagem'
+      });
+    } catch (err: any) {
+      alert('Erro ao enviar imagem: ' + err.message);
+    } finally {
+      setIsSending(false);
+      if (chatFileInputRef.current) chatFileInputRef.current.value = '';
     }
   };
 
@@ -178,7 +214,7 @@ export default function AdminMessages() {
                       </div>
                       <div className="text-[10px] text-gray-400 truncate uppercase tracking-widest">Pedido #{pedido.id.slice(0, 8)}</div>
                       <div className="mt-1">
-                        <span className={`text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${pedido.status === 'Pagamento em Análise' ? 'text-rose-400 border-rose-400/30 bg-rose-400/10' : 'text-gray-400 border-gray-400/30'}`}>
+                        <span className={`text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${pedido.status === 'Pagamento em Análise' ? 'text-rose-400 border-rose-400/30 bg-rose-400/10 animate-pulse' : 'text-gray-400 border-gray-400/30'}`}>
                           {pedido.status}
                         </span>
                       </div>
@@ -212,7 +248,7 @@ export default function AdminMessages() {
                     <div className="h-full flex flex-col items-center justify-center text-gray-500 space-y-3">
                       <MessageSquare size={48} className="opacity-20" />
                       <p className="text-xs uppercase tracking-widest font-bold">Nenhuma mensagem ainda</p>
-                      <p className="text-[10px]">O comprovante de PIX do cliente aparecerá aqui.</p>
+                      <p className="text-[10px]">As conversas deste pedido aparecerão aqui.</p>
                     </div>
                   ) : (
                     messages.map((msg, idx) => {
@@ -225,7 +261,7 @@ export default function AdminMessages() {
                             {msg.tipo === 'comprovante' || msg.tipo === 'imagem' ? (
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2 mb-2 opacity-60">
-                                  <FileImage size={14} /> <span className="text-[10px] font-bold uppercase tracking-widest">Comprovante Recebido</span>
+                                  <FileImage size={14} /> <span className="text-[10px] font-bold uppercase tracking-widest">{msg.tipo === 'comprovante' ? 'Comprovante' : 'Imagem Anexada'}</span>
                                 </div>
                                 {msg.conteudo.includes('.pdf') ? (
                                   <a href={msg.conteudo} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-black/20 p-3 rounded-lg hover:bg-black/30 transition-colors text-xs font-bold">
@@ -233,7 +269,7 @@ export default function AdminMessages() {
                                   </a>
                                 ) : (
                                   <a href={msg.conteudo} target="_blank" rel="noopener noreferrer">
-                                    <img src={msg.conteudo} alt="Comprovante" className="rounded-lg w-full max-h-64 object-contain bg-black/20 cursor-pointer hover:opacity-90 transition-opacity" />
+                                    <img src={msg.conteudo} alt="Anexo" className="rounded-lg w-full max-h-64 object-contain bg-black/20 cursor-pointer hover:opacity-90 transition-opacity" />
                                   </a>
                                 )}
                               </div>
@@ -256,6 +292,18 @@ export default function AdminMessages() {
                 {/* Chat Input */}
                 <form onSubmit={handleSendMessage} className="p-4 bg-white/[0.02] border-t border-white/5">
                   <div className="flex items-end gap-3 bg-[#0a0a0a] border border-white/10 rounded-xl p-2 focus-within:border-studio-gold/50 transition-colors">
+
+                    {/* Botão de Clipe (Upload) Admin */}
+                    <input type="file" hidden ref={chatFileInputRef} onChange={handleSendImage} accept="image/*,.pdf" />
+                    <button
+                      type="button"
+                      onClick={() => chatFileInputRef.current?.click()}
+                      className="size-10 flex items-center justify-center text-gray-400 hover:text-studio-gold transition-colors shrink-0"
+                      title="Anexar Imagem"
+                    >
+                      <Paperclip size={18} />
+                    </button>
+
                     <textarea
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
@@ -283,7 +331,7 @@ export default function AdminMessages() {
                   <MessageSquare size={32} className="text-gray-600" />
                 </div>
                 <h3 className="font-display uppercase tracking-widest text-lg text-white font-bold mb-1">Central de Mensagens</h3>
-                <p className="text-xs uppercase tracking-widest text-gray-500">Selecione um pedido na lateral para ver os comprovantes</p>
+                <p className="text-xs uppercase tracking-widest text-gray-500">Selecione um pedido na lateral para ver as conversas</p>
               </div>
             )}
           </div>
