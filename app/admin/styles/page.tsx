@@ -20,9 +20,15 @@ export default function AdminStyles() {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+
+  const defaultCategories = ['Retrato', 'Editorial', 'Comercial', 'Evento', 'Área da Saúde', 'Casual', 'Ensaio Profissional', 'Formatura', 'Gestação & Natureza', 'Newborn'];
+  const uniqueCategories = Array.from(new Set(styles.map(s => s.categoria))).filter(Boolean) as string[];
+  const allCategories = Array.from(new Set([...defaultCategories, ...uniqueCategories])).sort();
+  const filterCategories = ['Todos', ...allCategories];
 
   const fetchStyles = async () => {
     setIsLoading(true);
@@ -62,11 +68,7 @@ export default function AdminStyles() {
     setIsAddingNew(true);
     setSelectedFile(null);
     setPreviewUrl(null);
-    
-    // Força o scroll em caso de celulares ou listas longas
-    setTimeout(() => {
-      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 100);
+    setShowNewCategoryInput(false);
   };
 
   const handleEdit = (style: any) => {
@@ -74,11 +76,7 @@ export default function AdminStyles() {
     setEditingStyle(style);
     setSelectedFile(null);
     setPreviewUrl(style.img_url);
-    
-    // Força o scroll em caso de celulares ou listas longas
-    setTimeout(() => {
-      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 100);
+    setShowNewCategoryInput(false);
   };
 
   const closePanel = () => {
@@ -86,6 +84,7 @@ export default function AdminStyles() {
     setIsAddingNew(false);
     setSelectedFile(null);
     setPreviewUrl(null);
+    setShowNewCategoryInput(false);
   };
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -94,7 +93,9 @@ export default function AdminStyles() {
 
     const formData = new FormData(e.currentTarget);
     const titulo = formData.get('titulo') as string;
-    const categoria = formData.get('categoria') as string;
+    const categoriaSelect = formData.get('categoria_select') as string;
+    const categoriaInput = formData.get('categoria_input') as string;
+    const categoria = showNewCategoryInput ? categoriaInput.trim() : categoriaSelect;
     const descricao = formData.get('descricao') as string;
     const genero = formData.get('genero') as string;
     const dica_roupa = formData.get('dica_roupa') as string;
@@ -185,7 +186,7 @@ export default function AdminStyles() {
               </div>
 
               <div className="flex gap-2 overflow-x-auto pb-4 mb-8 custom-scrollbar">
-                {['Todos', 'Retrato', 'Editorial', 'Comercial', 'Evento', 'Área da Saúde', 'Casual', 'Ensaio Profissional', 'Formatura', 'Gestação & Natureza', 'Newborn'].map((cat) => (
+                {filterCategories.map((cat) => (
                   <button
                     key={cat}
                     onClick={() => setActiveCategory(cat)}
@@ -199,7 +200,7 @@ export default function AdminStyles() {
               {isLoading ? (
                 <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-studio-gold" size={40} /></div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
                   {filteredStyles.map((style) => (
                     <div key={style.id} className="group bg-studio-black border border-white/10 rounded-none overflow-hidden hover:border-studio-gold hover:shadow-[0_0_30px_rgba(212,175,55,0.1)] transition-all flex flex-col">
                       <div className="aspect-[4/5] overflow-hidden relative">
@@ -216,57 +217,58 @@ export default function AdminStyles() {
                           </div>
                         )}
                         <div className="absolute top-4 left-4 flex gap-2">
-                          <span className="bg-studio-gold text-studio-black text-[9px] font-bold uppercase tracking-widest px-3 py-1.5">{style.categoria}</span>
-                          <span className="bg-black/60 backdrop-blur-md border border-white/10 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1.5">{style.genero}</span>
+                          <span className="bg-studio-gold text-studio-black text-[8px] font-bold uppercase tracking-widest px-2 py-1">{style.categoria}</span>
+                          <span className="hidden sm:inline-block bg-black/60 backdrop-blur-md border border-white/10 text-white text-[8px] font-bold uppercase tracking-widest px-2 py-1">{style.genero}</span>
                         </div>
                       </div>
-                      <div className="p-6 flex flex-col flex-1">
-                        <h3 className="text-lg font-display uppercase tracking-widest font-bold mb-2">{style.titulo}</h3>
-                        <p className="text-slate-500 text-xs leading-relaxed mb-6 flex-1 line-clamp-3">{style.descricao}</p>
-                        <div className="flex items-center gap-3">
+                      <div className="p-4 flex flex-col flex-1">
+                        <h3 className="text-sm font-display uppercase tracking-widest font-bold mb-1 truncate">{style.titulo}</h3>
+                        <p className="text-slate-500 text-[9px] leading-relaxed mb-4 flex-1 line-clamp-2">{style.descricao}</p>
+                        <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleEdit(style)}
-                            className="flex-1 py-3 border border-studio-gold/30 text-studio-gold text-[10px] uppercase tracking-widest font-bold hover:bg-studio-gold hover:text-studio-black transition-all"
+                            className="flex-1 py-2 border border-studio-gold/30 text-studio-gold text-[9px] uppercase tracking-widest font-bold hover:bg-studio-gold hover:text-studio-black transition-all"
                           >
                             Editar
                           </button>
                           <button
                             onClick={() => handleDelete(style.id)}
-                            className="p-3 border border-white/10 text-slate-400 hover:text-rose-500 hover:border-rose-500 hover:bg-rose-500/10 transition-all"
+                            className="p-2 border border-white/10 text-slate-400 hover:text-rose-500 hover:border-rose-500 hover:bg-rose-500/10 transition-all"
                             title="Apagar estilo"
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={14} />
                           </button>
                         </div>
                       </div>
                     </div>
                   ))}
 
-                  <div onClick={handleAddNew} className="border border-dashed border-white/10 bg-white/[0.02] flex flex-col items-center justify-center p-12 hover:border-studio-gold hover:bg-studio-gold/5 transition-all cursor-pointer group min-h-[400px]">
-                    <div className="w-16 h-16 rounded-full bg-studio-gold/10 flex items-center justify-center text-studio-gold mb-6 group-hover:scale-110 group-hover:bg-studio-gold group-hover:text-studio-black transition-all">
-                      <Plus size={24} />
+                  <div onClick={handleAddNew} className="border border-dashed border-white/10 bg-white/[0.02] flex flex-col items-center justify-center p-6 hover:border-studio-gold hover:bg-studio-gold/5 transition-all cursor-pointer group min-h-[250px] aspect-[4/5]">
+                    <div className="w-12 h-12 rounded-full bg-studio-gold/10 flex items-center justify-center text-studio-gold mb-4 group-hover:scale-110 group-hover:bg-studio-gold group-hover:text-studio-black transition-all">
+                      <Plus size={20} />
                     </div>
-                    <span className="text-sm font-display uppercase tracking-widest font-bold text-white group-hover:text-studio-gold transition-colors">Adicionar Novo Estilo</span>
-                    <p className="text-slate-500 text-[10px] uppercase tracking-widest mt-2">Expandir o catálogo</p>
+                    <span className="text-xs font-display uppercase tracking-widest font-bold text-white group-hover:text-studio-gold transition-colors text-center leading-tight">Adicionar Estilo</span>
+                    <p className="text-slate-500 text-[9px] uppercase tracking-widest mt-2 text-center">Expandir catálogo</p>
                   </div>
                 </div>
               )}
             </div>
 
             {(editingStyle || isAddingNew) && (
-              <aside className="w-full lg:w-[400px] shrink-0">
-                <form ref={formRef} key={editingStyle?.id || (isAddingNew ? 'new' : 'empty')} onSubmit={handleSave} className="sticky top-8 bg-studio-black border border-studio-gold/30 shadow-[0_0_50px_rgba(212,175,55,0.05)]">
-                  <div className="p-6 border-b border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent flex items-center justify-between">
+              <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                <form ref={formRef} key={editingStyle?.id || (isAddingNew ? 'new' : 'empty')} onSubmit={handleSave} className="w-full max-w-4xl bg-studio-black border border-studio-gold/30 shadow-[0_0_50px_rgba(212,175,55,0.15)] rounded-md flex flex-col max-h-[90vh]">
+                  <div className="p-6 border-b border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent flex items-center justify-between shrink-0">
                     <h2 className="text-sm font-display font-bold uppercase tracking-widest text-studio-gold">
                       {isAddingNew ? 'Cadastrar Novo Estilo' : 'Editar Estilo'}
                     </h2>
-                    <button type="button" onClick={closePanel} className="text-slate-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full">
+                    <button type="button" onClick={closePanel} className="text-slate-400 hover:text-rose-500 transition-colors p-2 hover:bg-rose-500/10 rounded-full">
                       <X size={18} />
                     </button>
                   </div>
 
-                  <div className="p-6 space-y-6 h-[75vh] overflow-y-auto custom-scrollbar">
-                    <div className="space-y-3">
+                  <div className="p-8 overflow-y-auto custom-scrollbar flex-1 flex flex-col md:flex-row gap-8">
+                    {/* LEFTSIDE: Image */}
+                    <div className="w-full md:w-[320px] shrink-0 space-y-3">
                       <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 flex justify-between">
                         Imagem de Referência
                         {!previewUrl && <span className="text-rose-500">*Obrigatório</span>}
@@ -294,7 +296,8 @@ export default function AdminStyles() {
                       </div>
                     </div>
 
-                    <div className="space-y-5">
+                    {/* RIGHTSIDE: Inputs */}
+                    <div className="flex-1 flex flex-col space-y-5">
                       <div className="space-y-2">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Nome do Estilo</label>
                         <input
@@ -309,24 +312,51 @@ export default function AdminStyles() {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Categoria</label>
-                          <select
-                            name="categoria"
-                            required
-                            className="w-full px-4 py-3 bg-[#121212] border border-white/10 focus:border-studio-gold outline-none text-xs font-bold uppercase tracking-widest text-white transition-colors appearance-none cursor-pointer"
-                            defaultValue={editingStyle?.categoria || 'Retrato'}
-                          >
-                            <option value="Retrato">Retrato</option>
-                            <option value="Editorial">Editorial</option>
-                            <option value="Comercial">Comercial</option>
-                            <option value="Evento">Evento</option>
-                            <option value="Área da Saúde">Área da Saúde</option>
-                            <option value="Casual">Casual</option>
-                            <option value="Ensaio Profissional">Ensaio Profissional</option>
-                            <option value="Formatura">Formatura</option>
-                            <option value="Gestação & Natureza">Gestação & Natureza</option>
-                            <option value="Newborn">Newborn</option>
-                          </select>
+                          {!showNewCategoryInput ? (
+                            <>
+                              <label className="text-[10px] font-bold uppercase tracking-widest flex items-center justify-between text-slate-400">
+                                <span>Categoria</span>
+                                <button 
+                                  type="button" 
+                                  onClick={() => setShowNewCategoryInput(true)}
+                                  className="text-studio-gold hover:text-white transition-colors flex items-center gap-1"
+                                  title="Criar Nova Categoria"
+                                >
+                                  <Plus size={12} /> Nova
+                                </button>
+                              </label>
+                              <select
+                                name="categoria_select"
+                                required
+                                className="w-full px-4 py-3 bg-[#121212] border border-white/10 focus:border-studio-gold outline-none text-xs font-bold uppercase tracking-widest text-white transition-colors appearance-none cursor-pointer"
+                                defaultValue={editingStyle?.categoria || 'Retrato'}
+                              >
+                                {allCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                              </select>
+                            </>
+                          ) : (
+                            <>
+                              <label className="text-[10px] font-bold uppercase tracking-widest flex items-center justify-between text-studio-gold">
+                                <span>Nova Categoria</span>
+                                <button 
+                                  type="button" 
+                                  onClick={() => setShowNewCategoryInput(false)}
+                                  className="text-rose-500 hover:text-white transition-colors flex items-center gap-1"
+                                  title="Cancelar e Selecionar Existente"
+                                >
+                                  <X size={12} /> Cancelar
+                                </button>
+                              </label>
+                              <input
+                                name="categoria_input"
+                                required
+                                autoFocus
+                                className="w-full px-4 py-3 bg-[#121212] border border-studio-gold outline-none text-xs font-bold uppercase tracking-widest text-white transition-colors"
+                                type="text"
+                                placeholder="Digite a nova categoria..."
+                              />
+                            </>
+                          )}
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Gênero</label>
@@ -355,38 +385,37 @@ export default function AdminStyles() {
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 text-studio-gold flex items-center gap-2"><Sparkles size={12} /> Dica de Dress Code (Roupa)</label>
+                      <div className="space-y-2 flex-1 flex flex-col">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 text-studio-gold flex items-center gap-2 mb-2"><Sparkles size={12} /> Dica de Dress Code (Roupa)</label>
                         <textarea
                           name="dica_roupa"
                           required
                           placeholder="Ex: Use blazers escuros e evite estampas..."
-                          className="w-full px-4 py-3 bg-studio-gold/5 border border-studio-gold/30 focus:border-studio-gold outline-none text-xs leading-relaxed text-white resize-none transition-colors custom-scrollbar"
-                          rows={3}
+                          className="w-full flex-1 min-h-[100px] px-4 py-3 bg-studio-gold/5 border border-studio-gold/30 focus:border-studio-gold outline-none text-xs leading-relaxed text-white resize-none transition-colors custom-scrollbar"
                           defaultValue={editingStyle?.dica_roupa || 'Prefira roupas lisas, blazers ou camisas de cores neutras. Evite estampas muito chamativas para um resultado mais elegante com a IA.'}
                         />
                       </div>
-                    </div>
 
-                    <div className="pt-6 border-t border-white/5 flex flex-col gap-3">
-                      <button
-                        type="submit"
-                        disabled={isSaving}
-                        className="w-full bg-studio-gold text-studio-black py-4 font-black uppercase tracking-widest text-[10px] hover:bg-studio-gold-light transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                      >
-                        {isSaving ? <Loader2 className="animate-spin" size={16} /> : 'Salvar no Portfólio'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={closePanel}
-                        className="w-full py-4 border border-white/10 text-slate-400 font-bold uppercase tracking-widest text-[10px] hover:text-white hover:bg-white/5 transition-all"
-                      >
-                        Cancelar
-                      </button>
+                      <div className="pt-6 border-t border-white/5 flex gap-4 mt-auto shrink-0">
+                        <button
+                          type="button"
+                          onClick={closePanel}
+                          className="flex-1 py-4 border border-white/10 text-slate-400 font-bold uppercase tracking-widest text-[10px] hover:text-white hover:bg-white/5 transition-all"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={isSaving}
+                          className="flex-[2] bg-studio-gold text-studio-black py-4 font-black uppercase tracking-widest text-[10px] hover:bg-studio-gold-light transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                          {isSaving ? <Loader2 className="animate-spin" size={16} /> : 'Salvar no Portfólio'}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </form>
-              </aside>
+              </div>
             )}
           </div>
         </div>
