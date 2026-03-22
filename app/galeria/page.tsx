@@ -32,8 +32,8 @@ export default function GalleryPage() {
     fetchStyles();
   }, []);
 
-  const filteredItems = activeCategory === 'Todos' 
-    ? styles 
+  const filteredItems = activeCategory === 'Todos'
+    ? styles
     : styles.filter(item => item.categoria === activeCategory);
 
   return (
@@ -75,11 +75,10 @@ export default function GalleryPage() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-8 py-3 text-[10px] font-bold uppercase tracking-widest transition-all border-b-2 ${
-                activeCategory === cat 
-                ? 'border-studio-gold text-white bg-studio-gold/5' 
-                : 'border-transparent text-gray-500 hover:text-white'
-              }`}
+              className={`px-8 py-3 text-[10px] font-bold uppercase tracking-widest transition-all border-b-2 ${activeCategory === cat
+                  ? 'border-studio-gold text-white bg-studio-gold/5'
+                  : 'border-transparent text-gray-500 hover:text-white'
+                }`}
             >
               {cat}
             </button>
@@ -99,7 +98,7 @@ export default function GalleryPage() {
             <p className="tracking-widest uppercase text-xs">Nenhum estilo encontrado nesta categoria.</p>
           </div>
         ) : (
-          <motion.div 
+          <motion.div
             layout
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6"
           >
@@ -115,34 +114,34 @@ export default function GalleryPage() {
                   className="group relative aspect-[4/5] overflow-hidden gold-border-gradient"
                 >
                   <div className="absolute inset-0 bg-studio-black" onContextMenu={(e) => e.preventDefault()}>
-                     {item.img_url ? (
-                       <Image 
-                         src={item.img_url} 
-                         alt={item.titulo} 
-                         fill 
-                         className="object-cover transition-all duration-700 group-hover:scale-110 group-hover:blur-[2px] opacity-80 group-hover:opacity-100 select-none pointer-events-none" 
-                         referrerPolicy="no-referrer"
-                         draggable={false}
-                       />
-                     ) : (
-                       <div className="w-full h-full flex items-center justify-center bg-white/5">
-                         <span className="uppercase tracking-widest font-bold text-xs text-gray-500">Sem Imagem</span>
-                       </div>
-                     )}
-                     <div className="absolute inset-0 z-10 cursor-not-allowed" onContextMenu={(e) => e.preventDefault()}></div>
+                    {item.img_url ? (
+                      <Image
+                        src={item.img_url}
+                        alt={item.titulo}
+                        fill
+                        className="object-cover transition-all duration-700 group-hover:scale-110 group-hover:blur-[2px] opacity-80 group-hover:opacity-100 select-none pointer-events-none"
+                        referrerPolicy="no-referrer"
+                        draggable={false}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-white/5">
+                        <span className="uppercase tracking-widest font-bold text-xs text-gray-500">Sem Imagem</span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 z-10 cursor-not-allowed" onContextMenu={(e) => e.preventDefault()}></div>
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-studio-black via-transparent to-transparent opacity-90"></div>
-                  
+
                   {/* Overlay Informativo */}
                   <div className="absolute bottom-10 left-10 right-10 transition-all duration-500 group-hover:bottom-12">
-                     <span className="text-studio-gold text-[10px] uppercase font-bold tracking-widest mb-2 block">{item.categoria}</span>
-                     <h3 className="text-2xl md:text-3xl font-display font-bold group-hover:text-studio-gold-light transition line-clamp-2">{item.titulo}</h3>
-                     <div className="w-0 group-hover:w-20 h-[2px] bg-studio-gold mt-4 transition-all duration-500"></div>
+                    <span className="text-studio-gold text-[10px] uppercase font-bold tracking-widest mb-2 block">{item.categoria}</span>
+                    <h3 className="text-2xl md:text-3xl font-display font-bold group-hover:text-studio-gold-light transition line-clamp-2">{item.titulo}</h3>
+                    <div className="w-0 group-hover:w-20 h-[2px] bg-studio-gold mt-4 transition-all duration-500"></div>
                   </div>
 
                   {/* Marca d'água */}
                   <div className="absolute top-8 right-8 w-16 h-8 opacity-40 group-hover:opacity-100 transition-all duration-500 pointer-events-none drop-shadow-md">
-                     <Image src="/logo.png" alt="Virtual Studio" fill className="object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500" unoptimized />
+                    <Image src="/logo.png" alt="Virtual Studio" fill className="object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500" unoptimized />
                   </div>
                 </motion.div>
               ))}
@@ -160,7 +159,7 @@ export default function GalleryPage() {
           <Link href="/login" className="inline-flex items-center gap-4 px-12 py-6 bg-studio-gold text-studio-black font-extrabold uppercase tracking-[0.2em] hover:bg-studio-gold-light hover:scale-105 transition-all shadow-2xl shadow-studio-gold/30 rounded-xl text-sm md:text-lg group">
             CRIAR MEU ENSAIO <ArrowRight size={24} className="group-hover:translate-x-2 transition" />
           </Link>
-          <p className="mt-8 text-gray-500 text-sm tracking-[0.3em] font-light uppercase">Resultados reais em até 24 horas</p>
+          <p className="mt-8 text-gray-500 text-sm tracking-[0.3em] font-light uppercase">Resultados reais em pouco tempo</p>
         </div>
       </section>
 
@@ -186,7 +185,7 @@ export default function GalleryPage() {
             <Link href="/politica-de-privacidade" className="hover:text-studio-gold transition">Política de Privacidade</Link>
           </div>
           <div className="max-w-xl mx-auto border-t border-white/10 pt-10">
-            <button onClick={() => window.scrollTo(0,0)} className="text-studio-gold uppercase text-[10px] tracking-widest hover:underline cursor-pointer">Voltar ao Topo</button>
+            <button onClick={() => window.scrollTo(0, 0)} className="text-studio-gold uppercase text-[10px] tracking-widest hover:underline cursor-pointer">Voltar ao Topo</button>
           </div>
         </div>
       </footer>

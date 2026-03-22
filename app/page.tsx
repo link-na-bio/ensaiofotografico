@@ -245,6 +245,11 @@ export default function LandingPage() {
             </div>
           ))}
         </div>
+        <div className="mt-16 text-center">
+          <Link href="/galeria" className="inline-flex items-center justify-center gap-2 border border-studio-gold text-studio-gold px-10 py-4 font-bold uppercase tracking-widest hover:bg-studio-gold hover:text-studio-black transition-all text-sm rounded-lg shadow-[0_0_15px_rgba(212,175,55,0.15)] hover:shadow-[0_0_20px_rgba(212,175,55,0.4)]">
+            Ver Todos os Estilos <ArrowRight size={16} />
+          </Link>
+        </div>
       </section>
 
       {/* Process Section */}
