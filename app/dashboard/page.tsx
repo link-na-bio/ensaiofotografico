@@ -784,27 +784,31 @@ export default function Dashboard() {
                     </div>
 
                     {selectedStyles.length > 0 && (
-                      <div className="mt-2 p-5 border border-studio-gold/30 bg-studio-gold/5 rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.05)]">
-                        <h4 className="text-studio-gold font-bold text-xs uppercase tracking-widest mb-3 flex items-center gap-2"><Sparkles size={14} /> Dicas de Dress Code (Roupas)</h4>
+                      <div className="mt-2 mb-4 p-5 border border-white/10 bg-[#121212] rounded-xl">
+                        <h4 className="text-white font-bold text-xs uppercase tracking-widest mb-3 flex items-center gap-2">
+                          <Info size={14} className="text-studio-gold" /> Detalhes dos Estilos Escolhidos
+                        </h4>
                         <div className="space-y-3">
                           {selectedStyles.map(st => {
                             const styleInfo = dbStyles.find(d => d.titulo === st);
-                            if (!styleInfo?.dica_roupa) return null;
+                            if (!styleInfo?.descricao) return null;
                             return (
-                              <div key={st} className="text-xs text-gray-300 leading-relaxed bg-black/20 p-3 rounded-lg border border-white/5">
-                                <strong className="text-white block mb-1">{st}</strong>
-                                {styleInfo.dica_roupa}
+                              <div key={st} className="text-xs text-gray-300 leading-relaxed bg-white/5 p-3 rounded-lg border border-white/5 flex flex-col gap-1">
+                                <strong className="text-white uppercase tracking-widest">{st}</strong>
+                                <p>{styleInfo.descricao}</p>
                               </div>
                             );
                           })}
                         </div>
                       </div>
                     )}
+
                   </motion.section>
                 )}
 
                 <section>
-                  <div className="flex items-center gap-4 mb-8"><span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">3</span><h3 className="text-xl font-bold font-display uppercase tracking-widest">Fotos de Referência</h3></div>
+                  <div className="flex items-center gap-4 mb-6"><span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">3</span><h3 className="text-xl font-bold font-display uppercase tracking-widest">Fotos de Referência</h3></div>
+                  
                   <input type="file" multiple accept="image/jpeg, image/png, image/webp" hidden ref={fileInputRef} onChange={handleFileChange} />
                   <div onDragOver={(e) => e.preventDefault()} onDrop={handleDrop} onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-white/10 p-12 flex flex-col items-center justify-center text-center bg-white/5 hover:border-studio-gold/30 transition-all cursor-pointer group rounded-2xl">
                     <div className="w-16 h-16 rounded-full bg-studio-gold/5 text-studio-gold flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-studio-gold/10 transition-all"><CloudUpload size={32} /></div>
