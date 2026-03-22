@@ -185,16 +185,19 @@ export default function AdminStyles() {
                 <p className="text-slate-500 text-xs tracking-widest uppercase">Curadoria de portfólio para a sua Inteligência Artificial</p>
               </div>
 
-              <div className="flex gap-2 overflow-x-auto pb-4 mb-8 custom-scrollbar">
-                {filterCategories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
-                    className={`px-5 py-2.5 rounded-none text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors ${activeCategory === cat ? 'bg-studio-gold text-studio-black border border-studio-gold' : 'bg-white/5 border border-white/10 text-slate-400 hover:border-studio-gold hover:text-studio-gold'}`}
-                  >
-                    {cat}
-                  </button>
-                ))}
+              <div className="relative w-full sm:max-w-xs mb-8">
+                <select
+                  value={activeCategory}
+                  onChange={(e) => setActiveCategory(e.target.value)}
+                  className="w-full h-full min-h-[44px] px-4 pr-10 bg-[#121212] border border-white/10 rounded-none focus:border-studio-gold outline-none text-[10px] font-bold uppercase tracking-widest text-white transition-colors appearance-none cursor-pointer"
+                >
+                  {filterCategories.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-studio-gold">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                </div>
               </div>
 
               {isLoading ? (
