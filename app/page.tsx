@@ -287,7 +287,7 @@ export default function LandingPage() {
               O QUE NOSSOS CLIENTES <span className="text-studio-gold">ESTÃO DIZENDO</span>
             </h2>
             <p className="text-studio-gold tracking-widest uppercase text-sm font-light">
-              Mais de 1.500 ensaios gerados com 100% de satisfação
+              Mais de 500 ensaios gerados com 100% de satisfação
             </p>
           </div>
 
