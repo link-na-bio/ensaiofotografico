@@ -168,9 +168,9 @@ export default function LandingPage() {
             <Link href="/login" className="inline-flex items-center justify-center gap-2 bg-studio-gold text-studio-black px-8 py-3.5 font-bold uppercase tracking-widest hover:scale-105 transition-transform text-center text-sm shadow-[0_0_20px_rgba(212,175,55,0.3)] rounded-lg">
               SOLICITAR MEU ENSAIO <ArrowRight size={16} />
             </Link>
-            <a href="#galeria" className="border border-white/30 backdrop-blur-sm px-10 py-4 font-bold uppercase tracking-widest hover:bg-white/10 transition text-center rounded-lg">
+            <Link href="/galeria" className="border border-white/30 backdrop-blur-sm px-10 py-4 font-bold uppercase tracking-widest hover:bg-white/10 transition text-center rounded-lg">
               Ver Galeria
-            </a>
+            </Link>
           </motion.div>
         </div>
       </section>

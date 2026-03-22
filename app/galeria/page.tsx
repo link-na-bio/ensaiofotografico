@@ -1,34 +1,43 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, Camera, Star, ArrowRight, Instagram, Linkedin, Twitter } from 'lucide-react';
-
-const categories = ['Todos', 'Corporativo', 'Moda', 'Lifestyle', 'Gamer'];
-
-const galleryItems = [
-  { id: 1, category: 'Corporativo', title: 'Retrato Executivo', img: '/corporativo.png' },
-  { id: 2, category: 'Corporativo', title: 'Identidade Business', img: '/humanoide.png' },
-  { id: 3, category: 'Moda', title: 'Editorial de Luxo', img: '/editorial-de-moda.png' },
-  { id: 4, category: 'Moda', title: 'Estilo Cinematográfico', img: '/estilo-cinematográfico.jpeg' },
-  { id: 5, category: 'Lifestyle', title: 'Casual Urbano', img: '/lifestyle-urbano.png' },
-  { id: 6, category: 'Lifestyle', title: 'Dia a Dia Premium', img: '/lifestyle.png' },
-  { id: 7, category: 'Lifestyle', title: 'Essência Real', img: '/lifestyleurbano.png' },
-  { id: 8, category: 'Gamer', title: 'Setup Futurista', img: '/gamer.png' },
-  { id: 9, category: 'Gamer', title: 'Hero Digital', img: '/hero-futurista.png' },
-];
+import { ChevronLeft, Camera, Star, ArrowRight, Loader2 } from 'lucide-react';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function GalleryPage() {
   const [activeCategory, setActiveCategory] = useState('Todos');
+  const [styles, setStyles] = useState<any[]>([]);
+  const [categories, setCategories] = useState<string[]>(['Todos']);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStyles = async () => {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('estilos')
+        .select('*')
+        .order('criado_em', { ascending: false });
+
+      if (!error && data) {
+        setStyles(data);
+        const uniqueCategories = Array.from(new Set(data.map((s: any) => s.categoria))).filter(Boolean) as string[];
+        setCategories(['Todos', ...uniqueCategories]);
+      }
+      setIsLoading(false);
+    };
+
+    fetchStyles();
+  }, []);
 
   const filteredItems = activeCategory === 'Todos' 
-    ? galleryItems 
-    : galleryItems.filter(item => item.category === activeCategory);
+    ? styles 
+    : styles.filter(item => item.categoria === activeCategory);
 
   return (
-    <div className="min-h-screen bg-studio-black text-white font-sans">
+    <div className="min-h-screen bg-studio-black text-white font-sans flex flex-col">
       {/* Header Fixo */}
       <header className="fixed top-0 w-full z-50 bg-studio-black/80 backdrop-blur-md py-4 border-b border-white/5">
         <div className="container mx-auto px-6 flex justify-between items-center">
@@ -39,7 +48,7 @@ export default function GalleryPage() {
           <div className="relative w-32 h-10">
             <Image src="/logo.png" alt="Logo" fill className="object-contain" />
           </div>
-          <Link href="/signup" className="hidden md:block bg-studio-gold text-studio-black px-6 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-studio-gold-light transition ring-4 ring-studio-gold/10">
+          <Link href="/login" className="hidden md:block bg-studio-gold text-studio-black px-6 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-studio-gold-light transition ring-4 ring-studio-gold/10">
             Quero o meu
           </Link>
         </div>
@@ -79,57 +88,76 @@ export default function GalleryPage() {
       </section>
 
       {/* Grid de Galeria */}
-      <section className="container mx-auto px-6 pb-32">
-        <motion.div 
-          layout
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-        >
-          <AnimatePresence mode="popLayout">
-            {filteredItems.map((item) => (
-              <motion.div
-                key={item.id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.4 }}
-                className="group relative h-[600px] overflow-hidden gold-border-gradient"
-              >
-                <div className="absolute inset-0 bg-studio-black">
-                   <Image 
-                     src={item.img} 
-                     alt={item.title} 
-                     fill 
-                     className="object-cover transition-all duration-700 group-hover:scale-110 group-hover:blur-[2px] opacity-80 group-hover:opacity-100" 
-                     referrerPolicy="no-referrer"
-                   />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-studio-black via-transparent to-transparent opacity-90"></div>
-                
-                {/* Overlay Informativo */}
-                <div className="absolute bottom-10 left-10 transition-all duration-500 group-hover:bottom-12">
-                   <span className="text-studio-gold text-[10px] uppercase font-bold tracking-widest mb-2 block">{item.category}</span>
-                   <h3 className="text-3xl font-display font-bold group-hover:text-studio-gold-light transition">{item.title}</h3>
-                   <div className="w-0 group-hover:w-20 h-[2px] bg-studio-gold mt-4 transition-all duration-500"></div>
-                </div>
+      <section className="container mx-auto px-6 pb-32 flex-1">
+        {isLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <Loader2 className="animate-spin text-studio-gold" size={40} />
+          </div>
+        ) : filteredItems.length === 0 ? (
+          <div className="text-center text-gray-500 py-20 flex flex-col items-center">
+            <Camera size={48} className="mb-4 text-white/10" />
+            <p className="tracking-widest uppercase text-xs">Nenhum estilo encontrado nesta categoria.</p>
+          </div>
+        ) : (
+          <motion.div 
+            layout
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6"
+          >
+            <AnimatePresence mode="popLayout">
+              {filteredItems.map((item) => (
+                <motion.div
+                  key={item.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.4 }}
+                  className="group relative aspect-[4/5] overflow-hidden gold-border-gradient"
+                >
+                  <div className="absolute inset-0 bg-studio-black" onContextMenu={(e) => e.preventDefault()}>
+                     {item.img_url ? (
+                       <Image 
+                         src={item.img_url} 
+                         alt={item.titulo} 
+                         fill 
+                         className="object-cover transition-all duration-700 group-hover:scale-110 group-hover:blur-[2px] opacity-80 group-hover:opacity-100 select-none pointer-events-none" 
+                         referrerPolicy="no-referrer"
+                         draggable={false}
+                       />
+                     ) : (
+                       <div className="w-full h-full flex items-center justify-center bg-white/5">
+                         <span className="uppercase tracking-widest font-bold text-xs text-gray-500">Sem Imagem</span>
+                       </div>
+                     )}
+                     <div className="absolute inset-0 z-10 cursor-not-allowed" onContextMenu={(e) => e.preventDefault()}></div>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-studio-black via-transparent to-transparent opacity-90"></div>
+                  
+                  {/* Overlay Informativo */}
+                  <div className="absolute bottom-10 left-10 right-10 transition-all duration-500 group-hover:bottom-12">
+                     <span className="text-studio-gold text-[10px] uppercase font-bold tracking-widest mb-2 block">{item.categoria}</span>
+                     <h3 className="text-2xl md:text-3xl font-display font-bold group-hover:text-studio-gold-light transition line-clamp-2">{item.titulo}</h3>
+                     <div className="w-0 group-hover:w-20 h-[2px] bg-studio-gold mt-4 transition-all duration-500"></div>
+                  </div>
 
-                {/* Badge de Lente */}
-                <div className="absolute top-8 right-8 w-12 h-12 rounded-full border border-white/10 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
-                   <Camera size={18} className="text-studio-gold" />
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
+                  {/* Badge de Lente */}
+                  <div className="absolute top-8 right-8 w-12 h-12 rounded-full border border-white/10 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
+                     <Camera size={18} className="text-studio-gold" />
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
       </section>
 
       {/* CTA Final da Galeria */}
-      <section className="bg-studio-gray/10 py-32 border-t border-white/5 relative overflow-hidden">
+      <section className="bg-studio-gray/10 py-32 border-t border-white/5 relative overflow-hidden shrink-0 mt-auto">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-studio-gold/5 blur-[120px] rounded-full pointer-events-none"></div>
         <div className="container mx-auto px-6 text-center relative z-10">
           <Star size={40} className="text-studio-gold fill-studio-gold mx-auto mb-8 animate-pulse" />
           <h2 className="text-4xl md:text-6xl font-bold mb-10 italic">PRONTO PARA A SUA <br /> <span className="text-studio-gold">MELHOR VERSÃO?</span></h2>
-          <Link href="/signup" className="inline-flex items-center gap-4 px-12 py-6 bg-studio-gold text-studio-black font-extrabold uppercase tracking-[0.2em] hover:bg-studio-gold-light hover:scale-105 transition-all shadow-2xl shadow-studio-gold/30 rounded-xl text-lg group">
+          <Link href="/login" className="inline-flex items-center gap-4 px-12 py-6 bg-studio-gold text-studio-black font-extrabold uppercase tracking-[0.2em] hover:bg-studio-gold-light hover:scale-105 transition-all shadow-2xl shadow-studio-gold/30 rounded-xl text-sm md:text-lg group">
             CRIAR MEU ENSAIO <ArrowRight size={24} className="group-hover:translate-x-2 transition" />
           </Link>
           <p className="mt-8 text-gray-500 text-sm tracking-[0.3em] font-light uppercase">Resultados reais em até 24 horas</p>
@@ -137,7 +165,7 @@ export default function GalleryPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-16 bg-studio-black text-center relative border-t border-white/5" id="contato">
+      <footer className="py-16 bg-studio-black text-center relative border-t border-white/5 shrink-0" id="contato">
         <div className="container mx-auto px-6">
           <div className="mb-10">
             <div className="relative w-[280px] h-[280px] mx-auto -mt-10 -mb-24">
@@ -158,7 +186,7 @@ export default function GalleryPage() {
             <Link href="/politica-de-privacidade" className="hover:text-studio-gold transition">Política de Privacidade</Link>
           </div>
           <div className="max-w-xl mx-auto border-t border-white/10 pt-10">
-            <a className="text-studio-gold uppercase text-[10px] tracking-widest hover:underline" href="#">Voltar ao Topo</a>
+            <button onClick={() => window.scrollTo(0,0)} className="text-studio-gold uppercase text-[10px] tracking-widest hover:underline cursor-pointer">Voltar ao Topo</button>
           </div>
         </div>
       </footer>
