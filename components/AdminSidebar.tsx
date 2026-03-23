@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { 
-  Camera, 
-  ShoppingBag, 
-  Users, 
-  Palette, 
-  CreditCard, 
-  Settings, 
+import {
+  Camera,
+  ShoppingBag,
+  Users,
+  Palette,
+  CreditCard,
+  Settings,
   BarChart3,
   MessageSquare,
   MoreVertical,
@@ -76,7 +76,7 @@ export default function AdminSidebar() {
         (payload) => {
           setNotifications(prev => [payload.new, ...prev]);
           setHasNew(true);
-          playBeep(); 
+          playBeep();
         }
       )
       .subscribe();
@@ -128,12 +128,12 @@ export default function AdminSidebar() {
             <Image src="/logo.png" alt="Virtual Studio Logo" fill className="object-contain" priority />
           </div>
           <div className="h-[1px] w-2/3 bg-gradient-to-r from-transparent via-studio-gold/50 to-transparent mt-2 mb-1"></div>
-          <p className="text-[10px] text-studio-gold font-bold uppercase tracking-[0.3em] opacity-80">
+          <p className="text-[15px] text-studio-gold font-bold uppercase tracking-[0.3em] opacity-80">
             Painel Administrativo
           </p>
         </div>
       </div>
-      
+
       <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
         {navItems.map((item, i) => {
           if (item.type === 'header') {
@@ -143,19 +143,18 @@ export default function AdminSidebar() {
               </div>
             );
           }
-          
+
           const Icon = item.icon!;
           const isActive = pathname === item.href;
 
           return (
-            <Link 
+            <Link
               key={i}
-              href={item.href!} 
-              className={`flex items-center gap-3 px-4 py-3 rounded-none transition-all group relative ${
-                isActive 
-                  ? 'bg-studio-gold/5 text-studio-gold' 
-                  : 'text-gray-500 hover:text-studio-gold hover:bg-white/[0.02]'
-              }`}
+              href={item.href!}
+              className={`flex items-center gap-3 px-4 py-3 rounded-none transition-all group relative ${isActive
+                ? 'bg-studio-gold/5 text-studio-gold'
+                : 'text-gray-500 hover:text-studio-gold hover:bg-white/[0.02]'
+                }`}
             >
               {isActive && (
                 <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-studio-gold shadow-[0_0_10px_rgba(212,175,55,0.5)]"></div>
@@ -173,7 +172,7 @@ export default function AdminSidebar() {
       <div className="p-4 border-t border-white/5 relative">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest px-1">Alertas</span>
-          <button 
+          <button
             onClick={toggleDropdown}
             className={`p-2 rounded-none bg-white/5 border border-white/10 relative transition-colors ${hasNew ? 'text-studio-gold border-studio-gold/30 hover:bg-studio-gold/10' : 'text-slate-500 hover:bg-white/10 hover:text-white'}`}
           >
@@ -220,7 +219,7 @@ export default function AdminSidebar() {
             </div>
           </div>
         )}
-        
+
         <div className="flex items-center gap-3 p-3 mt-1 bg-white/[0.02] border border-white/5 rounded-none hover:border-studio-gold/30 transition-all group">
           <div className="size-8 rounded-full border border-studio-gold/30 flex items-center justify-center bg-studio-gold/10 group-hover:bg-studio-gold/20 transition-colors">
             <User size={16} className="text-studio-gold" />
@@ -229,7 +228,7 @@ export default function AdminSidebar() {
             <p className="text-[10px] font-bold truncate text-white uppercase tracking-widest font-display">{adminName}</p>
             <p className="text-[8px] text-slate-500 truncate uppercase tracking-tighter opacity-80">Admin Logado</p>
           </div>
-          <button 
+          <button
             onClick={handleLogout}
             className="p-2 text-slate-500 hover:text-rose-500 transition-colors"
             title="Sair do Painel"
