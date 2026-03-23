@@ -558,13 +558,13 @@ export default function LandingPage() {
                       <Check size={14} className="text-studio-gold" /> Acesso total (até 5 estilos)
                     </div>
                     <div className="flex items-center gap-3 text-xs text-gray-300 font-bold text-studio-gold">
-                      <Sparkles size={14} /> Curadoria VIP e Refinamento de IA
+                      <Sparkles size={14} /> Retoque FINO avançado
                     </div>
                     <div className="flex items-center gap-3 text-xs text-gray-300">
                       <Check size={14} className="text-studio-gold" /> Sem marca d'água
                     </div>
                     <div className="flex items-center gap-3 text-xs text-gray-300">
-                      <Check size={14} className="text-studio-gold" /> Entrega em até 72h
+                      <Check size={14} className="text-studio-gold" /> Entrega em até 48h
                     </div>
                     <div className="flex items-center gap-3 text-xs text-gray-300">
                       <Check size={14} className="text-studio-gold" /> Licença Comercial
