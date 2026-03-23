@@ -2,174 +2,157 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabaseClient';
+import { Loader2, Mail, Lock, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { Camera, Mail, Lock, Eye, EyeOff, Github } from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient'; // Importando a conexão do banco
-import { useRouter } from 'next/navigation'; // Para redirecionar após o login
 
-export default function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false);
-
-  // Estados para capturar o que o usuário digita
+export default function Login() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const router = useRouter();
-
-  // A função mágica que fala com o Supabase
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setMessage('');
+    setIsLoading(true);
+    setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      router.push('/dashboard');
+    } catch (err: any) {
+      setError('E-mail ou senha incorretos.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    if (error) {
-      setMessage('Erro: E-mail ou senha incorretos.');
-      setLoading(false);
-    } else {
-      setMessage('Acesso liberado! Redirecionando...');
-      
-      // Role-based Redirection
-      if (email === 'brunomeueditor@gmail.com') {
-        router.push('/admin/orders');
-      } else {
-        router.push('/dashboard');
-      }
+  const handleGoogleLogin = async () => {
+    setError(null);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+      if (error) throw error;
+    } catch (err: any) {
+      setError('Erro ao conectar com o Google.');
     }
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-4 bg-[#0a0807]">
-      {/* Background Image */}
-      <div className="absolute inset-0 z-0">
+    <div className="min-h-screen bg-studio-black flex flex-col md:flex-row font-sans">
+      {/* Lado Esquerdo - Imagem (Oculto no Mobile) */}
+      <div className="hidden md:flex w-1/2 relative bg-black items-center justify-center overflow-hidden">
         <Image
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0ZlxuTySbhRbdkystj1YbVuKSrGR8CnvHrkFhMdYY6QiIwmLM0pg8OMeBrDtk7QTM13siCGRA2AvcDxz8jYfSMFXB3VRJpfDkf4nsv-ieO6lhvO2rvcD02gUvsKBkiNY4A8-OTkDJUDFIHTKSJ3XHxzGm09kVtiZRnU9fVbyyUq54y-UYk-YVZYzjs3aV4oQdwuF8D9CuBUuEv-Sw9iFMPjgt1VyIJ2kDy6XqxvZHafMWNoMm0o_UEiWiTNW-dHT_KZ7ihz7mttKb"
-          alt="Studio Background"
+          src="/hero-futurista.png"
+          alt="Virtual Studio Concept"
           fill
-          className="object-cover opacity-20"
-          referrerPolicy="no-referrer"
+          className="object-cover opacity-40"
+          priority
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0807]/80 to-[#0a0807]"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-studio-black via-transparent to-transparent"></div>
+        <div className="relative z-10 p-12 text-center">
+          <h1 className="text-4xl font-display font-bold text-white mb-4 tracking-widest uppercase">Virtual Studio</h1>
+          <p className="text-studio-gold tracking-widest text-sm uppercase">A Evolução da sua Imagem</p>
+        </div>
       </div>
 
-      {/* Login Card */}
-      <div className="relative z-10 w-full max-w-[440px] bg-white/5 backdrop-blur-xl p-8 md:p-12 rounded-xl border border-studio-gold/10 shadow-2xl">
-        {/* Logo Section */}
-        {/* Logo Section */}
-        <div className="flex flex-col items-center gap-0 mb-4 mt-[-40px]">
-          <div className="relative w-[240px] h-[160px] flex items-center justify-center drop-shadow-2xl -mb-10">
-            <Image src="/logo.png" alt="Virtual Studio Logo" fill className="object-contain" priority />
-          </div>
-          <div className="text-center">
-            <h1 className="text-white text-2xl font-black leading-tight tracking-wider uppercase italic">VIRTUAL STUDIO</h1>
-            <p className="text-slate-400 text-xs font-light tracking-[0.2em] mt-1 uppercase">Creative Excellence</p>
-          </div>
-        </div>
+      {/* Lado Direito - Formulário */}
+      <div className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-12 relative">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-studio-gold/5 via-studio-black to-studio-black pointer-events-none"></div>
 
-        {/* Form - Agora com o onSubmit chamando o Supabase */}
-        <form className="flex flex-col gap-6" onSubmit={handleLogin}>
-          {/* Email Field */}
-          <div className="flex flex-col gap-2">
-            <label className="text-slate-300 text-xs font-semibold uppercase tracking-widest px-1">E-mail</label>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
-              <input
-                className="w-full h-14 pl-12 pr-4 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-studio-gold/50 transition-all text-base"
-                placeholder="seu@email.com"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+        <div className="w-full max-w-md relative z-10">
+          <div className="text-center mb-10 md:hidden">
+            <div className="relative w-24 h-24 mx-auto -mb-4">
+              <Image src="/logo.png" alt="Logo" fill className="object-contain" />
             </div>
+            <h2 className="text-2xl font-display font-bold text-white tracking-widest uppercase">Virtual Studio</h2>
           </div>
 
-          {/* Password Field */}
-          <div className="flex flex-col gap-2">
-            <label className="text-slate-300 text-xs font-semibold uppercase tracking-widest px-1">Senha</label>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
-              <input
-                className="w-full h-14 pl-12 pr-12 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-studio-gold/50 transition-all text-base"
-                placeholder="••••••••"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <button
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-studio-gold transition-colors"
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            </div>
+          <div className="mb-10 text-center md:text-left">
+            <h2 className="text-3xl font-bold text-white mb-2 font-display uppercase tracking-wider">Acesse sua conta</h2>
+            <p className="text-gray-400 text-sm">Bem-vindo de volta à plataforma de excelência visual.</p>
           </div>
 
-          {/* Mensagem de Erro/Sucesso estilizada com a paleta do site */}
-          {message && (
-            <div className={`p-3 rounded text-sm text-center font-medium ${message.includes('Erro') ? 'text-red-400 bg-red-400/10 border border-red-400/20' : 'text-studio-gold bg-studio-gold/10 border border-studio-gold/20'}`}>
-              {message}
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg text-red-500 text-xs text-center font-bold">
+              {error}
             </div>
           )}
 
-          {/* Remember & Forgot */}
-          <div className="flex items-center justify-between px-1">
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <input className="size-4 rounded border-white/20 bg-transparent text-studio-gold focus:ring-studio-gold" type="checkbox" />
-              <span className="text-slate-400 text-sm group-hover:text-slate-200 transition-colors">Lembrar de mim</span>
-            </label>
-            <Link href="/recovery" className="text-studio-gold/80 text-sm font-medium hover:text-studio-gold transition-colors">Esqueceu a senha?</Link>
+          <form onSubmit={handleEmailLogin} className="space-y-5 mb-8">
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">E-mail</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-3 text-white focus:border-studio-gold outline-none transition-colors text-sm"
+                  placeholder="seu@email.com"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Senha</label>
+                <Link href="#" className="text-[10px] text-studio-gold hover:underline uppercase tracking-widest">Esqueceu a senha?</Link>
+              </div>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-3 text-white focus:border-studio-gold outline-none transition-colors text-sm"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading || !email || !password}
+              className="w-full bg-studio-gold text-studio-black py-3.5 rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-studio-gold-light transition-all flex items-center justify-center gap-2 disabled:opacity-50 mt-4 shadow-[0_0_20px_rgba(212,175,55,0.2)]"
+            >
+              {isLoading ? <Loader2 size={18} className="animate-spin" /> : <>Entrar na Plataforma <ArrowRight size={16} /></>}
+            </button>
+          </form>
+
+          <div className="flex items-center gap-4 mb-8 opacity-60">
+            <div className="h-px bg-white/20 flex-1"></div>
+            <span className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Ou continue com</span>
+            <div className="h-px bg-white/20 flex-1"></div>
           </div>
 
-          {/* Submit Button - Mudou de Link falso para Button real */}
           <button
-            type="submit"
-            disabled={loading}
-            className="bg-gradient-to-r from-studio-gold to-studio-gold-light w-full h-14 rounded-lg text-black font-bold text-base uppercase tracking-widest hover:brightness-110 active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(195,157,93,0.3)] mt-2 flex items-center justify-center disabled:opacity-50"
+            type="button"
+            onClick={handleGoogleLogin}
+            className="w-full bg-white text-black py-3.5 rounded-lg font-bold text-sm hover:bg-gray-100 transition-all flex items-center justify-center gap-3"
           >
-            {loading ? 'Verificando...' : 'Entrar'}
-          </button>
-        </form>
-
-        {/* Divider */}
-        <div className="relative my-10">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-white/10"></div>
-          </div>
-          <div className="relative flex justify-center text-xs uppercase tracking-widest">
-            <span className="bg-[#120c0a] px-4 text-slate-500">Ou continuar com</span>
-          </div>
-        </div>
-
-        {/* Social Logins */}
-        <div className="grid grid-cols-2 gap-4">
-          <button className="flex items-center justify-center gap-3 h-12 bg-white/5 border border-white/10 rounded-lg text-white hover:bg-white/10 transition-all">
-            <svg className="size-5" viewBox="0 0 24 24">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="currentColor"></path>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="currentColor"></path>
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="currentColor"></path>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z" fill="currentColor"></path>
+            <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
             </svg>
-            <span className="text-sm font-medium">Google</span>
+            Continuar com Google
           </button>
-          <button className="flex items-center justify-center gap-3 h-12 bg-white/5 border border-white/10 rounded-lg text-white hover:bg-white/10 transition-all">
-            <Github size={20} />
-            <span className="text-sm font-medium">Github</span>
-          </button>
-        </div>
 
-        {/* Footer */}
-        <p className="mt-10 text-center text-slate-500 text-sm">
-          Não tem uma conta? <Link href="/signup" className="text-studio-gold font-semibold hover:underline">Solicitar acesso</Link>
-        </p>
+          <p className="mt-10 text-center text-xs text-gray-500">
+            Ainda não tem uma conta? <Link href="/signup" className="text-studio-gold font-bold hover:underline">Criar conta grátis</Link>
+          </p>
+        </div>
       </div>
     </div>
   );
