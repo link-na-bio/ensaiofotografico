@@ -123,11 +123,11 @@ export default function AdminSidebar() {
       <audio ref={audioRef} src="/alerta.mp3" preload="auto" className="hidden" />
 
       <div className="p-8 flex flex-col items-center text-center border-b border-white/5 mb-4">
-        <div className="flex flex-col">
-          <h2 className="text-2xl font-bold font-display uppercase tracking-[0.2em] text-white leading-none mb-1">
-            VIRTUAL <span className="text-studio-gold">STUDIO</span>
-          </h2>
-          <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-studio-gold/50 to-transparent my-2"></div>
+        <div className="flex flex-col items-center">
+          <div className="relative w-[150px] h-[150px] -mt-[40px] -mb-[60px] flex items-center justify-center pointer-events-none">
+            <Image src="/logo.png" alt="Virtual Studio Logo" fill className="object-contain" priority />
+          </div>
+          <div className="h-[1px] w-2/3 bg-gradient-to-r from-transparent via-studio-gold/50 to-transparent mt-2 mb-1"></div>
           <p className="text-[10px] text-studio-gold font-bold uppercase tracking-[0.3em] opacity-80">
             Painel Administrativo
           </p>

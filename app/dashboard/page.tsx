@@ -439,11 +439,17 @@ export default function Dashboard() {
       </AnimatePresence>
 
       <aside className="w-64 border-r border-white/5 bg-studio-black flex flex-col sticky top-0 h-screen hidden md:flex shrink-0">
-        <div className="p-6">
-          <div className="flex items-center gap-2 mb-8">
-            <div className="relative w-10 h-10 flex items-center justify-center"><Image src="/logo.png" alt="Virtual Studio Logo" fill className="object-contain" priority /></div>
-            <div><h1 className="text-white text-sm font-bold">VIRTUAL STUDIO</h1><p className="text-gray-500 text-[10px] uppercase tracking-widest">Painel do Cliente</p></div>
+        <div className="p-8 flex flex-col items-center text-center border-b border-white/5 mb-4">
+          <div className="flex flex-col items-center">
+            <div className="relative w-[150px] h-[150px] -mt-[40px] -mb-[60px] flex items-center justify-center pointer-events-none">
+              <Image src="/logo.png" alt="Virtual Studio Logo" fill className="object-contain" priority />
+            </div>
+            <div className="h-[1px] w-2/3 bg-gradient-to-r from-transparent via-studio-gold/50 to-transparent mt-2 mb-1"></div>
+            <p className="text-[10px] text-studio-gold font-bold uppercase tracking-[0.3em] opacity-80">
+              Painel do Cliente
+            </p>
           </div>
+        </div>
           <nav className="flex flex-col gap-1">
             <button onClick={() => changeTab('home')} className={`flex items-center gap-3 px-4 py-3 transition-colors ${activeTab === 'home' ? 'bg-studio-gold/10 text-studio-gold border-r-2 border-studio-gold' : 'text-gray-400 hover:text-studio-gold'}`}><Home size={18} /><span className="text-sm font-medium">Home</span></button>
             <button onClick={() => changeTab('ensaios')} className={`flex items-center gap-3 px-4 py-3 transition-colors ${activeTab === 'ensaios' ? 'bg-studio-gold/10 text-studio-gold border-r-2 border-studio-gold' : 'text-gray-400 hover:text-studio-gold'}`}><Library size={18} /><span className="text-sm font-medium">Os Meus Ensaios</span></button>
@@ -451,7 +457,6 @@ export default function Dashboard() {
             <button onClick={() => changeTab('mensagens')} className={`flex items-center gap-3 px-4 py-3 transition-colors ${activeTab === 'mensagens' ? 'bg-studio-gold/10 text-studio-gold border-r-2 border-studio-gold' : 'text-gray-400 hover:text-studio-gold'}`}><MessageSquare size={18} /><span className="text-sm font-medium">Mensagens</span></button>
             <button onClick={() => changeTab('perfil')} className={`flex items-center gap-3 px-4 py-3 transition-colors ${activeTab === 'perfil' ? 'bg-studio-gold/10 text-studio-gold border-r-2 border-studio-gold' : 'text-gray-400 hover:text-studio-gold'}`}><User size={18} /><span className="text-sm font-medium">Perfil</span></button>
           </nav>
-        </div>
         <div className="mt-auto p-6 border-t border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-studio-gold/20 flex items-center justify-center overflow-hidden relative border border-studio-gold/30">
