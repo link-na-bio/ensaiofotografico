@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabaseClient';
 import {
   Camera, Home, Library, PlusCircle, User, CloudUpload, Check, CheckCheck,
   Archive, X, Send, Sparkles, LogOut, Clock, LayoutGrid, CheckCircle2,
-  ChevronRight, ChevronLeft, Info, Eye, Download, Zap, MessageSquare, FileImage, Loader2, FileText, Paperclip
+  ChevronRight, ChevronLeft, Info, Eye, Download, Zap, MessageSquare, FileImage, Loader2, FileText, Paperclip, Lock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -53,6 +53,7 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [pedidos, setPedidos] = useState<any[]>([]);
   const [dbStyles, setDbStyles] = useState<any[]>([]);
+  const [isRestricted, setIsRestricted] = useState(false);
 
   // Função para buscar estilos no Supabase
   const fetchDbStyles = async () => {
@@ -131,6 +132,12 @@ export default function Dashboard() {
         setIsLoading(false);
         fetchPedidos(session.user.id);
         fetchDbStyles();
+        
+        // Verifica restrição
+        if (session.user.email) {
+          const { data } = await supabase.from('usuarios_restritos').select('email').eq('email', session.user.email).single();
+          if (data) setIsRestricted(true);
+        }
       }
     };
     checkUser();
@@ -714,7 +721,18 @@ export default function Dashboard() {
         )}
 
         {activeTab === 'novo' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="novo" className="px-8">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="novo" className="px-8 flex-1 flex flex-col">
+            {isRestricted ? (
+              <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-12 bg-rose-500/5 border border-dashed border-rose-500/20 rounded-2xl">
+                <div className="w-20 h-20 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center mb-6"><Lock size={40} /></div>
+                <h3 className="text-2xl font-bold font-display uppercase tracking-widest text-rose-500 mb-3">Geração de Pedidos Suspensa</h3>
+                <p className="text-gray-400 text-sm max-w-md leading-relaxed">
+                  A sua conta foi impedida temporariamente de realizar novos pedidos na plataforma. Se acredita tratar-se de um engano ou deseja regularizar a sua situação, entre em contacto via Suporte.
+                </p>
+                <button onClick={() => changeTab('mensagens')} className="mt-8 px-8 py-4 bg-[#121212] border border-white/10 text-white font-bold uppercase tracking-widest hover:border-white/30 transition-all flex items-center gap-3"><MessageSquare size={18} /> Falar com Suporte</button>
+              </div>
+            ) : (
+              <>
             <header className="mb-8"><h2 className="text-2xl font-bold font-display uppercase tracking-widest">Configurar Novo Ensaio</h2><p className="text-gray-500">Personalize o seu pedido para obter o melhor resultado.</p></header>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-12 pb-20">
@@ -853,12 +871,17 @@ export default function Dashboard() {
                     <div className="flex justify-between items-center text-xs"><span className="text-gray-500 uppercase tracking-widest">Estilos</span><span className={`font-bold ${selectedStyles.length === getStyleLimit() ? 'text-studio-gold' : 'text-white'}`}>{selectedStyles.length}/{getStyleLimit()}</span></div>
                     <div className="flex justify-between items-center text-xs"><span className="text-gray-500 uppercase tracking-widest">Fotos Env.</span><span className={`font-bold ${selectedFiles.length >= 5 ? 'text-emerald-400' : 'text-red-500'}`}>{selectedFiles.length}/10</span></div>
                   </div>
-                  <button onClick={handleSendToProduction} disabled={isUploading} className="w-full py-4 bg-studio-gold text-studio-black font-display font-black uppercase tracking-widest hover:bg-studio-gold-light transition-all disabled:opacity-50 rounded-lg shadow-xl shadow-studio-gold/10">
-                    {isUploading ? 'A enviar...' : 'Enviar para Produção'}
-                  </button>
+                      <div className="p-6 bg-white/5 border-t border-white/10">
+                        <div className="flex justify-between items-center font-bold font-display uppercase tracking-widest text-lg mb-6"><span>Total:</span><span className="text-studio-gold">R$ {totalAmount.toFixed(2).replace('.', ',')}</span></div>
+                        <button onClick={handleNovoPedido} disabled={!selectedPackage || selectedStyles.length < getStyleLimit() || selectedFiles.length < 5 || isUploading} className="w-full py-4 bg-studio-gold text-studio-black font-bold uppercase tracking-widest hover:bg-studio-gold-light transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                          {isUploading ? <><Loader2 size={18} className="animate-spin" /> Processando Imagens...</> : <><Sparkles size={18} /> Confirmar e Gerar Ensaio</>}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </>
+            )}
           </motion.div>
         )}
 

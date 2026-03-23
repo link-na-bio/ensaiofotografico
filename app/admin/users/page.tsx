@@ -14,7 +14,9 @@ import {
   ChevronLeft,
   ChevronRight,
   User,
-  Loader2
+  Loader2,
+  Lock,
+  Unlock
 } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
 
@@ -30,6 +32,54 @@ export default function AdminUsers() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [newUsersThisMonth, setNewUsersThisMonth] = useState(0);
   const [totalOrders, setTotalOrders] = useState(0);
+
+  // Estado para usuários com pedidos pausados (agora tracking por e-mail, via Supabase)
+  const [pausedUsers, setPausedUsers] = useState<Set<string>>(new Set());
+
+  const fetchRestrictedUsers = async () => {
+    try {
+      const { data, error } = await supabase.from('usuarios_restritos').select('email');
+      if (error && error.code !== '42P01') throw error; // Ignora se a tabela não existir ainda
+      if (data) {
+        setPausedUsers(new Set(data.map(d => d.email)));
+      }
+    } catch (err) {
+      console.error("Erro ao buscar usuários restritos:", err);
+    }
+  };
+
+  const togglePauseUser = async (user: any) => {
+    if (user.access === 'Admin') {
+      alert("Acesso Negado: Administradores e CEOs não podem ter pedidos bloqueados.");
+      return;
+    }
+    
+    try {
+      if (pausedUsers.has(user.email)) {
+        const { error } = await supabase.from('usuarios_restritos').delete().eq('email', user.email);
+        if (error) throw error;
+        
+        setPausedUsers(prev => {
+          const next = new Set(prev);
+          next.delete(user.email);
+          return next;
+        });
+        alert(`SUCESSO: O cliente ${user.email} agora pode fazer novos pedidos.`);
+      } else {
+        const { error } = await supabase.from('usuarios_restritos').insert({ email: user.email });
+        if (error) throw error;
+        
+        setPausedUsers(prev => {
+          const next = new Set(prev);
+          next.add(user.email);
+          return next;
+        });
+        alert(`SUCESSO: Os pedidos para ${user.email} foram interrompidos efetivamente.`);
+      }
+    } catch (error: any) {
+      alert("Erro ao alterar bloqueio (verifique se a tabela 'usuarios_restritos' foi criada no Supabase): " + error.message);
+    }
+  };
 
   const fetchUsersAndOrders = async () => {
     setIsLoading(true);
@@ -107,6 +157,7 @@ export default function AdminUsers() {
 
   useEffect(() => {
     fetchUsersAndOrders();
+    fetchRestrictedUsers();
   }, []);
 
   // Pesquisa
@@ -228,7 +279,10 @@ export default function AdminUsers() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {filteredUsers.map((user, idx) => (
+                    {filteredUsers.map((user, idx) => {
+                      const isPaused = pausedUsers.has(user.email);
+                      
+                      return (
                       <tr key={idx} className="hover:bg-white/5 transition-colors group">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-4">
@@ -247,9 +301,12 @@ export default function AdminUsers() {
                         </td>
 
                         <td className="px-6 py-4">
-                          <span className={`px-3 py-1 rounded text-[9px] font-bold uppercase tracking-wider border ${user.access === 'Admin' ? 'bg-studio-gold/10 text-studio-gold border-studio-gold/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                            }`}>
-                            {user.access === 'Admin' ? 'CEO / Admin' : 'Cliente VIP'}
+                          <span className={`px-3 py-1 rounded text-[9px] font-bold uppercase tracking-wider border ${
+                            user.access === 'Admin' ? 'bg-studio-gold/10 text-studio-gold border-studio-gold/30' : 
+                            isPaused ? 'bg-amber-500/10 text-amber-500 border-amber-500/30' :
+                            'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                          }`}>
+                            {user.access === 'Admin' ? 'CEO / Admin' : isPaused ? 'Bloqueado (Pedidos)' : 'Cliente VIP'}
                           </span>
                         </td>
 
@@ -263,16 +320,20 @@ export default function AdminUsers() {
 
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-2">
-                            <button className="p-2 border border-white/10 text-slate-400 hover:border-studio-gold hover:text-studio-gold transition-all" title="Ver Detalhes">
-                              <Eye size={16} />
-                            </button>
-                            <button className="p-2 border border-white/10 text-slate-400 hover:border-rose-500 hover:text-rose-500 hover:bg-rose-500/10 transition-all" title="Bloquear Acesso">
-                              <Ban size={16} />
-                            </button>
+                            {isPaused ? (
+                              <button onClick={() => togglePauseUser(user)} className="p-2 border border-white/10 transition-all text-amber-500 hover:border-amber-400 hover:bg-amber-500/10" title="Desbloquear Pedidos">
+                                <Unlock size={16} />
+                              </button>
+                            ) : (
+                              <button onClick={() => togglePauseUser(user)} className="p-2 border border-white/10 transition-all text-slate-400 hover:border-amber-500 hover:text-amber-500" title="Bloquear Novos Pedidos">
+                                <Lock size={16} />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
               )}
