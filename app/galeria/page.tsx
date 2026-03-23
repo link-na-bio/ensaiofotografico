@@ -76,11 +76,11 @@ export default function GalleryPage() {
               key={cat}
               onClick={() => setActiveCategory(cat)}
               className={`px-8 py-3 text-[10px] font-bold uppercase tracking-widest transition-all border-b-2 ${activeCategory === cat
-                  ? 'border-studio-gold text-white bg-studio-gold/5'
-                  : 'border-transparent text-gray-500 hover:text-white'
+                ? 'border-studio-gold text-white bg-studio-gold/5'
+                : 'border-transparent text-gray-500 hover:text-white'
                 }`}
             >
-              {cat}
+              {cat?.toLowerCase()?.includes('executivo') ? 'Executivo/Corporativo' : cat}
             </button>
           ))}
         </div>
@@ -134,7 +134,7 @@ export default function GalleryPage() {
 
                   {/* Overlay Informativo */}
                   <div className="absolute bottom-10 left-10 right-10 transition-all duration-500 group-hover:bottom-12">
-                    <span className="text-studio-gold text-[10px] uppercase font-bold tracking-widest mb-2 block">{item.categoria}</span>
+                    <span className="text-studio-gold text-[10px] uppercase font-bold tracking-widest mb-2 block">{item.categoria?.toLowerCase()?.includes('executivo') ? 'Executivo/Corporativo' : item.categoria}</span>
                     <h3 className="text-2xl md:text-3xl font-display font-bold group-hover:text-studio-gold-light transition line-clamp-2">{item.titulo}</h3>
                     <div className="w-0 group-hover:w-20 h-[2px] bg-studio-gold mt-4 transition-all duration-500"></div>
                   </div>

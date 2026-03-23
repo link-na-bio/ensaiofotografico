@@ -152,9 +152,9 @@ export default function AdminStyles() {
 
   const handleDeleteCategory = async () => {
     if (activeCategory === 'Todos') return;
-    
+
     const count = styles.filter(s => s.categoria === activeCategory).length;
-    
+
     if (!confirm(`ATENÇÃO: Tem certeza que deseja apagar a categoria "${activeCategory}" e TODOS os seus ${count} estilos vinculados? Esta ação é irreversível e excluirá as imagens do portfólio.`)) {
       return;
     }
@@ -163,7 +163,7 @@ export default function AdminStyles() {
       setIsLoading(true);
       const { error } = await supabase.from('estilos').delete().eq('categoria', activeCategory);
       if (error) throw error;
-      
+
       alert(`Categoria e todos os seus estilos apagados com sucesso!`);
       setActiveCategory('Todos');
       fetchStyles();
@@ -215,7 +215,7 @@ export default function AdminStyles() {
                     className="w-full h-full min-h-[44px] px-4 pr-10 bg-[#121212] border border-white/10 rounded-none focus:border-studio-gold outline-none text-[10px] font-bold uppercase tracking-widest text-white transition-colors appearance-none cursor-pointer"
                   >
                     {filterCategories.map((cat) => (
-                      <option key={cat} value={cat}>{cat}</option>
+                      <option key={cat} value={cat}>{cat?.toLowerCase()?.includes('executivo') ? 'Executivo/Corporativo' : cat}</option>
                     ))}
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-studio-gold">
@@ -255,7 +255,7 @@ export default function AdminStyles() {
                           </div>
                         )}
                         <div className="absolute top-4 left-4 flex gap-2">
-                          <span className="bg-studio-gold text-studio-black text-[8px] font-bold uppercase tracking-widest px-2 py-1">{style.categoria}</span>
+                          <span className="bg-studio-gold text-studio-black text-[8px] font-bold uppercase tracking-widest px-2 py-1">{style.categoria?.toLowerCase()?.includes('executivo') ? 'Executivo/Corporativo' : style.categoria}</span>
                           <span className="hidden sm:inline-block bg-black/60 backdrop-blur-md border border-white/10 text-white text-[8px] font-bold uppercase tracking-widest px-2 py-1">{style.genero}</span>
                         </div>
                       </div>
@@ -354,8 +354,8 @@ export default function AdminStyles() {
                             <>
                               <label className="text-[10px] font-bold uppercase tracking-widest flex items-center justify-between text-slate-400">
                                 <span>Categoria</span>
-                                <button 
-                                  type="button" 
+                                <button
+                                  type="button"
                                   onClick={() => setShowNewCategoryInput(true)}
                                   className="text-studio-gold hover:text-white transition-colors flex items-center gap-1"
                                   title="Criar Nova Categoria"
@@ -369,15 +369,15 @@ export default function AdminStyles() {
                                 className="w-full px-4 py-3 bg-[#121212] border border-white/10 focus:border-studio-gold outline-none text-xs font-bold uppercase tracking-widest text-white transition-colors appearance-none cursor-pointer"
                                 defaultValue={editingStyle?.categoria || (allCategories.length > 0 ? allCategories[0] : '')}
                               >
-                                {allCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                {allCategories.map(cat => <option key={cat} value={cat}>{cat?.toLowerCase()?.includes('executivo') ? 'Executivo/Corporativo' : cat}</option>)}
                               </select>
                             </>
                           ) : (
                             <>
                               <label className="text-[10px] font-bold uppercase tracking-widest flex items-center justify-between text-studio-gold">
                                 <span>Nova Categoria</span>
-                                <button 
-                                  type="button" 
+                                <button
+                                  type="button"
                                   onClick={() => setShowNewCategoryInput(false)}
                                   className="text-rose-500 hover:text-white transition-colors flex items-center gap-1"
                                   title="Cancelar e Selecionar Existente"

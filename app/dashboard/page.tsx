@@ -758,7 +758,7 @@ export default function Dashboard() {
                           className="w-full h-full min-h-[44px] px-4 pr-10 bg-[#121212] border border-white/10 rounded-lg focus:border-studio-gold outline-none text-[10px] font-bold uppercase tracking-widest text-white transition-colors appearance-none cursor-pointer"
                         >
                           {availableCategories.map((cat: any) => (
-                            <option key={cat} value={cat}>{cat}</option>
+                            <option key={cat} value={cat}>{cat?.toLowerCase()?.includes('executivo') ? 'Executivo/Corporativo' : cat}</option>
                           ))}
                         </select>
                         <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-studio-gold">
