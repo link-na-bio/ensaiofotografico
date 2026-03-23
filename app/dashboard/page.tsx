@@ -16,6 +16,10 @@ declare global { interface Window { JSZip: any; } }
 export default function Dashboard() {
   const router = useRouter();
 
+  // Forçar renderização puramente client-side
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
+
   // Memória de Aba (Não perde ao dar F5)
   const [activeTab, setActiveTab] = useState<'home' | 'ensaios' | 'novo' | 'perfil' | 'mensagens'>('home');
   const [chatOrderId, setChatOrderId] = useState<string | null>(null);
@@ -84,6 +88,10 @@ export default function Dashboard() {
   }, []);
 
   const changeTab = (tab: 'home' | 'ensaios' | 'novo' | 'perfil' | 'mensagens') => {
+    if (tab === 'novo' && isRestricted) {
+      alert("Acesso bloqueado, consulte o suporte.");
+      return;
+    }
     setActiveTab(tab);
     sessionStorage.setItem('activeTab', tab);
   };
@@ -136,7 +144,13 @@ export default function Dashboard() {
         // Verifica restrição
         if (session.user.email) {
           const { data } = await supabase.from('usuarios_restritos').select('email').eq('email', session.user.email).single();
-          if (data) setIsRestricted(true);
+          if (data) {
+            setIsRestricted(true);
+            if (sessionStorage.getItem('activeTab') === 'novo') {
+              setActiveTab('home');
+              sessionStorage.setItem('activeTab', 'home');
+            }
+          }
         }
       }
     };
@@ -357,6 +371,8 @@ export default function Dashboard() {
       setIsDownloading(null);
     }
   };
+
+  if (!isMounted) return null;
 
   if (isLoading) return <div className="min-h-screen bg-studio-black flex items-center justify-center"><div className="w-10 h-10 border-4 border-studio-gold border-t-transparent rounded-full animate-spin"></div></div>;
 
