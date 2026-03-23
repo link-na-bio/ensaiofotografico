@@ -17,7 +17,7 @@ import {
   Loader2
 } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
-import AdminHeader from '@/components/AdminHeader';
+
 import { supabase } from '@/lib/supabaseClient';
 
 export default function AdminUsers() {
@@ -135,7 +135,7 @@ export default function AdminUsers() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-y-auto bg-[#121212]">
 
-        <AdminHeader />
+
 
         {/* Page Content */}
         <div className="p-8 space-y-8 mx-auto w-full">

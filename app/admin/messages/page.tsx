@@ -7,7 +7,7 @@ import {
   CheckCheck, Archive, Loader2, ArrowLeft, Clock, FileText, Paperclip
 } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
-import AdminHeader from '@/components/AdminHeader';
+
 import { supabase } from '@/lib/supabaseClient';
 
 export default function AdminMessages() {
@@ -169,7 +169,7 @@ export default function AdminMessages() {
       <AdminSidebar />
 
       <main className="flex-1 flex flex-col overflow-hidden bg-[#0a0a0a]">
-        <AdminHeader />
+
 
         {/* Layout do Chat (Sidebar de Contatos + Área de Mensagens) */}
         <div className="flex-1 flex overflow-hidden p-6 gap-6">

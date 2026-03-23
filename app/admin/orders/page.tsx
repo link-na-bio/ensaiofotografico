@@ -27,7 +27,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
-import AdminHeader from '@/components/AdminHeader';
+
 import { supabase } from '@/lib/supabaseClient';
 
 declare global {
@@ -353,7 +353,7 @@ export default function AdminOrders() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        <AdminHeader />
+
 
         <div className="flex-1 overflow-y-auto p-8 bg-[#121212]">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
