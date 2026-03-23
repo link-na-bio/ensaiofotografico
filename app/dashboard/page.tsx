@@ -118,7 +118,13 @@ export default function Dashboard() {
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { router.push('/login'); } else {
+
+      if (!session) {
+        router.push('/login');
+      } else if (session.user.email === 'brunomeueditor@gmail.com') {
+        // Se você logou pelo Google e caiu no painel de cliente, o sistema te joga pro Admin na mesma hora!
+        router.push('/admin/orders');
+      } else {
         setUserId(session.user.id);
         setUserEmail(session.user.email ?? '');
         setAvatarUrl(session.user.user_metadata?.avatar_url || null);
@@ -381,7 +387,7 @@ export default function Dashboard() {
   const availableCategories = ['Todos', ...Array.from(new Set(dbStyles.map(s => s.categoria).filter(Boolean)))];
 
   // Filtragem dos estilos baseada no Gênero e Categoria
-  const displayStyles = dbStyles.filter(s => 
+  const displayStyles = dbStyles.filter(s =>
     (s.genero === genderFilter || s.genero === 'Ambos') &&
     (categoryFilter === 'Todos' || s.categoria === categoryFilter)
   );
@@ -808,7 +814,7 @@ export default function Dashboard() {
 
                 <section>
                   <div className="flex items-center gap-4 mb-6"><span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">3</span><h3 className="text-xl font-bold font-display uppercase tracking-widest">Fotos de Referência</h3></div>
-                  
+
                   <input type="file" multiple accept="image/jpeg, image/png, image/webp" hidden ref={fileInputRef} onChange={handleFileChange} />
                   <div onDragOver={(e) => e.preventDefault()} onDrop={handleDrop} onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-white/10 p-12 flex flex-col items-center justify-center text-center bg-white/5 hover:border-studio-gold/30 transition-all cursor-pointer group rounded-2xl">
                     <div className="w-16 h-16 rounded-full bg-studio-gold/5 text-studio-gold flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-studio-gold/10 transition-all"><CloudUpload size={32} /></div>
