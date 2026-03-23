@@ -64,7 +64,8 @@ export default function Login() {
 
         {/* Cabeçalho do Card */}
         <div className="flex flex-col items-center mb-8">
-          <div className="relative w-20 h-20 mb-2">
+          {/* AQUI ESTÁ A LOGO AUMENTADA (w-28 h-28) */}
+          <div className="relative w-28 h-28 mb-3">
             <Image src="/logo.png" alt="Virtual Studio Logo" fill className="object-contain" priority />
           </div>
           <h2 className="text-xl font-display font-bold text-white tracking-[0.2em] uppercase">Virtual Studio</h2>
