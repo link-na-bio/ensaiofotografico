@@ -21,7 +21,8 @@ import {
   Copy,
   QrCode,
   UploadCloud,
-  FileImage
+  FileImage,
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -35,7 +36,15 @@ const PACOTES_INFO: Record<string, { nome: string, preco: number, fotos: number,
   // Fallbacks:
   'essencial': { nome: 'Essencial', preco: 89.90, fotos: 10, icon: User, qrCodeImg: '/pix-essencial.png', copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c520400005303986540589.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62170513VIRTUALSTUDIO6304B78D' },
   'premium': { nome: 'Premium', preco: 149.90, fotos: 25, icon: Star, qrCodeImg: '/pix-premium.png', copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c5204000053039865406149.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62170513VIRTUALSTUDIO6304F417' },
-  'elite': { nome: 'Elite', preco: 247.90, fotos: 50, icon: Zap, qrCodeImg: '/pix-elite.png', copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c5204000053039865406247.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62170513VIRTUALSTUDIO6304B4F6' }
+  'elite': { nome: 'Elite', preco: 247.90, fotos: 50, icon: Zap, qrCodeImg: '/pix-elite.png', copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c5204000053039865406247.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62170513VIRTUALSTUDIO6304B4F6' },
+  'amostra': {
+    nome: 'Amostra Premium',
+    preco: 19.90,
+    fotos: 1,
+    icon: Sparkles,
+    qrCodeImg: '/pix-amostra.png',
+    copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c520400005303986540519.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62180514AMOSTRAPREMIUM6304AD85'
+  }
 };
 
 function CheckoutContent() {
