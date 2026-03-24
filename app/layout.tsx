@@ -15,6 +15,28 @@ const oswald = Oswald({
 export const metadata: Metadata = {
   title: 'VIRTUAL STUDIO | Ensaios com IA',
   description: 'A Nova Era da Fotografia Profissional. Transforme suas fotos em obras de arte.',
+  openGraph: {
+    title: 'VIRTUAL STUDIO | Ensaios com IA',
+    description: 'A Nova Era da Fotografia Profissional. Transforme suas fotos em obras de arte.',
+    url: 'https://virtualstudio.click',
+    siteName: 'Virtual Studio',
+    images: [
+      {
+        url: '/logo.2.png',
+        width: 800,
+        height: 600,
+        alt: 'Virtual Studio Logo',
+      },
+    ],
+    locale: 'pt_BR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'VIRTUAL STUDIO | Ensaios com IA',
+    description: 'A Nova Era da Fotografia Profissional. Transforme suas fotos em obras de arte.',
+    images: ['/logo.2.png'],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
