@@ -78,6 +78,7 @@ export default function Dashboard() {
   const [selectedEnsaioForGallery, setSelectedEnsaioForGallery] = useState<string | null>(null);
   const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
   const [isFetchingGallery, setIsFetchingGallery] = useState(false);
+  const [selectedPhotoForModal, setSelectedPhotoForModal] = useState<string | null>(null);
 
   // Estados do Chat (Mensagens e Imagens)
   const [messages, setMessages] = useState<any[]>([]);
@@ -492,6 +493,51 @@ export default function Dashboard() {
   return (
     <div className="flex min-h-screen bg-studio-black text-white relative">
       <AnimatePresence>
+        {selectedPhotoForModal && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            className="fixed inset-0 z-[300] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4"
+          >
+            <div className="absolute top-6 right-6 z-[310]">
+              <button 
+                onClick={() => setSelectedPhotoForModal(null)}
+                className="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all shadow-2xl"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="relative w-full max-w-4xl h-[70vh] flex items-center justify-center">
+              <motion.img 
+                initial={{ scale: 0.9, opacity: 0 }} 
+                animate={{ scale: 1, opacity: 1 }} 
+                src={selectedPhotoForModal} 
+                alt="Foto em destaque" 
+                className="max-w-full max-h-full object-contain rounded-xl shadow-2xl shadow-studio-gold/10"
+              />
+            </div>
+            
+            <div className="mt-8 w-full max-w-sm">
+              <button 
+                onClick={() => handleDownloadSinglePhoto(selectedPhotoForModal!, `VIRTUAL_STUDIO_FOTO_${Date.now()}.jpg`)}
+                className="w-full py-4 bg-studio-gold text-studio-black font-bold uppercase tracking-widest text-sm hover:bg-studio-gold-light transition-all rounded-xl shadow-[0_0_30px_rgba(212,175,55,0.3)] flex items-center justify-center gap-3"
+              >
+                <Download size={20} /> Baixar Foto em Alta
+              </button>
+              <button 
+                onClick={() => setSelectedPhotoForModal(null)}
+                className="w-full mt-4 py-3 text-gray-500 font-bold uppercase tracking-widest text-[10px] hover:text-white transition-colors"
+              >
+                Voltar à Galeria
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {isPreviewOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-2xl flex flex-col">
             <div className="flex justify-between items-center p-6 border-b border-white/10 bg-studio-black/50">
@@ -709,17 +755,18 @@ export default function Dashboard() {
                       ) : (
                         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                           {galleryPhotos.map((url, idx) => (
-                            <div key={idx} className="group relative aspect-[4/5] rounded-xl overflow-hidden bg-white/5 border border-white/5 shadow-xl">
+                            <div key={idx} className="group relative aspect-[4/5] rounded-xl overflow-hidden bg-white/5 border border-white/5 shadow-xl cursor-zoom-in">
                               <img 
                                 src={url} 
                                 alt={`Foto ${idx + 1}`} 
+                                onClick={() => setSelectedPhotoForModal(url)}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
                                 loading="lazy"
                               />
-                              <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                              <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center pointer-events-none md:pointer-events-auto">
                                 <button 
                                   onClick={() => handleDownloadSinglePhoto(url, `VIRTUAL_STUDIO_${selectedEnsaioForGallery.slice(0, 8)}_${idx + 1}.jpg`)}
-                                  className="w-12 h-12 bg-studio-gold text-studio-black rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-[0_0_20px_rgba(212,175,55,0.4)]"
+                                  className="w-12 h-12 bg-studio-gold text-studio-black rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-[0_0_20px_rgba(212,175,55,0.4)] pointer-events-auto"
                                   title="Baixar Foto"
                                 >
                                   <Download size={22} />
