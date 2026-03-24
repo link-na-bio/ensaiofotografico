@@ -24,16 +24,15 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<'home' | 'ensaios' | 'novo' | 'perfil' | 'mensagens'>('home');
   const [chatOrderId, setChatOrderId] = useState<string | null>(null);
 
-  // Filtro de Gênero
+  // Filtro de Gênero e Categoria
   const [genderFilter, setGenderFilter] = useState<'Feminino' | 'Masculino'>('Feminino');
-  // Filtro de Categoria
   const [categoryFilter, setCategoryFilter] = useState<string>('Todos');
 
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  // ADICIONADO: 'amostra' aos pacotes permitidos
   const [selectedPackage, setSelectedPackage] = useState<null | 'amostra' | 'essencial' | 'premium' | 'elite'>(null);
+
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -60,12 +59,12 @@ export default function Dashboard() {
   const [dbStyles, setDbStyles] = useState<any[]>([]);
   const [isRestricted, setIsRestricted] = useState(false);
 
-  // Função para buscar estilos no Supabase
   const fetchDbStyles = async () => {
     const { data, error } = await supabase.from('estilos').select('*').order('criado_em', { ascending: false });
     if (data) setDbStyles(data);
   };
 
+  // Estados de Prévia e Galeria
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewPhotos, setPreviewPhotos] = useState<string[]>([]);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
@@ -73,14 +72,14 @@ export default function Dashboard() {
   const [activePreview, setActivePreview] = useState(0);
   const [windowWidth, setWindowWidth] = useState(1200);
   const [isDownloading, setIsDownloading] = useState<string | null>(null);
-  
+
   // NOVOS ESTADOS PARA GALERIA
   const [selectedEnsaioForGallery, setSelectedEnsaioForGallery] = useState<string | null>(null);
   const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
   const [isFetchingGallery, setIsFetchingGallery] = useState(false);
   const [selectedPhotoForModal, setSelectedPhotoForModal] = useState<string | null>(null);
 
-  // Estados do Chat (Mensagens e Imagens)
+  // Estados do Chat
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isSendingMessage, setIsSendingMessage] = useState(false);
@@ -174,6 +173,7 @@ export default function Dashboard() {
     }
   }, [router]);
 
+  // Listener de Pedidos
   useEffect(() => {
     if (!userId) return;
     const channel = supabase
@@ -267,7 +267,7 @@ export default function Dashboard() {
 
   const handleLogout = async () => { await supabase.auth.signOut(); router.push('/login'); };
 
-  // ADICIONADO: Lógica de limite e valores para o pacote Amostra
+  // Lógica de limite e valores
   const getStyleLimit = () => {
     if (selectedPackage === 'amostra') return 1;
     if (selectedPackage === 'essencial') return 1;
@@ -290,7 +290,16 @@ export default function Dashboard() {
       return;
     }
 
-    if (!selectedPackage || selectedStyles.length === 0 || selectedFiles.length < 5) { alert("Preencha todos os campos obrigatórios e envie no mínimo 5 fotos."); return; }
+    // TRAVA DE SEGURANÇA EXTRA: Impede a compra da Amostra se o cliente já tiver pedidos
+    if (selectedPackage === 'amostra' && pedidos.length > 0) {
+      alert("A Amostra Premium só está disponível para o seu primeiro pedido! Por favor, escolha um dos nossos pacotes completos.");
+      return;
+    }
+
+    if (!selectedPackage || selectedStyles.length === 0 || selectedFiles.length < 5) {
+      alert("Preencha todos os campos obrigatórios e envie no mínimo 5 fotos.");
+      return;
+    }
 
     setIsUploading(true);
     try {
@@ -441,9 +450,9 @@ export default function Dashboard() {
   const renderActionButtons = (pedido: any) => {
     if (pedido.status === 'Prévia Disponível') {
       return (
-        <button 
-          onClick={() => handleOpenPreview(pedido.id)} 
-          disabled={isFetchingPreview} 
+        <button
+          onClick={() => handleOpenPreview(pedido.id)}
+          disabled={isFetchingPreview}
           className="relative z-50 w-full py-3 bg-studio-gold text-studio-black font-bold uppercase tracking-widest text-[10px] hover:bg-studio-gold-light transition-all flex items-center justify-center gap-2 group/btn cursor-pointer disabled:opacity-50 rounded-xl"
         >
           {isFetchingPreview && selectedOrderId === pedido.id ? <Loader2 size={14} className="animate-spin" /> : <Eye size={14} className="group-hover/btn:scale-110 transition-transform" />} Visualizar Prévia
@@ -463,11 +472,10 @@ export default function Dashboard() {
         <button
           onClick={() => handleViewGallery(pedido.id)}
           disabled={isFetchingGallery && selectedEnsaioForGallery === pedido.id}
-          className={`relative z-50 w-full py-3 font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer rounded-xl ${
-            isSelected 
-              ? 'bg-studio-gold text-studio-black shadow-[0_0_15px_rgba(212,175,55,0.2)]' 
+          className={`relative z-50 w-full py-3 font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer rounded-xl ${isSelected
+              ? 'bg-studio-gold text-studio-black shadow-[0_0_15px_rgba(212,175,55,0.2)]'
               : 'bg-emerald-500 text-black hover:bg-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
-          }`}
+            }`}
         >
           {isFetchingGallery && selectedEnsaioForGallery === pedido.id ? (
             <Loader2 size={14} className="animate-spin" />
@@ -481,10 +489,8 @@ export default function Dashboard() {
     return null;
   };
 
-  // Categorias Dinâmicas
   const availableCategories = ['Todos', ...Array.from(new Set(dbStyles.map(s => s.categoria).filter(Boolean)))];
 
-  // Filtragem dos estilos baseada no Gênero e Categoria
   const displayStyles = dbStyles.filter(s =>
     (s.genero === genderFilter || s.genero === 'Ambos') &&
     (categoryFilter === 'Todos' || s.categoria === categoryFilter)
@@ -492,41 +498,43 @@ export default function Dashboard() {
 
   return (
     <div className="flex min-h-screen bg-studio-black text-white relative">
+
+      {/* MODAL FOTO UNICA GALERIA */}
       <AnimatePresence>
         {selectedPhotoForModal && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }} 
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             className="fixed inset-0 z-[300] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4"
           >
             <div className="absolute top-6 right-6 z-[310]">
-              <button 
+              <button
                 onClick={() => setSelectedPhotoForModal(null)}
                 className="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all shadow-2xl"
               >
                 <X size={24} />
               </button>
             </div>
-            
+
             <div className="relative w-full max-w-4xl h-[70vh] flex items-center justify-center">
-              <motion.img 
-                initial={{ scale: 0.9, opacity: 0 }} 
-                animate={{ scale: 1, opacity: 1 }} 
-                src={selectedPhotoForModal} 
-                alt="Foto em destaque" 
+              <motion.img
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                src={selectedPhotoForModal}
+                alt="Foto em destaque"
                 className="max-w-full max-h-full object-contain rounded-xl shadow-2xl shadow-studio-gold/10"
               />
             </div>
-            
+
             <div className="mt-8 w-full max-w-sm">
-              <button 
+              <button
                 onClick={() => handleDownloadSinglePhoto(selectedPhotoForModal!, `VIRTUAL_STUDIO_FOTO_${Date.now()}.jpg`)}
                 className="w-full py-4 bg-studio-gold text-studio-black font-bold uppercase tracking-widest text-sm hover:bg-studio-gold-light transition-all rounded-xl shadow-[0_0_30px_rgba(212,175,55,0.3)] flex items-center justify-center gap-3"
               >
                 <Download size={20} /> Baixar Foto em Alta
               </button>
-              <button 
+              <button
                 onClick={() => setSelectedPhotoForModal(null)}
                 className="w-full mt-4 py-3 text-gray-500 font-bold uppercase tracking-widest text-[10px] hover:text-white transition-colors"
               >
@@ -537,11 +545,12 @@ export default function Dashboard() {
         )}
       </AnimatePresence>
 
+      {/* MODAL PREVIA COM MARCA D'AGUA */}
       <AnimatePresence>
         {isPreviewOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-2xl flex flex-col">
             <div className="flex justify-between items-center p-6 border-b border-white/10 bg-studio-black/50">
-              <div><h3 className="text-2xl font-display uppercase tracking-widest text-studio-gold font-bold">Prévia do Ensaio</h3><p className="text-gray-400 text-xs mt-1">Protegido com marca de água. Aprove para libertar a version final em alta resolução sem marcas.</p></div>
+              <div><h3 className="text-2xl font-display uppercase tracking-widest text-studio-gold font-bold">Prévia do Ensaio</h3><p className="text-gray-400 text-xs mt-1">Protegido com marca de água. Aprove para libertar a versão final em alta resolução sem marcas.</p></div>
               <button onClick={() => setIsPreviewOpen(false)} className="text-white hover:text-studio-gold transition-colors p-2 bg-white/5 rounded-full"><X size={24} /></button>
             </div>
             <div className="flex-1 relative flex items-center justify-center overflow-hidden py-12 px-4 select-none">
@@ -581,6 +590,7 @@ export default function Dashboard() {
         )}
       </AnimatePresence>
 
+      {/* SIDEBAR ESQUERDA */}
       <aside className="w-64 border-r border-white/5 bg-studio-black flex flex-col sticky top-0 h-screen hidden md:flex shrink-0">
         <div className="p-8 flex flex-col items-center text-center border-b border-white/5 mb-4">
           <div className="flex flex-col items-center">
@@ -613,12 +623,14 @@ export default function Dashboard() {
         </div>
       </aside>
 
+      {/* ÁREA PRINCIPAL */}
       <main className="flex-1 overflow-y-auto bg-[#121212] pt-20 pb-24 md:pt-8 md:pb-8 relative">
         <header className="fixed top-0 left-0 right-0 h-16 bg-studio-black/80 backdrop-blur-xl border-b border-white/5 z-[100] flex items-center justify-between px-6 md:hidden">
           <div className="flex items-center gap-2"><div className="relative w-40 h-[60px]"><Image src="/logo.2.png" alt="Logo" fill className="object-contain object-left" priority /></div><h1 className="text-white text-xs font-bold font-display tracking-widest leading-none hidden sm:block">VIRTUAL STUDIO</h1></div>
           <button onClick={handleLogout} className="p-2 bg-white/5 rounded-lg border border-white/10 text-red-500"><LogOut size={16} /></button>
         </header>
 
+        {/* ----------------- ABA HOME ----------------- */}
         {activeTab === 'home' && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="home" className="px-8">
             <header className="mb-10"><h2 className="text-3xl font-bold font-display uppercase tracking-wider">Bem-vindo ao Virtual Studio, <span className="text-studio-gold">{userEmail?.split('@')[0]}</span></h2><p className="text-gray-500 mt-2">A sua jornada para a imagem profissional perfeita começa aqui.</p></header>
@@ -658,12 +670,13 @@ export default function Dashboard() {
           </motion.div>
         )}
 
+        {/* ----------------- ABA ENSAIOS / GALERIA ----------------- */}
         {activeTab === 'ensaios' && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="ensaios" className="px-8">
             <header className="mb-8 flex justify-between items-center">
               <h2 className="text-3xl font-bold font-display uppercase tracking-wider">Os Meus Ensaios</h2>
               {selectedEnsaioForGallery && (
-                <button 
+                <button
                   onClick={handleCloseGallery}
                   className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all flex items-center gap-2"
                 >
@@ -671,7 +684,7 @@ export default function Dashboard() {
                 </button>
               )}
             </header>
-            
+
             {pedidos.length === 0 ? (
               <div className="min-h-[400px] flex flex-col items-center justify-center text-center p-12 bg-white/5 border border-dashed border-white/10 rounded-2xl">
                 <div className="w-16 h-16 rounded-full bg-studio-gold/10 text-studio-gold flex items-center justify-center mb-6"><Archive size={32} /></div>
@@ -735,7 +748,7 @@ export default function Dashboard() {
                         <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Pedido #{selectedEnsaioForGallery.slice(0, 8)}</p>
                       </div>
                       <div className="flex items-center gap-3 w-full md:w-auto">
-                        <button 
+                        <button
                           onClick={() => handleDownloadFinal(selectedEnsaioForGallery)}
                           disabled={isDownloading === selectedEnsaioForGallery}
                           className="flex-1 md:flex-none px-6 py-2 bg-emerald-500 text-black rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-400 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
@@ -756,15 +769,15 @@ export default function Dashboard() {
                         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                           {galleryPhotos.map((url, idx) => (
                             <div key={idx} className="group relative aspect-[4/5] rounded-xl overflow-hidden bg-white/5 border border-white/5 shadow-xl cursor-zoom-in">
-                              <img 
-                                src={url} 
-                                alt={`Foto ${idx + 1}`} 
+                              <img
+                                src={url}
+                                alt={`Foto ${idx + 1}`}
                                 onClick={() => setSelectedPhotoForModal(url)}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                 loading="lazy"
                               />
                               <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center pointer-events-none md:pointer-events-auto">
-                                <button 
+                                <button
                                   onClick={() => handleDownloadSinglePhoto(url, `VIRTUAL_STUDIO_${selectedEnsaioForGallery.slice(0, 8)}_${idx + 1}.jpg`)}
                                   className="w-12 h-12 bg-studio-gold text-studio-black rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-[0_0_20px_rgba(212,175,55,0.4)] pointer-events-auto"
                                   title="Baixar Foto"
@@ -784,6 +797,7 @@ export default function Dashboard() {
           </motion.div>
         )}
 
+        {/* ----------------- ABA MENSAGENS ----------------- */}
         {activeTab === 'mensagens' && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="mensagens" className="px-4 md:px-8 h-full flex flex-col pb-8">
             <header className="mb-6 shrink-0">
@@ -792,7 +806,6 @@ export default function Dashboard() {
             </header>
 
             <div className="flex-1 flex flex-col md:flex-row gap-6 min-h-[500px] max-h-[70vh]">
-
               <div className={`w-full md:w-80 flex-col bg-[#121212] border border-white/5 rounded-2xl overflow-hidden shadow-2xl flex-shrink-0 ${chatOrderId ? 'hidden md:flex' : 'flex'}`}>
                 <div className="p-4 border-b border-white/5 bg-white/[0.02]">
                   <h2 className="font-display font-bold uppercase tracking-widest text-studio-gold text-sm flex items-center gap-2">
@@ -932,6 +945,7 @@ export default function Dashboard() {
           </motion.div>
         )}
 
+        {/* ----------------- ABA NOVO PEDIDO ----------------- */}
         {activeTab === 'novo' && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="novo" className="px-8 flex-1 flex flex-col">
             {isRestricted ? (
@@ -951,31 +965,32 @@ export default function Dashboard() {
                     <section>
                       <div className="flex items-center gap-4 mb-8"><span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">1</span><h3 className="text-xl font-bold font-display uppercase tracking-widest">Escolha o seu Pacote</h3></div>
 
-                      {/* ADICIONADO: Banner de Destaque para a Amostra Premium */}
-                      <div
-                        onClick={() => { setSelectedPackage('amostra'); setSelectedStyles([]); }}
-                        className={`mb-6 border-2 rounded-2xl p-6 relative overflow-hidden transition-all group cursor-pointer ${selectedPackage === 'amostra' ? 'border-studio-gold bg-studio-gold/5 shadow-[0_0_30px_rgba(212,175,55,0.15)]' : 'border-white/10 bg-[#121212] hover:border-studio-gold/50'}`}
-                      >
-                        <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[10px] font-bold px-4 py-1.5 uppercase tracking-widest rounded-bl-xl">NOVO</div>
-                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
-                          <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-full bg-studio-gold/10 flex items-center justify-center text-studio-gold shrink-0 border border-studio-gold/20">
-                              <Sparkles size={24} />
+                      {/* ADICIONADO: Banner de Destaque para a Amostra Premium (SÓ APARECE NA 1ª VEZ) */}
+                      {pedidos.length === 0 && (
+                        <div
+                          onClick={() => { setSelectedPackage('amostra'); setSelectedStyles([]); }}
+                          className={`mb-6 border-2 rounded-2xl p-6 relative overflow-hidden transition-all group cursor-pointer ${selectedPackage === 'amostra' ? 'border-studio-gold bg-studio-gold/5 shadow-[0_0_30px_rgba(212,175,55,0.15)]' : 'border-white/10 bg-[#121212] hover:border-studio-gold/50'}`}
+                        >
+                          <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[10px] font-bold px-4 py-1.5 uppercase tracking-widest rounded-bl-xl">NOVO</div>
+                          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+                            <div className="flex items-center gap-4">
+                              <div className="w-14 h-14 rounded-full bg-studio-gold/10 flex items-center justify-center text-studio-gold shrink-0 border border-studio-gold/20">
+                                <Sparkles size={24} />
+                              </div>
+                              <div>
+                                <h4 className="text-lg font-bold font-display uppercase tracking-widest text-studio-gold flex items-center gap-2">Amostra Premium <span className="text-sm">💎</span></h4>
+                                <p className="text-xs text-gray-400 mt-1 max-w-sm leading-relaxed">Ainda na dúvida? Teste o poder da nossa IA com 1 Estilo (1 Foto de alta definição). <strong className="text-white font-normal">O valor é descontado caso faça um upgrade depois.</strong></p>
+                              </div>
                             </div>
-                            <div>
-                              <h4 className="text-lg font-bold font-display uppercase tracking-widest text-studio-gold flex items-center gap-2">Amostra Premium <span className="text-sm">💎</span></h4>
-                              <p className="text-xs text-gray-400 mt-1 max-w-sm leading-relaxed">Ainda na dúvida? Teste o poder da nossa IA com 1 Estilo (1 Foto de alta definição). <strong className="text-white font-normal">O valor é descontado caso faça um upgrade depois.</strong></p>
+                            <div className="text-left md:text-right shrink-0 bg-white/5 md:bg-transparent p-4 md:p-0 rounded-xl w-full md:w-auto">
+                              <p className="text-2xl font-bold text-white tracking-wider">R$ 19,90</p>
+                              <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Teste de Confiança</p>
                             </div>
                           </div>
-                          <div className="text-left md:text-right shrink-0 bg-white/5 md:bg-transparent p-4 md:p-0 rounded-xl w-full md:w-auto">
-                            <p className="text-2xl font-bold text-white tracking-wider">R$ 19,90</p>
-                            <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Teste de Confiança</p>
-                          </div>
+                          {selectedPackage === 'amostra' && <div className="absolute inset-0 border-2 border-studio-gold rounded-2xl pointer-events-none"></div>}
                         </div>
-                        {selectedPackage === 'amostra' && <div className="absolute inset-0 border-2 border-studio-gold rounded-2xl pointer-events-none"></div>}
-                      </div>
+                      )}
 
-                      {/* Pacotes Originais */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {[
                           { id: 'essencial', title: 'Essencial', styles: '1 Estilo', price: 'R$ 89,90', icon: User },
@@ -1123,6 +1138,7 @@ export default function Dashboard() {
           </motion.div>
         )}
 
+        {/* ----------------- ABA PERFIL ----------------- */}
         {activeTab === 'perfil' && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="perfil" className="max-w-4xl px-8">
             <header className="mb-10"><h2 className="text-3xl font-bold font-display uppercase tracking-wider">O Meu Perfil</h2><p className="text-gray-500 mt-2">Gira as suas informações e a segurança da conta.</p></header>
