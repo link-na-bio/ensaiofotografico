@@ -217,7 +217,7 @@ function CheckoutContent() {
       {/* 🧭 MODAL PIX COM UPLOAD DE COMPROVANTE 🧭 */}
       {showPixModal && (
         <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#121212] border border-studio-gold/20 rounded-2xl w-full max-w-md overflow-hidden shadow-[0_0_50px_rgba(212,175,55,0.15)] relative my-8">
+          <div className="bg-[#121212] border border-studio-gold/20 rounded-2xl w-full max-w-sm overflow-hidden shadow-[0_0_50px_rgba(212,175,55,0.15)] relative my-auto">
             <div className="bg-white/5 border-b border-white/10 p-4 flex justify-between items-center">
               <div className="flex items-center gap-2 text-studio-gold">
                 <QrCode size={20} />
@@ -228,24 +228,24 @@ function CheckoutContent() {
               </button>
             </div>
 
-            <div className="p-8 flex flex-col items-center text-center">
-              <h3 className="text-gray-400 text-xs uppercase tracking-widest font-bold mb-1">Valor a pagar</h3>
-              <p className="text-4xl font-display text-white mb-8">R$ {pacoteInfo.preco.toFixed(2)}</p>
+            <div className="p-6 flex flex-col items-center text-center">
+              <h3 className="text-gray-400 text-[10px] uppercase tracking-widest font-bold mb-1">Valor a pagar</h3>
+              <p className="text-3xl font-display text-white mb-6">R$ {pacoteInfo.preco.toFixed(2)}</p>
 
-              <div className="bg-white p-4 rounded-xl mb-6">
-                <div className="relative w-48 h-48">
+              <div className="bg-white p-3 rounded-xl mb-6">
+                <div className="relative w-40 h-40">
                   <Image src={pacoteInfo.qrCodeImg} alt="QR Code PIX" fill className="object-contain" />
                 </div>
               </div>
 
-              <div className="w-full space-y-2 mb-8">
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold text-left">Ou use o Pix Copia e Cola:</p>
+              <div className="w-full space-y-2 mb-6">
+                <p className="text-[9px] text-gray-500 uppercase tracking-widest font-bold text-left px-1">Ou use o Pix Copia e Cola:</p>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     readOnly
                     value={pacoteInfo.copiaECola}
-                    className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-xs text-gray-400 outline-none"
+                    className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-[10px] text-gray-400 outline-none"
                   />
                   <button
                     onClick={() => handleCopyPix(pacoteInfo.copiaECola)}
