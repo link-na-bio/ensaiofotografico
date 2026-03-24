@@ -763,7 +763,7 @@ export default function Dashboard() {
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
                                 loading="lazy"
                               />
-                              <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center pointer-events-none md:pointer-events-auto">
+                              <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center pointer-events-none md:pointer-events-auto">
                                 <button 
                                   onClick={() => handleDownloadSinglePhoto(url, `VIRTUAL_STUDIO_${selectedEnsaioForGallery.slice(0, 8)}_${idx + 1}.jpg`)}
                                   className="w-12 h-12 bg-studio-gold text-studio-black rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-[0_0_20px_rgba(212,175,55,0.4)] pointer-events-auto"
