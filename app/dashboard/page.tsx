@@ -1141,7 +1141,7 @@ export default function Dashboard() {
         {/* ----------------- ABA PERFIL ----------------- */}
         {activeTab === 'perfil' && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="perfil" className="max-w-4xl px-8">
-            <header className="mb-10"><h2 className="text-3xl font-bold font-display uppercase tracking-wider">O Meu Perfil</h2><p className="text-gray-500 mt-2">Gira as suas informações e a segurança da conta.</p></header>
+            <header className="mb-10"><h2 className="text-3xl font-bold font-display uppercase tracking-wider">O Meu Perfil</h2><p className="text-gray-500 mt-2">Informações e a segurança da conta.</p></header>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="space-y-6">
                 <div className="bg-white/5 border border-white/10 p-8 rounded-2xl text-center">
