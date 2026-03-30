@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Search, Bell, Plus, CheckCheck } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function AdminHeader() {
   const router = useRouter();
@@ -77,21 +78,26 @@ export default function AdminHeader() {
       {/* 🎵 ÁUDIO PRÉ-CARREGADO ESCONDIDO 🎵 */}
       <audio ref={audioRef} src="/alerta.mp3" preload="auto" className="hidden" />
 
-      <div className="flex flex-col">
-        <h1 className="text-xl font-bold font-display uppercase tracking-[0.2em] text-white">VIRTUAL <span className="text-studio-gold">STUDIO</span></h1>
-        <p className="text-[9px] text-studio-gold font-bold uppercase tracking-[0.2em] opacity-60">Painel de Controle Administrativo</p>
+      <div className="flex flex-col md:flex-row items-center gap-2">
+        <div className="relative w-[120px] h-[120px] -mt-[40px] -mb-[40px] flex items-center justify-center pointer-events-none">
+          <Image src="/logo.png" alt="Virtual Studio Logo" fill className="object-contain" priority />
+        </div>
+        <div className="hidden md:flex flex-col">
+          <h1 className="text-xl font-bold font-display uppercase tracking-[0.2em] text-white">VIRTUAL <span className="text-studio-gold">STUDIO</span></h1>
+          <p className="text-[9px] text-studio-gold font-bold uppercase tracking-[0.2em] opacity-60">Painel de Controle Administrativo</p>
+        </div>
       </div>
 
-      <div className="flex items-center gap-6">
-        <div className="relative w-64">
+      <div className="flex items-center gap-2 md:gap-6 opacity-0 md:opacity-100 pointer-events-none md:pointer-events-auto">
+        <div className="relative hidden md:block w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
           <input className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-none text-[10px] font-bold uppercase tracking-widest focus:ring-1 focus:ring-studio-gold transition-all outline-none text-white placeholder:text-gray-600" placeholder="Pesquisar pedidos..." type="text" />
         </div>
 
-        <div className="h-8 w-[1px] bg-white/10"></div>
+        <div className="hidden md:block h-8 w-[1px] bg-white/10"></div>
 
         <div className="flex items-center gap-4">
-          <div className="relative">
+          <div className="relative hidden md:block">
             <button onClick={toggleDropdown} className={`size-9 flex items-center justify-center rounded-none bg-white/5 border border-white/10 text-slate-400 relative hover:text-studio-gold transition-colors ${hasNew ? 'text-studio-gold border-studio-gold/30' : ''}`}>
               <Bell size={18} />
               {hasNew && <span className="absolute top-2 right-2 size-2 bg-studio-gold rounded-full shadow-[0_0_10px_rgba(212,175,55,1)] animate-pulse"></span>}
@@ -136,7 +142,7 @@ export default function AdminHeader() {
             )}
           </div>
 
-          <button className="h-10 px-8 bg-studio-gold text-studio-black rounded-none text-[10px] font-bold font-display uppercase tracking-widest flex items-center gap-2 hover:bg-studio-gold-light transition-all shadow-[0_0_20px_rgba(212,175,55,0.15)]"><Plus size={14} />Novo Pedido</button>
+          <button className="hidden md:flex h-10 px-8 bg-studio-gold text-studio-black rounded-none text-[10px] font-bold font-display uppercase tracking-widest items-center gap-2 hover:bg-studio-gold-light transition-all shadow-[0_0_20px_rgba(212,175,55,0.15)]"><Plus size={14} />Novo Pedido</button>
         </div>
       </div>
     </header>

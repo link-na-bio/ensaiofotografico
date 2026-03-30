@@ -210,33 +210,33 @@ export default function AdminUsers() {
           </div>
 
           {/* Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-studio-black border border-white/10 p-6 rounded-none flex flex-col gap-1 shadow-xl">
-              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Total de Clientes Ativos</p>
-              <div className="flex items-end gap-3 mt-1">
-                <h3 className="text-4xl font-bold font-display text-white">{isLoading ? '-' : totalUsers}</h3>
-                <span className="flex items-center text-emerald-500 text-[10px] font-bold pb-2 uppercase tracking-widest">
-                  <TrendingUp size={14} className="mr-1" /> Crescimento
+          <div className="grid grid-cols-3 gap-2 md:gap-6">
+            <div className="bg-studio-black border border-white/10 p-3 md:p-6 rounded-none flex flex-col justify-center items-center md:items-start gap-1 shadow-xl aspect-square md:aspect-auto text-center md:text-left">
+              <p className="text-slate-500 text-[8px] md:text-[10px] font-bold uppercase tracking-widest leading-tight">Total Ativos</p>
+              <div className="flex flex-col md:flex-row items-center md:items-end gap-1 md:gap-3 mt-auto md:mt-1">
+                <h3 className="text-xl md:text-4xl font-bold font-display text-white leading-none">{isLoading ? '-' : totalUsers}</h3>
+                <span className="flex items-center text-emerald-500 text-[8px] md:text-[10px] font-bold md:pb-2 uppercase tracking-tight md:tracking-widest">
+                  <TrendingUp size={10} className="mr-1 md:w-[14px] md:h-[14px]" /> <span className="hidden md:inline">Crescimento</span>
                 </span>
               </div>
             </div>
 
-            <div className="bg-studio-black border border-white/10 p-6 rounded-none flex flex-col gap-1 shadow-xl">
-              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Novos Clientes (30 dias)</p>
-              <div className="flex items-end gap-3 mt-1">
-                <h3 className="text-4xl font-bold font-display text-studio-gold">{isLoading ? '-' : newUsersThisMonth}</h3>
-                <span className="flex items-center text-studio-gold text-[10px] font-bold pb-2 uppercase tracking-widest">
-                  Neste mês
+            <div className="bg-studio-black border border-white/10 p-3 md:p-6 rounded-none flex flex-col justify-center items-center md:items-start gap-1 shadow-xl aspect-square md:aspect-auto text-center md:text-left">
+              <p className="text-slate-500 text-[8px] md:text-[10px] font-bold uppercase tracking-widest leading-tight">Novos (30d)</p>
+              <div className="flex flex-col md:flex-row items-center md:items-end gap-1 md:gap-3 mt-auto md:mt-1">
+                <h3 className="text-xl md:text-4xl font-bold font-display text-studio-gold leading-none">{isLoading ? '-' : newUsersThisMonth}</h3>
+                <span className="flex items-center text-studio-gold text-[8px] md:text-[10px] font-bold md:pb-2 uppercase tracking-tight md:tracking-widest">
+                  <span className="hidden md:inline">Neste mês</span>
                 </span>
               </div>
             </div>
 
-            <div className="bg-studio-black border border-white/10 p-6 rounded-none flex flex-col gap-1 shadow-xl">
-              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Volume de Ensaios</p>
-              <div className="flex items-end gap-3 mt-1">
-                <h3 className="text-4xl font-bold font-display text-white">{isLoading ? '-' : totalOrders}</h3>
-                <span className="flex items-center text-slate-400 text-[10px] font-bold pb-2 uppercase tracking-widest">
-                  Pedidos Gerados
+            <div className="bg-studio-black border border-white/10 p-3 md:p-6 rounded-none flex flex-col justify-center items-center md:items-start gap-1 shadow-xl aspect-square md:aspect-auto text-center md:text-left">
+              <p className="text-slate-500 text-[8px] md:text-[10px] font-bold uppercase tracking-widest leading-tight">Ensaios</p>
+              <div className="flex flex-col md:flex-row items-center md:items-end gap-1 md:gap-3 mt-auto md:mt-1">
+                <h3 className="text-xl md:text-4xl font-bold font-display text-white leading-none">{isLoading ? '-' : totalOrders}</h3>
+                <span className="flex items-center text-slate-400 text-[8px] md:text-[10px] font-bold md:pb-2 uppercase tracking-tight md:tracking-widest">
+                  <span className="hidden md:inline">Gerados</span>
                 </span>
               </div>
             </div>

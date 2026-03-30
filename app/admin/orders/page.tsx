@@ -356,18 +356,18 @@ export default function AdminOrders() {
 
 
         <div className="flex-1 overflow-y-auto p-4 pt-16 md:p-8 bg-[#121212]">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-3 gap-2 md:grid-cols-3 md:gap-6 mb-8">
             {stats.map((stat, i) => {
               const Icon = stat.icon;
               return (
-                <div key={i} className="bg-studio-black border border-white/5 p-6 rounded-none shadow-2xl">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-slate-500 text-sm font-medium">{stat.label}</span>
-                    <div className={`size-8 rounded-lg flex items-center justify-center ${stat.color}`}><Icon size={18} /></div>
+                <div key={i} className="bg-studio-black border border-white/5 p-3 md:p-6 rounded-none shadow-2xl flex flex-col justify-center aspect-square md:aspect-auto">
+                  <div className="flex flex-col md:flex-row items-center md:justify-between mb-2 md:mb-4 gap-2 md:gap-0">
+                    <div className={`size-6 md:size-8 rounded-lg flex items-center justify-center shrink-0 ${stat.color}`}><Icon size={14} className="md:w-[18px] md:h-[18px]" /></div>
+                    <span className="text-slate-500 text-[9px] md:text-sm font-medium text-center md:text-left leading-tight">{stat.label}</span>
                   </div>
-                  <div className="flex items-end gap-2">
-                    <span className="text-3xl font-bold font-display uppercase tracking-widest">{stat.value}</span>
-                    <span className={`text-[10px] font-bold mb-1.5 flex items-center ${stat.trendUp ? 'text-emerald-500' : 'text-rose-500'}`}>
+                  <div className="flex flex-col md:flex-row items-center md:items-end gap-1 md:gap-2 mt-auto">
+                    <span className="text-xl md:text-3xl font-bold font-display uppercase tracking-widest leading-none">{stat.value}</span>
+                    <span className={`text-[8px] md:text-[10px] font-bold md:mb-1.5 flex items-center ${stat.trendUp ? 'text-emerald-500' : 'text-rose-500'}`}>
                       {stat.trend}
                     </span>
                   </div>
