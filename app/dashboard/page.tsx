@@ -285,10 +285,10 @@ export default function Dashboard() {
     return 0;
   };
 
-  const totalAmount = selectedPackage === 'amostra' ? (dynamicPrices?.preco_amostra || 19.90) : 
-                      selectedPackage === 'essencial' ? (dynamicPrices?.preco_essencial || 89.90) : 
-                      selectedPackage === 'premium' ? (dynamicPrices?.preco_premium || 149.90) : 
-                      selectedPackage === 'elite' ? (dynamicPrices?.preco_elite || 247.90) : 0;
+  const totalAmount = selectedPackage === 'amostra' ? (dynamicPrices?.preco_amostra || 19.90) :
+    selectedPackage === 'essencial' ? (dynamicPrices?.preco_essencial || 89.90) :
+      selectedPackage === 'premium' ? (dynamicPrices?.preco_premium || 149.90) :
+        selectedPackage === 'elite' ? (dynamicPrices?.preco_elite || 247.90) : 0;
 
   const toggleStyle = (style: string) => { const limit = getStyleLimit(); if (selectedStyles.includes(style)) { setSelectedStyles(selectedStyles.filter(s => s !== style)); } else if (selectedStyles.length < limit) { setSelectedStyles([...selectedStyles, style]); } else { alert(`O pacote escolhido permite apenas ${limit} estilo(s).`); } };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => { if (e.target.files) { const newFiles = Array.from(e.target.files); setSelectedFiles([...selectedFiles, ...newFiles].slice(0, 10)); } };
@@ -647,7 +647,7 @@ export default function Dashboard() {
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="home" className="px-8">
             <header className="mb-10"><h2 className="text-3xl font-bold font-display uppercase tracking-wider">Bem-vindo ao Virtual Studio, <span className="text-studio-gold">{userEmail?.split('@')[0]}</span></h2><p className="text-gray-500 mt-2">A sua jornada para a imagem profissional perfeita começa aqui.</p></header>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-              <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:border-studio-gold/30 transition-colors group"><div className="flex justify-between items-start mb-4"><Clock className="text-gray-500 group-hover:text-studio-gold transition-colors" size={20} /><span className="text-2xl font-bold font-display text-white">{pedidos.filter(p => p.status === 'Aguardando Produção').length.toString().padStart(2, '0')}</span></div><p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Aguardando IA</p></div>
+              <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:border-studio-gold/30 transition-colors group"><div className="flex justify-between items-start mb-4"><Clock className="text-gray-500 group-hover:text-studio-gold transition-colors" size={20} /><span className="text-2xl font-bold font-display text-white">{pedidos.filter(p => p.status === 'Aguardando Produção').length.toString().padStart(2, '0')}</span></div><p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Aguardando</p></div>
               <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:border-studio-gold/30 transition-colors group"><div className="flex justify-between items-start mb-4"><Zap className="text-gray-500 group-hover:text-studio-gold transition-colors" size={20} /><span className="text-2xl font-bold font-display text-white">{pedidos.filter(p => p.status === 'Em Produção').length.toString().padStart(2, '0')}</span></div><p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Em Produção</p></div>
               <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:border-studio-gold/30 transition-colors group"><div className="flex justify-between items-start mb-4"><LayoutGrid className="text-gray-500 group-hover:text-studio-gold transition-colors" size={20} /><span className="text-2xl font-bold font-display text-white">{pedidos.filter(p => p.status === 'Prévia Disponível').length.toString().padStart(2, '0')}</span></div><p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Prévia Disponível</p></div>
               <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:border-studio-gold/30 transition-colors group"><div className="flex justify-between items-start mb-4"><CheckCircle2 className="text-gray-500 group-hover:text-studio-gold transition-colors" size={20} /><span className="text-2xl font-bold font-display text-white">{pedidos.filter(p => p.status === 'Ensaio Concluído' || p.status === 'Finalizado').length.toString().padStart(2, '0')}</span></div><p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Concluídos</p></div>
