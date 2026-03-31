@@ -21,16 +21,64 @@ export default function AdminMessages() {
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
+  const [unreadMap, setUnreadMap] = useState<Record<string, boolean>>({});
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatFileInputRef = useRef<HTMLInputElement>(null);
+  const selectedOrderRef = useRef<string | null>(null);
+
+  // Sync selected order ref and clear unread
+  useEffect(() => {
+    selectedOrderRef.current = selectedOrder?.id || null;
+    if (selectedOrder) {
+       localStorage.setItem('admin_read_chat_' + selectedOrder.id, new Date().toISOString());
+       setUnreadMap(prev => { const p = { ...prev }; delete p[selectedOrder.id]; return p; });
+    }
+  }, [selectedOrder]);
+
+  // Global channel listener on this page for incoming messages
+  useEffect(() => {
+    if (!adminId) return;
+    const channel = supabase.channel('admin_inbox_ping')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensagens' }, (payload) => {
+        if (payload.new.user_id !== adminId) {
+           const currentSelected = selectedOrderRef.current;
+           if (currentSelected === payload.new.order_id) {
+             localStorage.setItem('admin_read_chat_' + payload.new.order_id, new Date().toISOString());
+           } else {
+             setUnreadMap(prev => ({ ...prev, [payload.new.order_id]: true }));
+           }
+        }
+      }).subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [adminId]);
 
   // 1. Carrega o ID do Admin e a lista de contatos (Pedidos)
   useEffect(() => {
     const loadInitialData = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (session) setAdminId(session.user.id);
+        if (session) {
+          setAdminId(session.user.id);
+          
+          // Carregar msgs recentes
+          const { data: msgData } = await supabase.from('mensagens')
+            .select('order_id, criado_em')
+            .neq('user_id', session.user.id)
+            .order('criado_em', { ascending: false });
+            
+          if (msgData) {
+            const unread: Record<string, boolean> = {};
+            msgData.forEach(msg => {
+              if (unread[msg.order_id]) return;
+              const lastSeen = localStorage.getItem('admin_read_chat_' + msg.order_id) || '2000-01-01T00:00:00.000Z';
+              if (new Date(msg.criado_em) > new Date(lastSeen)) {
+                unread[msg.order_id] = true;
+              }
+            });
+            setUnreadMap(unread);
+          }
+        }
 
         const { data, error } = await supabase
           .from('pedidos')
@@ -65,11 +113,14 @@ export default function AdminMessages() {
   useEffect(() => {
     const updateSeen = () => {
       localStorage.setItem('admin_last_message_seen', new Date().toISOString());
+      if (selectedOrder) {
+        localStorage.setItem('admin_read_chat_' + selectedOrder.id, new Date().toISOString());
+      }
     };
     updateSeen();
     const interval = setInterval(updateSeen, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [selectedOrder]);
 
   // 3. Carrega as mensagens quando clica em um pedido
   useEffect(() => {
@@ -219,7 +270,12 @@ export default function AdminMessages() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-center mb-1">
-                        <span className="text-xs font-bold truncate text-white">{pedido.user_email?.split('@')[0]}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold truncate text-white">{pedido.user_email?.split('@')[0]}</span>
+                          {unreadMap[pedido.id] && (
+                            <span className="size-1.5 bg-studio-gold rounded-full shadow-[0_0_8px_rgba(212,175,55,1)]"></span>
+                          )}
+                        </div>
                         <span className="text-[9px] text-gray-500">{new Date(pedido.criado_em).toLocaleDateString('pt-BR')}</span>
                       </div>
                       <div className="text-[10px] text-gray-400 truncate uppercase tracking-widest">Pedido #{pedido.id.slice(0, 8)}</div>
