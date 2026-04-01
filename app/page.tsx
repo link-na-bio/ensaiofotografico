@@ -717,7 +717,7 @@ export default function LandingPage() {
             <a href="mailto:suporte@virtualstudio.click" className="text-studio-gold hover:text-studio-gold-light transition-all text-sm tracking-[0.2em] font-display uppercase">
               suporte@virtualstudio.click
             </a>
-            <a href="https://www.instagram.com/virtualstudio.click/?__pwa=1#" target="_blank" rel="noopener noreferrer" className="text-studio-gold hover:text-studio-gold-light transition-all text-sm tracking-[0.2em] font-display uppercase flex items-center gap-2">
+            <a href="https://www.instagram.com/virtualstudio.click/" target="_blank" rel="noopener noreferrer" className="text-studio-gold hover:text-studio-gold-light transition-all text-sm tracking-[0.2em] font-display uppercase flex items-center gap-2">
               <Instagram size={18} /> @virtualstudio.click
             </a>
           </div>
