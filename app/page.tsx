@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
-import { ChevronLeft, ChevronRight, Check, CheckCheck, Star, ArrowRight, Zap, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, CheckCheck, Star, ArrowRight, Zap, ChevronDown, ChevronUp, Sparkles, Instagram } from 'lucide-react';
 import Link from 'next/link';
 
 const faqs = [
@@ -713,9 +713,12 @@ export default function LandingPage() {
             </div>
             <h4 className="font-display tracking-[0.3em] text-xl relative z-10"></h4>
           </div>
-          <div className="mb-6 relative z-10">
+          <div className="mb-6 relative z-10 flex flex-col items-center gap-4">
             <a href="mailto:suporte@virtualstudio.click" className="text-studio-gold hover:text-studio-gold-light transition-all text-sm tracking-[0.2em] font-display uppercase">
               suporte@virtualstudio.click
+            </a>
+            <a href="https://www.instagram.com/virtualstudio.click/?__pwa=1#" target="_blank" rel="noopener noreferrer" className="text-studio-gold hover:text-studio-gold-light transition-all text-sm tracking-[0.2em] font-display uppercase flex items-center gap-2">
+              <Instagram size={18} /> @virtualstudio.click
             </a>
           </div>
           <div className="mb-12 relative z-10">
