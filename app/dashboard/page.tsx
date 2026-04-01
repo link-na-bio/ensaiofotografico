@@ -623,7 +623,7 @@ export default function Dashboard() {
                   const isCenter = offset === 0;
                   return (
                     <motion.div key={idx} onClick={() => !isCenter && setActivePreview(idx)} className={`absolute w-[220px] h-[400px] md:w-[280px] md:h-[500px] rounded-2xl overflow-hidden bg-[#121212] ${isCenter ? 'border-2 border-studio-gold shadow-[0_0_30px_rgba(212,175,55,0.2)]' : 'border border-white/10 opacity-60'} ${isActive ? 'pointer-events-auto' : 'pointer-events-none'}`} initial={false} animate={{ x: offset * (windowWidth < 768 ? 160 : 320), scale: isActive ? 1 - absOffset * 0.15 : 0.5, zIndex: 20 - absOffset, opacity: isActive ? (1 - absOffset * 0.3) : 0, }} transition={{ type: "spring", stiffness: 260, damping: 25 }}>
-                      <img src={url} alt={`Prévia ${idx + 1}`} className="w-full h-full object-contain filter blur-[1px] brightness-[0.9] contrast-[1.1] pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
+                      <img src={url} alt={`Prévia ${idx + 1}`} className="w-full h-full object-contain filter blur-[0.5px] brightness-[0.9] contrast-[1.1] pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
                       <div className="absolute inset-0 z-10 cursor-not-allowed" onContextMenu={(e) => e.preventDefault()}></div>
                       <div className="absolute inset-0 z-20 pointer-events-none opacity-40 mix-blend-screen" style={{ backgroundImage: `url("/FOTO PROTEGIDA - NÃO TIRE PRINT.png")`, backgroundRepeat: 'repeat', backgroundSize: '180px' }}></div>
                     </motion.div>
