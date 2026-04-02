@@ -112,10 +112,7 @@ export default function Dashboard() {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensagens' }, (payload) => {
         if (orderIds.includes(payload.new.order_id) && payload.new.user_id !== userId) {
           setHasUnreadMessages(true);
-          if (typeof window !== 'undefined') {
-            const audio = new Audio('/alerta.mp3');
-            audio.play().catch(() => { });
-          }
+          playMessageBeep();
         }
       }).subscribe();
     return () => { supabase.removeChannel(channel); };
@@ -266,6 +263,16 @@ export default function Dashboard() {
         selectedPackage === 'elite' ? parsePrice(dynamicPrices?.preco_elite, 247.90) : 0;
   // ====================================================================
 
+  // ===== SISTEMA DE NOTIFICAÇÃO SONORA (BEEP) =====
+  const playMessageBeep = () => {
+    if (typeof window !== 'undefined') {
+      const audio = new Audio('/alerta.mp3');
+      audio.volume = 1.0; // Volume máximo
+      audio.play().catch(e => console.log("Audio play blocked:", e));
+    }
+  };
+  // ===============================================
+
   // LÓGICA DO CHAT REAL-TIME
   useEffect(() => {
     if (!chatOrderId) return;
@@ -283,9 +290,8 @@ export default function Dashboard() {
         setMessages(prev => [...prev, payload.new]);
         setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
 
-        if (payload.new.user_id !== userId && typeof window !== 'undefined') {
-          const audio = new Audio('/alerta.mp3');
-          audio.play().catch(() => { });
+        if (payload.new.user_id !== userId) {
+          playMessageBeep();
         }
       }).subscribe();
 
