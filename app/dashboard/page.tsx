@@ -283,7 +283,7 @@ export default function Dashboard() {
         
         // Envelope: Volume sobe rápido e desce suavemente (evita estalos)
         gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.05); // Pico de volume
+        gainNode.gain.linearRampToValueAtTime(1.0, audioCtx.currentTime + 0.05); // Pico de volume (100%)
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); // Decay suave
 
         oscillator.start(audioCtx.currentTime);
