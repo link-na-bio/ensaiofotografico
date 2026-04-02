@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabaseClient';
 import {
   Camera, Home, Library, PlusCircle, User, CloudUpload, Check, CheckCheck,
   Archive, X, Send, Sparkles, LogOut, Clock, LayoutGrid, CheckCircle2,
-  ChevronRight, ChevronLeft, Info, Eye, Download, Zap, MessageSquare, FileImage, Loader2, FileText, Paperclip, Lock, Bot
+  ChevronRight, ChevronLeft, Info, Eye, Download, Zap, MessageSquare, FileImage, Loader2, FileText, Paperclip, Lock, Bot, Search, MessageCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -151,7 +151,11 @@ export default function Dashboard() {
     } catch (error) { console.error('Erro ao buscar pedidos:', error); }
   };
 
-  const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('pt-BR');
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '-';
+    const d = new Date(dateString);
+    return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('pt-BR');
+  };
 
   useEffect(() => {
     const checkUser = async () => {
@@ -197,6 +201,7 @@ export default function Dashboard() {
     }
   }, [router]);
 
+  // Listener de Pedidos e Configurações
   useEffect(() => {
     if (!userId) return;
     const channel = supabase
@@ -231,12 +236,37 @@ export default function Dashboard() {
     };
   }, [userId]);
 
-  const getPriceDisplay = (key: string, fallback: string) => {
-    if (!dynamicPrices) return fallback;
-    const preco = dynamicPrices[`preco_${key}`];
-    return preco ? `R$ ${preco.toFixed(2).replace('.', ',')}` : fallback;
+  // ===== FILTROS DE SEGURANÇA MATEMÁTICA (Corrigem o Ecrã Branco) =====
+  const parsePrice = (val: any, fallback: number) => {
+    if (val === undefined || val === null) return fallback;
+    if (typeof val === 'number') return val;
+    // Transforma "R$ 19,90" em "19.90" e converte para número em segurança
+    const strVal = String(val).replace(',', '.').replace(/[^0-9.-]/g, '');
+    const num = parseFloat(strVal);
+    return isNaN(num) ? fallback : num;
   };
 
+  const getPriceDisplay = (key: string, fallback: number) => {
+    if (!dynamicPrices) return `R$ ${fallback.toFixed(2).replace('.', ',')}`;
+    const preco = parsePrice(dynamicPrices[`preco_${key}`], fallback);
+    return `R$ ${preco.toFixed(2).replace('.', ',')}`;
+  };
+
+  const getStyleLimit = () => {
+    if (selectedPackage === 'amostra') return 1;
+    if (selectedPackage === 'essencial') return 1;
+    if (selectedPackage === 'premium') return 3;
+    if (selectedPackage === 'elite') return 5;
+    return 0;
+  };
+
+  const totalAmount = selectedPackage === 'amostra' ? parsePrice(dynamicPrices?.preco_amostra, 19.90) :
+    selectedPackage === 'essencial' ? parsePrice(dynamicPrices?.preco_essencial, 89.90) :
+      selectedPackage === 'premium' ? parsePrice(dynamicPrices?.preco_premium, 149.90) :
+        selectedPackage === 'elite' ? parsePrice(dynamicPrices?.preco_elite, 247.90) : 0;
+  // ====================================================================
+
+  // LÓGICA DO CHAT REAL-TIME
   useEffect(() => {
     if (!chatOrderId) return;
 
@@ -320,18 +350,6 @@ export default function Dashboard() {
     window.open(url, '_blank');
   };
 
-  const getStyleLimit = () => {
-    if (selectedPackage === 'amostra') return 1;
-    if (selectedPackage === 'essencial') return 1;
-    if (selectedPackage === 'premium') return 3;
-    if (selectedPackage === 'elite') return 5;
-    return 0;
-  };
-
-  const totalAmount = selectedPackage === 'amostra' ? (dynamicPrices?.preco_amostra || 19.90) :
-    selectedPackage === 'essencial' ? (dynamicPrices?.preco_essencial || 89.90) :
-      selectedPackage === 'premium' ? (dynamicPrices?.preco_premium || 149.90) :
-        selectedPackage === 'elite' ? (dynamicPrices?.preco_elite || 247.90) : 0;
 
   const toggleStyle = (style: string) => { const limit = getStyleLimit(); if (selectedStyles.includes(style)) { setSelectedStyles(selectedStyles.filter(s => s !== style)); } else if (selectedStyles.length < limit) { setSelectedStyles([...selectedStyles, style]); } else { alert(`O pacote escolhido permite apenas ${limit} estilo(s).`); } };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => { if (e.target.files) { const newFiles = Array.from(e.target.files); setSelectedFiles([...selectedFiles, ...newFiles].slice(0, 10)); } };
@@ -457,7 +475,6 @@ export default function Dashboard() {
 
     setIsFetchingPreview(true);
     try {
-      // ADICIONAMOS O .select() PARA OBRIGAR O BANCO A RESPONDER SE A GRAVAÇÃO DEU CERTO OU FOI BLOQUEADA
       const { data, error } = await supabase
         .from('pedidos')
         .update({
@@ -468,7 +485,6 @@ export default function Dashboard() {
 
       if (error) throw error;
 
-      // TRAVA DE SEGURANÇA: Se o banco retornar vazio, significa que o RLS bloqueou o UPDATE!
       if (!data || data.length === 0) {
         throw new Error("O banco de dados bloqueou a gravação da sua seleção. (Erro de permissão RLS).");
       }
@@ -495,7 +511,6 @@ export default function Dashboard() {
       if (dbError) throw dbError;
       const selecionadas = pedido?.fotos_selecionadas;
 
-      // FILTRO BLINDADO - REMOVIDO O FALLBACK! SE ESTIVER VAZIO, ELE TRAVA TUDO!
       if (!selecionadas || selecionadas.length === 0) {
         alert("Erro de Segurança: A sua curadoria não foi gravada no sistema ou está vazia. O Cofre foi trancado por precaução.");
         setIsFetchingGallery(false);
@@ -509,7 +524,6 @@ export default function Dashboard() {
       const validFiles = files ? files.filter(f => f.name !== '.emptyFolderPlaceholder') : [];
       if (validFiles.length === 0) { alert("Nenhuma foto encontrada no servidor."); return; }
 
-      // Cruza os nomes com tolerância garantida
       const arquivosFinais = validFiles.filter(f => {
         return selecionadas.some((sel: string) => f.name.includes(sel) || sel.includes(f.name));
       });
@@ -558,7 +572,6 @@ export default function Dashboard() {
       if (dbError) throw dbError;
       const selecionadas = pedido?.fotos_selecionadas;
 
-      // FILTRO BLINDADO - REMOVIDO O FALLBACK! SE ESTIVER VAZIO, ELE TRAVA TUDO!
       if (!selecionadas || selecionadas.length === 0) {
         alert("Erro de Segurança: A sua curadoria não foi gravada no sistema. Operação Cancelada para proteção dos arquivos.");
         setIsDownloading(null);
@@ -1219,7 +1232,7 @@ export default function Dashboard() {
                               </div>
                             </div>
                             <div className="text-left md:text-right shrink-0 bg-white/5 md:bg-transparent p-4 md:p-0 rounded-xl w-full md:w-auto">
-                              <p className="text-2xl font-bold text-white tracking-wider">{getPriceDisplay('amostra', 'R$ 19,90')}</p>
+                              <p className="text-2xl font-bold text-white tracking-wider">{getPriceDisplay('amostra', 19.90)}</p>
                               <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Teste de Confiança</p>
                             </div>
                           </div>
@@ -1229,9 +1242,9 @@ export default function Dashboard() {
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {[
-                          { id: 'essencial', title: 'Essencial (10 fotos)', styles: '1 Estilo', price: getPriceDisplay('essencial', 'R$ 89,90'), icon: User },
-                          { id: 'premium', title: 'Premium (25 fotos)', styles: '3 Estilos', price: getPriceDisplay('premium', 'R$ 149,90'), icon: Sparkles, popular: true },
-                          { id: 'elite', title: 'Elite (50 fotos)', styles: '5 Estilos', price: getPriceDisplay('elite', 'R$ 247,90'), icon: Zap },
+                          { id: 'essencial', title: 'Essencial (10 fotos)', styles: '1 Estilo', price: getPriceDisplay('essencial', 89.90), icon: User },
+                          { id: 'premium', title: 'Premium (25 fotos)', styles: '3 Estilos', price: getPriceDisplay('premium', 149.90), icon: Sparkles, popular: true },
+                          { id: 'elite', title: 'Elite (50 fotos)', styles: '5 Estilos', price: getPriceDisplay('elite', 247.90), icon: Zap },
                         ].map((pkg) => (
                           <button key={pkg.id} onClick={() => { setSelectedPackage(pkg.id as any); setSelectedStyles([]); }} className={`p-6 border text-left rounded-xl transition-all relative overflow-hidden group ${selectedPackage === pkg.id ? 'border-studio-gold bg-studio-gold/5 shadow-lg' : 'border-white/10 hover:border-studio-gold/30'}`}>
                             {pkg.popular && <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[8px] font-bold px-2 py-0.5 uppercase tracking-tighter">Mais Vendido</div>}
