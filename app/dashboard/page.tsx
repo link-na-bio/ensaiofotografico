@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabaseClient';
 import {
   Camera, Home, Library, PlusCircle, User, CloudUpload, Check, CheckCheck,
   Archive, X, Send, Sparkles, LogOut, Clock, LayoutGrid, CheckCircle2,
-  ChevronRight, ChevronLeft, Info, Eye, Download, Zap, MessageSquare, FileImage, Loader2, FileText, Paperclip, Lock, Bot, Search, MessageCircle
+  ChevronRight, ChevronLeft, Info, Eye, Download, Zap, MessageSquare, FileImage, Loader2, FileText, Paperclip, Lock, Bot
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -112,7 +112,6 @@ export default function Dashboard() {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensagens' }, (payload) => {
         if (orderIds.includes(payload.new.order_id) && payload.new.user_id !== userId) {
           setHasUnreadMessages(true);
-          // Novo beep para mensagens (diferente do pagamento)
           if (typeof window !== 'undefined') {
             const audio = new Audio('/alerta.mp3');
             audio.play().catch(() => { });
@@ -170,7 +169,6 @@ export default function Dashboard() {
         fetchPedidos(session.user.id);
         fetchDbStyles();
 
-        // Verifica restrição
         if (session.user.email) {
           const { data } = await supabase.from('usuarios_restritos').select('email').eq('email', session.user.email).maybeSingle();
           if (data) {
@@ -182,7 +180,6 @@ export default function Dashboard() {
           }
         }
 
-        // Fetch configs
         const { data: configData } = await supabase.from('plataforma_config').select('*').eq('id', 1).single();
         if (configData) {
           setDynamicPrices(configData);
@@ -200,7 +197,6 @@ export default function Dashboard() {
     }
   }, [router]);
 
-  // Listener de Pedidos e Configurações
   useEffect(() => {
     if (!userId) return;
     const channel = supabase
@@ -241,7 +237,6 @@ export default function Dashboard() {
     return preco ? `R$ ${preco.toFixed(2).replace('.', ',')}` : fallback;
   };
 
-  // LÓGICA DO CHAT REAL-TIME
   useEffect(() => {
     if (!chatOrderId) return;
 
@@ -258,7 +253,6 @@ export default function Dashboard() {
         setMessages(prev => [...prev, payload.new]);
         setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
 
-        // Beep se a mensagem vier de outra pessoa (Suporte)
         if (payload.new.user_id !== userId && typeof window !== 'undefined') {
           const audio = new Audio('/alerta.mp3');
           audio.play().catch(() => { });
@@ -320,14 +314,12 @@ export default function Dashboard() {
   const handleLogout = async () => { await supabase.auth.signOut(); router.push('/login'); };
 
   const handleWhatsAppSupport = () => {
-    // TODO: MUDAR PARA O NÚMERO DE WHATSAPP REAL DO BRUNO
     const phoneNumber = '556193314473';
     const text = `Olá suporte! Sou o cliente ${userEmail} e estou no meu painel do Virtual Studio. Preciso de ajuda.`;
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
   };
 
-  // Lógica de limite e valores
   const getStyleLimit = () => {
     if (selectedPackage === 'amostra') return 1;
     if (selectedPackage === 'essencial') return 1;
@@ -347,13 +339,11 @@ export default function Dashboard() {
   const removeFile = (index: number) => { setSelectedFiles(prev => prev.filter((_, i) => i !== index)); };
 
   const handleSendToProduction = async () => {
-    // 1. O CADEADO DE SEGURANÇA MÁXIMA
     if (isRestricted || isMaintenanceGlobal) {
       alert(isMaintenanceGlobal ? "Sistema em manutenção, não é possível criar pedidos temporariamente." : "Operação bloqueada. A sua conta está suspensa para novos pedidos.");
       return;
     }
 
-    // TRAVA DE SEGURANÇA EXTRA: Impede a compra da Amostra se o cliente já tiver pedidos
     if (selectedPackage === 'amostra' && pedidos.length > 0) {
       alert("A Amostra VIP só está disponível para o seu primeiro pedido! Por favor, escolha um dos nossos pacotes completos.");
       return;
@@ -407,7 +397,7 @@ export default function Dashboard() {
 
   const handleOpenPreview = async (orderId: string) => {
     setIsFetchingPreview(true);
-    setSelectedPreviewPhotos([]); // Reset selection when opening
+    setSelectedPreviewPhotos([]);
     try {
       const path = `${userId}/${orderId}/`;
       const { data: files, error } = await supabase.storage.from('previa_ensaios').list(path);
@@ -424,7 +414,6 @@ export default function Dashboard() {
       setPreviewFilesMetadata(fileData);
       setSelectedOrderId(orderId);
 
-      // Carregar seleções existentes se houver
       const { data: pedido } = await supabase.from('pedidos').select('fotos_selecionadas').eq('id', orderId).single();
       if (pedido?.fotos_selecionadas) {
         setSelectedPreviewPhotos(pedido.fotos_selecionadas);
@@ -468,19 +457,26 @@ export default function Dashboard() {
 
     setIsFetchingPreview(true);
     try {
-      const { error } = await supabase
+      // ADICIONAMOS O .select() PARA OBRIGAR O BANCO A RESPONDER SE A GRAVAÇÃO DEU CERTO OU FOI BLOQUEADA
+      const { data, error } = await supabase
         .from('pedidos')
         .update({
           fotos_selecionadas: selectedPreviewPhotos
         })
-        .eq('id', selectedOrderId);
+        .eq('id', selectedOrderId)
+        .select();
 
       if (error) throw error;
+
+      // TRAVA DE SEGURANÇA: Se o banco retornar vazio, significa que o RLS bloqueou o UPDATE!
+      if (!data || data.length === 0) {
+        throw new Error("O banco de dados bloqueou a gravação da sua seleção. (Erro de permissão RLS).");
+      }
 
       setIsPreviewOpen(false);
       router.push(`/checkout?orderId=${selectedOrderId}`);
     } catch (error: any) {
-      alert("Erro ao salvar seleção: " + error.message);
+      alert("Erro Crítico ao salvar seleção: " + error.message);
     } finally {
       setIsFetchingPreview(false);
     }
@@ -490,7 +486,6 @@ export default function Dashboard() {
     setIsFetchingGallery(true);
     setSelectedEnsaioForGallery(orderId);
     try {
-      // 1. Busca as fotos selecionadas no banco
       const { data: pedido, error: dbError } = await supabase
         .from('pedidos')
         .select('fotos_selecionadas')
@@ -498,9 +493,15 @@ export default function Dashboard() {
         .single();
 
       if (dbError) throw dbError;
-      const selecionadas = pedido?.fotos_selecionadas || [];
+      const selecionadas = pedido?.fotos_selecionadas;
 
-      // 2. Busca todos os arquivos da pasta do cliente
+      // FILTRO BLINDADO - REMOVIDO O FALLBACK! SE ESTIVER VAZIO, ELE TRAVA TUDO!
+      if (!selecionadas || selecionadas.length === 0) {
+        alert("Erro de Segurança: A sua curadoria não foi gravada no sistema ou está vazia. O Cofre foi trancado por precaução.");
+        setIsFetchingGallery(false);
+        return;
+      }
+
       const path = `${userId}/${orderId}/`;
       const { data: files, error: storageError } = await supabase.storage.from('previa_ensaios').list(path);
       if (storageError) throw storageError;
@@ -508,22 +509,17 @@ export default function Dashboard() {
       const validFiles = files ? files.filter(f => f.name !== '.emptyFolderPlaceholder') : [];
       if (validFiles.length === 0) { alert("Nenhuma foto encontrada no servidor."); return; }
 
-      // 3. O FILTRO BLINDADO (Compara se o nome do arquivo existe no meio da URL salva)
-      let arquivosFinais = validFiles;
+      // Cruza os nomes com tolerância garantida
+      const arquivosFinais = validFiles.filter(f => {
+        return selecionadas.some((sel: string) => f.name.includes(sel) || sel.includes(f.name));
+      });
 
-      if (selecionadas && selecionadas.length > 0) {
-        arquivosFinais = validFiles.filter(f => {
-          return selecionadas.some((sel: string) => sel.includes(f.name));
-        });
-
-        if (arquivosFinais.length === 0) {
-          alert("Erro de leitura: As fotos selecionadas não foram localizadas. Contacte o suporte.");
-          setIsFetchingGallery(false);
-          return;
-        }
+      if (arquivosFinais.length === 0) {
+        alert("Erro de leitura: As fotos selecionadas não batem com os arquivos armazenados. Contacte o suporte.");
+        setIsFetchingGallery(false);
+        return;
       }
 
-      // 4. Gera as URLs APENAS das fotos filtradas
       const urlPromises = arquivosFinais.map(async (file) => {
         const { data, error } = await supabase.storage.from('previa_ensaios').createSignedUrl(`${path}${file.name}`, 3600);
         if (error) throw error; return data.signedUrl;
@@ -553,7 +549,6 @@ export default function Dashboard() {
   const handleDownloadFinal = async (orderId: string) => {
     setIsDownloading(orderId);
     try {
-      // 1. Busca as fotos selecionadas no banco
       const { data: pedido, error: dbError } = await supabase
         .from('pedidos')
         .select('fotos_selecionadas')
@@ -561,9 +556,15 @@ export default function Dashboard() {
         .single();
 
       if (dbError) throw dbError;
-      const selecionadas = pedido?.fotos_selecionadas || [];
+      const selecionadas = pedido?.fotos_selecionadas;
 
-      // 2. Busca os arquivos do storage
+      // FILTRO BLINDADO - REMOVIDO O FALLBACK! SE ESTIVER VAZIO, ELE TRAVA TUDO!
+      if (!selecionadas || selecionadas.length === 0) {
+        alert("Erro de Segurança: A sua curadoria não foi gravada no sistema. Operação Cancelada para proteção dos arquivos.");
+        setIsDownloading(null);
+        return;
+      }
+
       const path = `${userId}/${orderId}/`;
       const { data: files, error: storageError } = await supabase.storage.from('previa_ensaios').list(path);
       if (storageError) throw storageError;
@@ -571,22 +572,16 @@ export default function Dashboard() {
       const validFiles = files ? files.filter(f => f.name !== '.emptyFolderPlaceholder') : [];
       if (validFiles.length === 0) { alert("Ficheiros não encontrados no servidor."); return; }
 
-      // 3. O FILTRO BLINDADO
-      let arquivosFinais = validFiles;
+      const arquivosFinais = validFiles.filter(f => {
+        return selecionadas.some((sel: string) => f.name.includes(sel) || sel.includes(f.name));
+      });
 
-      if (selecionadas && selecionadas.length > 0) {
-        arquivosFinais = validFiles.filter(f => {
-          return selecionadas.some((sel: string) => sel.includes(f.name));
-        });
-
-        if (arquivosFinais.length === 0) {
-          alert("Erro: As fotos selecionadas não puderam ser descarregadas. Contacte o suporte.");
-          setIsDownloading(null);
-          return;
-        }
+      if (arquivosFinais.length === 0) {
+        alert("Erro: As fotos selecionadas não puderam ser descarregadas. Contacte o suporte.");
+        setIsDownloading(null);
+        return;
       }
 
-      // 4. Baixa e zipa apenas as selecionadas
       const urlPromises = arquivosFinais.map(async (file) => {
         const { data, error: urlError } = await supabase.storage.from('previa_ensaios').createSignedUrl(`${path}${file.name}`, 3600);
         if (urlError) throw urlError;
