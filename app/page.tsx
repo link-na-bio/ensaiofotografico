@@ -722,6 +722,27 @@ export default function LandingPage() {
           {/* Compact 4-col grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 
+            {/* Social Prime */}
+            <a
+              href="https://www.socialprime.space/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex flex-col gap-2 p-5 rounded-xl border border-white/5 hover:border-white/15 bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-300"
+            >
+              <div className="w-8 h-8 rounded-lg overflow-hidden mb-1 bg-white/5 flex items-center justify-center">
+                <img
+                  src="https://www.google.com/s2/favicons?domain=socialprime.space&sz=64"
+                  alt="Social Prime logo"
+                  className="w-6 h-6 object-contain"
+                />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-200 transition-colors">Social Prime</span>
+              <span className="text-[11px] text-gray-600 font-light leading-relaxed">Estratégia e crescimento nas redes sociais.</span>
+              <span className="text-[10px] uppercase tracking-widest text-gray-700 group-hover:text-studio-gold/70 transition-colors flex items-center gap-1 mt-auto pt-2">
+                socialprime.space <ArrowRight size={10} />
+              </span>
+            </a>
+
             {/* Link na Bio Pro */}
             <a
               href="https://www.linknabio.pro/"
@@ -761,27 +782,6 @@ export default function LandingPage() {
               <span className="text-[11px] text-gray-600 font-light leading-relaxed">Legendas inspiradoras para igrejas e criadores cristãos geradas por IA em segundos.</span>
               <span className="text-[10px] uppercase tracking-widest text-gray-700 group-hover:text-studio-gold/70 transition-colors flex items-center gap-1 mt-auto pt-2">
                 legendas-cristas.app <ArrowRight size={10} />
-              </span>
-            </a>
-
-            {/* Social Prime */}
-            <a
-              href="https://www.socialprime.space/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex flex-col gap-2 p-5 rounded-xl border border-white/5 hover:border-white/15 bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-300"
-            >
-              <div className="w-8 h-8 rounded-lg overflow-hidden mb-1 bg-white/5 flex items-center justify-center">
-                <img
-                  src="https://www.google.com/s2/favicons?domain=socialprime.space&sz=64"
-                  alt="Social Prime logo"
-                  className="w-6 h-6 object-contain"
-                />
-              </div>
-              <span className="text-xs font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-200 transition-colors">Social Prime</span>
-              <span className="text-[11px] text-gray-600 font-light leading-relaxed">Estratégia e crescimento nas redes sociais.</span>
-              <span className="text-[10px] uppercase tracking-widest text-gray-700 group-hover:text-studio-gold/70 transition-colors flex items-center gap-1 mt-auto pt-2">
-                socialprime.space <ArrowRight size={10} />
               </span>
             </a>
 
