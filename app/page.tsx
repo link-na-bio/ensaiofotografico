@@ -706,89 +706,99 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Cross-Selling / Ecosystem Section */}
-      <section className="py-24 bg-studio-black border-t border-white/5" id="ecossistema">
+      {/* Ecosystem / Partners — subtle strip */}
+      <section className="py-12 bg-studio-black border-t border-white/5" id="ecossistema">
         <div className="container mx-auto px-6">
 
-          {/* Header */}
-          <div className="text-center mb-16">
-            <div className="w-14 h-14 rounded-full border border-studio-gold/30 bg-studio-gold/5 flex items-center justify-center mx-auto mb-6">
-              <Layers size={24} className="text-studio-gold" />
-            </div>
-            <p className="text-studio-gold uppercase tracking-[0.5em] text-xs font-display mb-3">Ecossistema</p>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Ferramentas <span className="text-studio-gold italic">Recomendadas</span>
-            </h2>
-            <p className="text-gray-400 font-light max-w-xl mx-auto leading-relaxed">
-              Potencialize os seus resultados nas redes sociais com as plataformas parceiras do Virtual Studio.
+          {/* Minimal header */}
+          <div className="flex items-center gap-4 mb-8">
+            <div className="flex-1 h-px bg-white/5" />
+            <p className="text-gray-600 uppercase tracking-[0.4em] text-[10px] font-display whitespace-nowrap">
+              Plataformas Parceiras
             </p>
+            <div className="flex-1 h-px bg-white/5" />
           </div>
 
-          {/* Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Compact 4-col grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 
-            {/* Card 1: Link na Bio Pro */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-8 hover:border-studio-gold/50 transition-all group flex flex-col">
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <MousePointerClick size={22} className="text-emerald-400" />
+            {/* Link na Bio Pro */}
+            <a
+              href="https://www.linknabio.pro/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex flex-col gap-2 p-5 rounded-xl border border-white/5 hover:border-white/15 bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-300"
+            >
+              <div className="w-8 h-8 rounded-lg overflow-hidden mb-1 bg-white/5 flex items-center justify-center">
+                <img
+                  src="https://www.google.com/s2/favicons?domain=linknabio.pro&sz=64"
+                  alt="Link na Bio Pro logo"
+                  className="w-6 h-6 object-contain"
+                />
               </div>
-              <h3 className="text-xl font-bold font-display uppercase tracking-widest mb-3 text-white group-hover:text-studio-gold transition-colors">
-                Link na Bio Pro
-              </h3>
-              <p className="text-gray-400 font-light leading-relaxed text-sm flex-grow">
-                A sua nova foto profissional merece um cartão de visitas digital à altura. Reúna todos os seus links numa página de alta conversão.
-              </p>
-              <a
-                href="https://www.linknabio.pro/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-6 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-gray-500 group-hover:text-studio-gold transition-colors"
-              >
-                Conhecer Plataforma <ArrowRight size={14} />
-              </a>
-            </div>
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-200 transition-colors">Link na Bio Pro</span>
+              <span className="text-[11px] text-gray-600 font-light leading-relaxed">Cartão de visitas digital de alta conversão.</span>
+              <span className="text-[10px] uppercase tracking-widest text-gray-700 group-hover:text-studio-gold/70 transition-colors flex items-center gap-1 mt-auto pt-2">
+                linknabio.pro <ArrowRight size={10} />
+              </span>
+            </a>
 
-            {/* Card 2: Legendas Cristãs */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-8 hover:border-studio-gold/50 transition-all group flex flex-col">
-              <div className="w-12 h-12 rounded-xl bg-studio-gold/10 border border-studio-gold/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Heart size={22} className="text-studio-gold" />
+            {/* Legendas com IA */}
+            <a
+              href="https://legendas-cristas.lovable.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex flex-col gap-2 p-5 rounded-xl border border-white/5 hover:border-white/15 bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-300"
+            >
+              <div className="w-8 h-8 rounded-lg overflow-hidden mb-1 bg-white/5 flex items-center justify-center">
+                <img
+                  src="https://www.google.com/s2/favicons?domain=legendas-cristas.lovable.app&sz=64"
+                  alt="Legendas Cristãs logo"
+                  className="w-6 h-6 object-contain"
+                />
               </div>
-              <h3 className="text-xl font-bold font-display uppercase tracking-widest mb-3 text-white group-hover:text-studio-gold transition-colors">
-                Legendas com IA
-              </h3>
-              <p className="text-gray-400 font-light leading-relaxed text-sm flex-grow">
-                Sem inspiração para postar as suas novas fotos? Gere legendas profundas, reflexivas e cativantes em segundos usando Inteligência Artificial.
-              </p>
-              <a
-                href="https://legendas-cristas.lovable.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-6 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-gray-500 group-hover:text-studio-gold transition-colors"
-              >
-                Conhecer Plataforma <ArrowRight size={14} />
-              </a>
-            </div>
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-200 transition-colors">Legendas com IA</span>
+              <span className="text-[11px] text-gray-600 font-light leading-relaxed">Gere legendas cativantes em segundos.</span>
+              <span className="text-[10px] uppercase tracking-widest text-gray-700 group-hover:text-studio-gold/70 transition-colors flex items-center gap-1 mt-auto pt-2">
+                legendas-cristas.app <ArrowRight size={10} />
+              </span>
+            </a>
 
-            {/* Card 3: Seja um Parceiro */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-8 hover:border-studio-gold/50 transition-all group flex flex-col">
-              <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Handshake size={22} className="text-gray-400" />
+            {/* Social Prime */}
+            <a
+              href="https://www.socialprime.space/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex flex-col gap-2 p-5 rounded-xl border border-white/5 hover:border-white/15 bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-300"
+            >
+              <div className="w-8 h-8 rounded-lg overflow-hidden mb-1 bg-white/5 flex items-center justify-center">
+                <img
+                  src="https://www.google.com/s2/favicons?domain=socialprime.space&sz=64"
+                  alt="Social Prime logo"
+                  className="w-6 h-6 object-contain"
+                />
               </div>
-              <h3 className="text-xl font-bold font-display uppercase tracking-widest mb-3 text-white group-hover:text-studio-gold transition-colors">
-                Seja um Parceiro
-              </h3>
-              <p className="text-gray-400 font-light leading-relaxed text-sm flex-grow">
-                Tem um serviço ou produto que ajuda empreendedores e profissionais a crescerem no digital? Anuncie para a nossa base de clientes.
-              </p>
-              <a
-                href="https://wa.me/5511999999999?text=Ol%C3%A1%2C%20tenho%20interesse%20em%20ser%20parceiro%20do%20Virtual%20Studio!"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-6 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-gray-500 group-hover:text-studio-gold transition-colors"
-              >
-                Falar com a Equipa <ArrowRight size={14} />
-              </a>
-            </div>
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-200 transition-colors">Social Prime</span>
+              <span className="text-[11px] text-gray-600 font-light leading-relaxed">Estratégia e crescimento nas redes sociais.</span>
+              <span className="text-[10px] uppercase tracking-widest text-gray-700 group-hover:text-studio-gold/70 transition-colors flex items-center gap-1 mt-auto pt-2">
+                socialprime.space <ArrowRight size={10} />
+              </span>
+            </a>
+
+            {/* Seja um Parceiro */}
+            <a
+              href="mailto:suporte@virtualstudio.click?subject=Parceria%20Virtual%20Studio&body=Ol%C3%A1%2C%20tenho%20interesse%20em%20ser%20parceiro%20do%20Virtual%20Studio!"
+              className="group flex flex-col gap-2 p-5 rounded-xl border border-dashed border-white/5 hover:border-white/15 bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-300"
+            >
+              <div className="w-8 h-8 rounded-lg overflow-hidden mb-1 bg-white/5 flex items-center justify-center">
+                <Handshake size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 transition-colors">Seja um Parceiro</span>
+              <span className="text-[11px] text-gray-700 font-light leading-relaxed">Anuncie para a nossa base de clientes.</span>
+              <span className="text-[10px] uppercase tracking-widest text-gray-700 group-hover:text-studio-gold/70 transition-colors flex items-center gap-1 mt-auto pt-2">
+                Falar com a equipa <ArrowRight size={10} />
+              </span>
+            </a>
 
           </div>
         </div>
