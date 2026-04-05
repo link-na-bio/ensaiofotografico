@@ -710,13 +710,14 @@ export default function LandingPage() {
       <section className="py-12 bg-studio-black border-t border-white/5" id="ecossistema">
         <div className="container mx-auto px-6">
 
-          {/* Minimal header */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="flex-1 h-px bg-white/5" />
-            <p className="text-gray-600 uppercase tracking-[0.4em] text-[10px] font-display whitespace-nowrap">
-              Plataformas Parceiras
+          {/* Re-restored Header (Elegant & subtle - Centered) */}
+          <div className="mb-10 text-center mx-auto">
+            <h2 className="text-2xl md:text-3xl font-bold mb-3 uppercase tracking-tight">
+              Ferramentas <span className="text-studio-gold italic">Recomendadas</span>
+            </h2>
+            <p className="text-gray-500 text-sm font-light leading-relaxed max-w-xl mx-auto">
+              Potencialize os seus resultados nas redes sociais com as plataformas parceiras do Virtual Studio.
             </p>
-            <div className="flex-1 h-px bg-white/5" />
           </div>
 
           {/* Compact 4-col grid */}

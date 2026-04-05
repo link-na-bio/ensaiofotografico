@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, Camera, Star, ArrowRight, Loader2 } from 'lucide-react';
+import { ChevronLeft, Camera, Star, ArrowRight, Loader2, Instagram, Mail } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import SalesNotification from '@/components/SalesNotification';
 
@@ -63,7 +63,7 @@ export default function GalleryPage() {
         >
           <p className="text-studio-gold uppercase tracking-[0.4em] text-[10px] mb-4 font-display">Museu de Resultados</p>
           <h1 className="text-4xl md:text-7xl font-bold mb-8 italic">
-            GALERIA DE <span className="text-studio-gold">SENTIDOS</span>
+            GALERIA DOS <span className="text-studio-gold">ESTILOS</span>
           </h1>
           <p className="max-w-2xl mx-auto text-gray-400 text-lg font-light leading-relaxed mb-12">
             Explore a perfeição visual gerada pela nossa Inteligência Artificial com curadoria artística humana. Cada pixel conta uma história de autoridade e estilo.
@@ -167,28 +167,55 @@ export default function GalleryPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-16 bg-studio-black text-center relative border-t border-white/5 shrink-0" id="contato">
+      <footer className="py-12 bg-studio-black border-t border-white/5 shrink-0" id="contato">
         <div className="container mx-auto px-6">
-          <div className="mb-10">
-            <div className="relative w-[280px] h-[280px] mx-auto -mt-10 -mb-24">
-              <Image src="/logo.2.png" alt="Virtual Studio Logo" fill className="object-contain" />
+          <div className="flex flex-col md:flex-row items-center justify-between gap-10 md:gap-6">
+            
+            {/* Logo and Copyright */}
+            <div className="flex flex-col items-center md:items-start order-2 md:order-1">
+              <div className="relative w-[150px] h-[60px] mb-2">
+                <Image src="/logo.2.png" alt="Virtual Studio Logo" fill className="object-contain" />
+              </div>
+              <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-light">
+                © 2026 VIRTUAL STUDIO<br/>
+                <span className="opacity-60">Todos os direitos reservados</span>
+              </p>
             </div>
-            <h4 className="font-display tracking-[0.3em] text-xl relative z-10">VIRTUAL STUDIO</h4>
-          </div>
-          <div className="mb-6 relative z-10">
-            <a href="mailto:suporte@virtualstudio.click" className="text-studio-gold hover:text-studio-gold-light transition-all text-sm tracking-[0.2em] font-display uppercase">
-              suporte@virtualstudio.click
-            </a>
-          </div>
-          <div className="mb-12 relative z-10">
-            <p className="text-gray-500 text-xs uppercase">© 2026 VIRTUAL STUDIO - TODOS OS DIREITOS RESERVADOS</p>
-          </div>
-          <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 mb-12 text-xs text-gray-400 uppercase tracking-widest font-light">
-            <Link href="/termos-de-uso" className="hover:text-studio-gold transition">Termos de Uso</Link>
-            <Link href="/politica-de-privacidade" className="hover:text-studio-gold transition">Política de Privacidade</Link>
-          </div>
-          <div className="max-w-xl mx-auto border-t border-white/10 pt-10">
-            <button onClick={() => window.scrollTo(0, 0)} className="text-studio-gold uppercase text-[10px] tracking-widest hover:underline cursor-pointer">Voltar ao Topo</button>
+
+            {/* Legal Links */}
+            <div className="flex flex-col items-center gap-3 text-[10px] text-gray-400 uppercase tracking-widest font-light order-3 md:order-2">
+              <Link href="/termos-de-uso" className="hover:text-studio-gold transition-colors">Termos de Uso</Link>
+              <Link href="/politica-de-privacidade" className="hover:text-studio-gold transition-colors">Política de Privacidade</Link>
+            </div>
+
+            {/* Social and Contact */}
+            <div className="flex flex-col items-center md:items-end gap-3 order-1 md:order-3">
+              <div className="flex gap-4">
+                <a 
+                  href="mailto:suporte@virtualstudio.click" 
+                  className="w-10 h-10 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-gray-400 hover:text-studio-gold hover:border-studio-gold/30 transition-all duration-300"
+                  aria-label="Email support"
+                >
+                  <Mail size={16} />
+                </a>
+                <a 
+                  href="https://www.instagram.com/virtualstudio.click/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-gray-400 hover:text-studio-gold hover:border-studio-gold/30 transition-all duration-300"
+                  aria-label="Instagram profile"
+                >
+                  <Instagram size={16} />
+                </a>
+              </div>
+              <button 
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+                className="text-[10px] text-studio-gold uppercase tracking-widest hover:underline opacity-80 pt-1 cursor-pointer"
+              >
+                Voltar ao Topo ↑
+              </button>
+            </div>
+
           </div>
         </div>
       </footer>
