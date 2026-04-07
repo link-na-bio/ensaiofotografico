@@ -72,7 +72,7 @@ export default function Dashboard() {
 
   const fetchDbStyles = async () => {
     const { data, error } = await supabase.from('estilos').select('*').order('criado_em', { ascending: false });
-    if (data) setDbStyles(data);
+    if (data) setDbStyles(data.filter(s => s.ativo !== false));
   };
 
   // Estados de Prévia e Galeria

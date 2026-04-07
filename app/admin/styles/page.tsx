@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { Search, Plus, Trash2, X, UploadCloud, Loader2, Sparkles, Copy, CheckCheck } from 'lucide-react';
+import { Search, Plus, Trash2, X, UploadCloud, Loader2, Sparkles, Copy, CheckCheck, Eye, EyeOff } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -188,6 +188,22 @@ export default function AdminStyles() {
     }
   };
 
+  const handleToggleActive = async (id: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase.from('estilos').update({ ativo: !currentStatus }).eq('id', id);
+      if (error) {
+        if (error.message.includes("ativo")) {
+          alert('Por favor, crie a coluna "ativo" (tipo boolean, default: true) na tabela "estilos" no Supabase!');
+          return;
+        }
+        throw error;
+      }
+      fetchStyles();
+    } catch (err: any) {
+      alert('Erro ao alterar status: ' + err.message);
+    }
+  };
+
   return (
     <div className="flex h-screen overflow-hidden bg-studio-black text-white">
       <AdminSidebar />
@@ -255,7 +271,7 @@ export default function AdminStyles() {
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
                   {filteredStyles.map((style) => (
-                    <div key={style.id} className="group bg-studio-black border border-white/10 rounded-none overflow-hidden hover:border-studio-gold hover:shadow-[0_0_30px_rgba(212,175,55,0.1)] transition-all flex flex-col">
+                    <div key={style.id} className={`group bg-studio-black border border-white/10 rounded-none overflow-hidden hover:border-studio-gold hover:shadow-[0_0_30px_rgba(212,175,55,0.1)] transition-all flex flex-col ${style.ativo === false ? 'opacity-50 grayscale hover:grayscale-0' : ''}`}>
                       <div className="aspect-[4/5] overflow-hidden relative">
                         {style.img_url ? (
                           <Image
@@ -270,6 +286,9 @@ export default function AdminStyles() {
                           </div>
                         )}
                         <div className="absolute top-4 left-4 flex gap-2">
+                          {style.ativo === false && (
+                            <span className="bg-rose-500 text-white text-[8px] font-bold uppercase tracking-widest px-2 py-1">Inativo</span>
+                          )}
                           <span className="bg-studio-gold text-studio-black text-[8px] font-bold uppercase tracking-widest px-2 py-1">{style.categoria?.toLowerCase()?.includes('executivo') ? 'Executivo/Corporativo' : style.categoria}</span>
                           <span className="hidden sm:inline-block bg-black/60 backdrop-blur-md border border-white/10 text-white text-[8px] font-bold uppercase tracking-widest px-2 py-1">{style.genero}</span>
                         </div>
@@ -294,6 +313,17 @@ export default function AdminStyles() {
                             className="flex-1 py-2 border border-studio-gold/30 text-studio-gold text-[9px] uppercase tracking-widest font-bold hover:bg-studio-gold hover:text-studio-black transition-all"
                           >
                             Editar
+                          </button>
+                          <button
+                            onClick={() => handleToggleActive(style.id, style.ativo !== false)}
+                            className={`p-2 border border-white/10 transition-all ${
+                              style.ativo !== false
+                                ? 'text-studio-gold hover:text-white hover:border-white hover:bg-white/10'
+                                : 'text-slate-500 hover:text-studio-gold hover:border-studio-gold hover:bg-studio-gold/10'
+                            }`}
+                            title={style.ativo !== false ? "Desativar estilo (ocultar dos clientes)" : "Ativar estilo (visível aos clientes)"}
+                          >
+                            {style.ativo !== false ? <Eye size={14} /> : <EyeOff size={14} />}
                           </button>
                           <button
                             onClick={() => handleDelete(style.id)}
