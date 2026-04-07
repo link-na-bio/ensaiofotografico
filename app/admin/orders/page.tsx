@@ -186,7 +186,10 @@ export default function AdminOrders() {
       setActiveAction(prev => ({ ...prev, [actionKey]: true }));
 
       for (const file of Array.from(files)) {
-        const filePath = `${uploadingOrder.userId}/${uploadingOrder.id}/${file.name}`;
+        const fileExt = file.name.split('.').pop();
+        const safeFileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `${uploadingOrder.userId}/${uploadingOrder.id}/${safeFileName}`;
+
         const { error: uploadError } = await supabase.storage.from('previa_ensaios').upload(filePath, file, { upsert: true });
         if (uploadError) throw uploadError;
       }

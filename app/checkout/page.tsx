@@ -125,6 +125,9 @@ function CheckoutContent() {
     }
   }, [pedido, dynamicPrices]);
 
+  // A FUNÇÃO QUE FALTAVA
+  const handleOpenPix = () => { setShowPixModal(true); };
+
   const handleLogout = async () => { await supabase.auth.signOut(); router.push('/login'); };
   const handleCopyPix = (codigo: string) => { navigator.clipboard.writeText(codigo); setCopied(true); setTimeout(() => setCopied(false), 2000); };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => { if (e.target.files && e.target.files.length > 0) setComprovante(e.target.files[0]); };
@@ -135,8 +138,8 @@ function CheckoutContent() {
 
     try {
       const fileExt = comprovante.name.split('.').pop();
-      const fileName = `comprovante_${orderId}_${Date.now()}.${fileExt}`;
-      const filePath = `${userId}/${fileName}`;
+      const safeFileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${userId}/${safeFileName}`;
 
       const { error: uploadError } = await supabase.storage.from('comprovantes_pix').upload(filePath, comprovante);
       if (uploadError) throw uploadError;
@@ -207,7 +210,7 @@ function CheckoutContent() {
                 </div>
               )}
 
-              {/* Upload do Comprovante */}
+              {/* Upload do Comprovante (com o nome também limpo) */}
               <div className="w-full mb-8">
                 <input type="file" accept="image/*,.pdf" hidden ref={fileInputRef} onChange={handleFileChange} />
                 <div onClick={() => fileInputRef.current?.click()} className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition-all ${comprovante ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-white/10 hover:border-studio-gold/50 bg-white/5'}`}>
