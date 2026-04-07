@@ -15,13 +15,13 @@ declare global { interface Window { JSZip: any; } }
 
 export default function Dashboard() {
   const EVENTO_SAZONAL = {
-    ativo: false,
+    ativo: true,
     id: 'sazonal',
-    titulo: 'Especial Dia da Mãe 🌹',
-    descricao: 'Surpreenda com uma foto perfeita! 1 Estilo Temático em altíssima resolução.',
+    titulo: 'Especial Páscoa VIP 🐰',
+    descricao: 'Garanta sua foto temática inesquecível em alta resolução. Edição super limitada!',
     preco: 19.90,
     estilos: '1 Estilo Temático',
-    nomeDoEstilo: 'Mãe VIP' // O nome do estilo que acabou de criar no painel
+    nomeDoEstilo: 'Páscoa VIP'
   };
 
   const router = useRouter();
@@ -738,10 +738,27 @@ export default function Dashboard() {
   const availableCategories = ['Todos', ...Array.from(new Set(dbStyles.map(s => s.categoria).filter(Boolean)))];
 
   const displayStyles = dbStyles.filter(s =>
-      s.titulo !== EVENTO_SAZONAL.nomeDoEstilo && // <- O CADEADO AQUI: Esconde o sazonal dos outros pacotes
       (s.genero === genderFilter || s.genero === 'Ambos') &&
       (categoryFilter === 'Todos' || s.categoria === categoryFilter)
     );
+
+  const renderDiscountTip = () => {
+    const qtd = selectedStyles.length;
+    if (qtd === 0) return null;
+    
+    let msg = '';
+    if (qtd < 5) msg = `DICA: ADICIONE MAIS ${5 - qtd} FOTO(S) PARA LIBERAR O DESCONTO DO PACK ESSENCIAL!`;
+    else if (qtd < 10) msg = `🔥 DESCONTO ESSENCIAL ATIVO! ADICIONE MAIS ${10 - qtd} FOTO(S) PARA O DESCONTO PREMIUM!`;
+    else if (qtd < 20) msg = `💎 DESCONTO PREMIUM ATIVO! ADICIONE MAIS ${20 - qtd} FOTO(S) PARA O DESCONTO MÁXIMO (ELITE)!`;
+    else msg = `🏆 PARABÉNS! VOCÊ ATINGIU O DESCONTO MÁXIMO DA PLATAFORMA (PACK ELITE)!`;
+
+    return (
+      <div className="bg-emerald-500/10 border border-emerald-500/30 p-3 mb-6 rounded-lg flex items-center justify-center gap-2">
+        <Sparkles size={16} className="text-emerald-500" />
+        <span className="text-emerald-500 font-bold text-[10px] uppercase tracking-widest">{msg}</span>
+      </div>
+    );
+  };
 
   return (
     <div className="flex min-h-screen bg-studio-black text-white relative">
@@ -1288,6 +1305,50 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   <div className="lg:col-span-2 space-y-12 pb-20">
                     <section>
+                      {/* BANNER SAZONAL / TEMÁTICO COMO ADD-TO-CART RÁPIDO */}
+                      {EVENTO_SAZONAL.ativo && (
+                        <div
+                          onClick={() => {
+                            if (!selectedStyles.includes(EVENTO_SAZONAL.nomeDoEstilo)) {
+                              setSelectedStyles(prev => [EVENTO_SAZONAL.nomeDoEstilo, ...prev]);
+                            }
+                          }}
+                          className={`mb-12 w-full border-2 rounded-2xl p-6 relative overflow-hidden transition-all group cursor-pointer ${selectedStyles.includes(EVENTO_SAZONAL.nomeDoEstilo)
+                            ? 'border-studio-gold shadow-[0_0_20px_rgba(212,175,55,0.2)] bg-gradient-to-r from-purple-900/40 to-studio-black'
+                            : 'border-purple-500/30 bg-gradient-to-r from-purple-900/20 to-studio-black hover:border-studio-gold transition-all'}`}
+                        >
+                          <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[9px] font-black px-4 py-1.5 uppercase tracking-[0.2em] rounded-bl-xl shadow-lg z-20">TEMPO LIMITADO</div>
+
+                          <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10 w-full">
+                            <div className="flex items-center gap-5 flex-1">
+                              <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center shrink-0 border-2 transition-all duration-500 ${selectedStyles.includes(EVENTO_SAZONAL.nomeDoEstilo) ? 'bg-studio-gold text-studio-black border-white/20' : 'bg-purple-500/10 text-purple-400 border-purple-500/20'}`}>
+                                <Sparkles size={28} className={selectedStyles.includes(EVENTO_SAZONAL.nomeDoEstilo) ? 'animate-pulse' : ''} />
+                              </div>
+                              <div className="text-left">
+                                <h4 className="text-lg md:text-xl font-black font-display uppercase tracking-widest text-white">{EVENTO_SAZONAL.titulo}</h4>
+                                <p className="text-[10px] md:text-xs text-gray-300 mt-1 max-w-md leading-relaxed font-medium">{EVENTO_SAZONAL.descricao}</p>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <span className="px-2 py-0.5 bg-studio-gold/10 border border-studio-gold/20 rounded text-[8px] font-bold text-studio-gold uppercase tracking-wider">{EVENTO_SAZONAL.estilos}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col items-center md:items-end shrink-0">
+                              {selectedStyles.includes(EVENTO_SAZONAL.nomeDoEstilo) ? (
+                                <div className="flex items-center gap-2 text-studio-gold text-sm font-bold uppercase tracking-widest bg-studio-gold/10 px-4 py-2 rounded-lg border border-studio-gold/20">
+                                  <Check size={16} strokeWidth={3} /> Adicionado
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-2 text-white text-sm font-bold uppercase tracking-widest bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg border border-white/20 transition-all">
+                                  <PlusCircle size={16} /> Adicionar
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-studio-gold/5 blur-[80px] pointer-events-none opacity-50"></div>
+                        </div>
+                      )}
+
                       <div className="flex justify-between items-end mb-4">
                         <div className="flex items-center gap-4">
                           <span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">1</span>
@@ -1296,12 +1357,7 @@ export default function Dashboard() {
                         <span className="text-gray-500 text-xs font-bold tracking-widest uppercase">Selecionados: <span className="text-studio-gold">{selectedStyles.length} fotos</span></span>
                       </div>
 
-                      {selectedStyles.length > 0 && selectedStyles.length < 5 && (
-                        <div className="mb-4 mt-2 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-lg flex items-center gap-3">
-                          <Sparkles size={16} className="text-emerald-500" />
-                          <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">Dica: Adicione mais {5 - selectedStyles.length} {5 - selectedStyles.length === 1 ? 'foto' : 'fotos'} para liberar o desconto do Pack Essencial!</span>
-                        </div>
-                      )}
+                      {renderDiscountTip()}
 
                       <div className="mb-6 p-4 bg-studio-gold/5 border border-studio-gold/20 rounded-xl flex items-start gap-3">
                         <Info size={18} className="text-studio-gold shrink-0 mt-0.5" />
