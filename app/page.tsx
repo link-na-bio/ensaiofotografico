@@ -100,6 +100,13 @@ export default function LandingPage() {
     };
   }, []);
 
+  const EVENTO_SAZONAL = {
+    ativo: true,
+    titulo: 'Especial Dia das Mães 🌹',
+    descricao: 'Surpreenda com uma foto perfeita! 1 Estilo Temático em altíssima resolução.',
+    preco: 'R$ 19,90',
+  };
+
   return (
     <div className="min-h-screen bg-studio-black overflow-x-hidden selection:bg-studio-gold selection:text-studio-black">
       {/* Header */}
@@ -592,27 +599,31 @@ export default function LandingPage() {
               SOLICITAR MEU ENSAIO <ArrowRight size={18} />
             </Link>
 
-            {/* CTA Amostra VIP */}
-            <Link href="/signup" className="block w-full">
-              <div className="border border-white/10 hover:border-studio-gold/50 bg-[#121212]/80 backdrop-blur-sm rounded-2xl p-6 transition-all duration-300 group relative overflow-hidden text-left">
-                <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[10px] font-bold px-4 py-1.5 uppercase tracking-widest rounded-bl-xl">NOVO</div>
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-studio-gold/10 flex items-center justify-center text-studio-gold shrink-0 border border-studio-gold/20 group-hover:scale-110 transition-transform">
-                      <Sparkles size={20} />
+            {/* Card Estilo Especial Sazonal (Dia das Mães) */}
+            {EVENTO_SAZONAL.ativo && (
+              <Link href="/signup" className="block w-full">
+                <div className="border-2 border-purple-500/30 hover:border-purple-500/60 bg-gradient-to-r from-purple-900/40 to-studio-black/80 backdrop-blur-sm rounded-2xl p-6 transition-all duration-300 group relative overflow-hidden text-left shadow-[0_0_30px_rgba(168,85,247,0.15)]">
+                  <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[10px] font-black px-4 py-1.5 uppercase tracking-widest rounded-bl-xl shadow-lg z-20">TEMPO LIMITADO</div>
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400 shrink-0 border border-purple-500/20 group-hover:scale-110 transition-transform">
+                        <Heart size={20} fill="currentColor" className="opacity-80" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold font-display uppercase tracking-widest text-white group-hover:text-studio-gold transition-colors">{EVENTO_SAZONAL.titulo}</h4>
+                        <p className="text-xs text-gray-400 mt-1 max-w-sm leading-relaxed">{EVENTO_SAZONAL.descricao}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-lg font-bold font-display uppercase tracking-widest text-white group-hover:text-studio-gold transition-colors">Amostra VIP <span className="text-sm">💎</span></h4>
-                      <p className="text-xs text-gray-400 mt-1 max-w-sm leading-relaxed">Ainda na dúvida? Faça um Teste de Confiança com 1 estilo (1 foto em alta definição). O valor é descontado caso faça um upgrade depois.</p>
+                    <div className="shrink-0 bg-white/5 sm:bg-transparent p-4 sm:p-0 rounded-xl w-full sm:w-auto text-center sm:text-right border border-white/5 sm:border-none">
+                      <p className="text-2xl font-bold text-studio-gold tracking-wider">{EVENTO_SAZONAL.preco}</p>
+                      <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Ver a Mágica Acontecer</p>
                     </div>
                   </div>
-                  <div className="shrink-0 bg-white/5 sm:bg-transparent p-4 sm:p-0 rounded-xl w-full sm:w-auto text-center sm:text-right border border-white/5 sm:border-none">
-                    <p className="text-2xl font-bold text-studio-gold tracking-wider">R$ 19,90</p>
-                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Ver a Mágica Acontecer</p>
-                  </div>
+                  {/* Subtle Glow Effect */}
+                  <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-32 h-32 bg-purple-500/10 blur-[60px] pointer-events-none"></div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            )}
 
             <p className="mt-8 text-gray-500 text-sm italic font-light tracking-widest uppercase">Comece agora sua jornada definitiva de imagem</p>
           </motion.div>
