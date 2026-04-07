@@ -596,13 +596,7 @@ export default function Dashboard() {
         .single();
 
       if (dbError) throw dbError;
-      const selecionadas = pedido?.fotos_selecionadas;
-
-      if (!selecionadas || selecionadas.length === 0) {
-        alert("Erro de Segurança: A sua curadoria não foi gravada no sistema ou está vazia. O Cofre foi trancado por precaução.");
-        setIsFetchingGallery(false);
-        return;
-      }
+      const selecionadas = pedido?.fotos_selecionadas || [];
 
       const path = `${userId}/${orderId}/`;
       const { data: files, error: storageError } = await supabase.storage.from('previa_ensaios').list(path);
@@ -611,15 +605,17 @@ export default function Dashboard() {
       const validFiles = files ? files.filter(f => f.name !== '.emptyFolderPlaceholder') : [];
       if (validFiles.length === 0) { alert("Nenhuma foto encontrada no servidor."); return; }
 
-      const arquivosFinais = validFiles.filter(f => {
-        return selecionadas.some((sel: string) => f.name.includes(sel) || sel.includes(f.name));
-      });
-
-      if (arquivosFinais.length === 0) {
-        alert("Erro de leitura: As fotos selecionadas não batem com os arquivos armazenados. Contacte o suporte.");
-        setIsFetchingGallery(false);
-        return;
+      // Se tiver fotos selecionadas (modelo antigo), filtra. Se não, mostra todas (modelo novo/direto).
+      let arquivosFinais = validFiles;
+      if (selecionadas.length > 0) {
+        arquivosFinais = validFiles.filter(f => selecionadas.some((sel: string) => f.name.includes(sel) || sel.includes(f.name)));
+        if (arquivosFinais.length === 0) {
+          alert("Erro de leitura: As fotos selecionadas não batem com os arquivos armazenados. Contacte o suporte.");
+          setIsFetchingGallery(false);
+          return;
+        }
       }
+
 
       const urlPromises = arquivosFinais.map(async (file) => {
         const { data, error } = await supabase.storage.from('previa_ensaios').createSignedUrl(`${path}${file.name}`, 3600);
@@ -657,13 +653,7 @@ export default function Dashboard() {
         .single();
 
       if (dbError) throw dbError;
-      const selecionadas = pedido?.fotos_selecionadas;
-
-      if (!selecionadas || selecionadas.length === 0) {
-        alert("Erro de Segurança: A sua curadoria não foi gravada no sistema. Operação Cancelada para proteção dos arquivos.");
-        setIsDownloading(null);
-        return;
-      }
+      const selecionadas = pedido?.fotos_selecionadas || [];
 
       const path = `${userId}/${orderId}/`;
       const { data: files, error: storageError } = await supabase.storage.from('previa_ensaios').list(path);
@@ -672,15 +662,16 @@ export default function Dashboard() {
       const validFiles = files ? files.filter(f => f.name !== '.emptyFolderPlaceholder') : [];
       if (validFiles.length === 0) { alert("Ficheiros não encontrados no servidor."); return; }
 
-      const arquivosFinais = validFiles.filter(f => {
-        return selecionadas.some((sel: string) => f.name.includes(sel) || sel.includes(f.name));
-      });
-
-      if (arquivosFinais.length === 0) {
-        alert("Erro: As fotos selecionadas não puderam ser descarregadas. Contacte o suporte.");
-        setIsDownloading(null);
-        return;
+      let arquivosFinais = validFiles;
+      if (selecionadas.length > 0) {
+        arquivosFinais = validFiles.filter(f => selecionadas.some((sel: string) => f.name.includes(sel) || sel.includes(f.name)));
+        if (arquivosFinais.length === 0) {
+          alert("Erro: As fotos selecionadas não puderam ser descarregadas. Contacte o suporte.");
+          setIsDownloading(null);
+          return;
+        }
       }
+
 
       const urlPromises = arquivosFinais.map(async (file) => {
         const { data, error: urlError } = await supabase.storage.from('previa_ensaios').createSignedUrl(`${path}${file.name}`, 3600);

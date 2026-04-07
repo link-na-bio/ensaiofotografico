@@ -195,10 +195,13 @@ function CheckoutContent() {
                 </>
               ) : (
                 // UI PARA PEDIDOS NOVOS (DINÂMICOS) - CHAVE PIX DIRETA
-                <div className="w-full space-y-4 mb-6">
-                  <div className="bg-studio-gold/10 border border-studio-gold/30 p-4 rounded-xl text-left">
+                <div className="w-full space-y-4 mb-6 flex flex-col items-center">
+                  <div className="bg-white p-3 rounded-xl mb-2">
+                    <div className="relative w-40 h-40"><Image src="/pix-geral.png" alt="QR Code PIX General" fill className="object-contain" /></div>
+                  </div>
+                  <div className="bg-studio-gold/10 border border-studio-gold/30 p-4 rounded-xl text-left w-full">
                     <p className="text-[10px] text-studio-gold uppercase tracking-widest font-bold mb-2">Instruções de Pagamento:</p>
-                    <p className="text-xs text-gray-300 leading-relaxed font-light mb-4">1. Abra o seu banco e escolha <strong>Transferir</strong> ou <strong>PIX Copia e Cola</strong>.<br />2. Cole a chave aleatória abaixo.<br />3. Digite o valor exato de <strong>R$ {infoCalculada.preco.toFixed(2).replace('.', ',')}</strong>.</p>
+                    <p className="text-xs text-gray-300 leading-relaxed font-light mb-4">1. Escaneie o QR Code acima ou use a chave aleatória.<br />2. Se optar pela chave, cole-a no seu banco.<br />3. Digite o valor exato de <strong>R$ {infoCalculada.preco.toFixed(2).replace('.', ',')}</strong>.</p>
 
                     <p className="text-[9px] text-gray-500 uppercase tracking-widest font-bold mb-1">Chave PIX Aleatória:</p>
                     <div className="flex gap-2">
@@ -208,6 +211,7 @@ function CheckoutContent() {
                     <p className="text-[9px] text-gray-500 mt-2">Favorecido: Bruno Adriano Costa Reis</p>
                   </div>
                 </div>
+
               )}
 
               {/* Upload do Comprovante (com o nome também limpo) */}
