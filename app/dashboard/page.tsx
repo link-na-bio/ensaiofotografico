@@ -41,7 +41,6 @@ export default function Dashboard() {
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState<null | 'amostra' | 'essencial' | 'premium' | 'elite' | 'sazonal'>(null);
 
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -253,26 +252,34 @@ export default function Dashboard() {
     return isNaN(num) ? fallback : num;
   };
 
-  const getPriceDisplay = (key: string, fallback: number) => {
-    if (!dynamicPrices) return `R$ ${fallback.toFixed(2).replace('.', ',')}`;
-    const preco = parsePrice(dynamicPrices[`preco_${key}`], fallback);
-    return `R$ ${preco.toFixed(2).replace('.', ',')}`;
+  const getPrecoUnitario = (qtd: number) => {
+    const pBase = parsePrice(dynamicPrices?.preco_amostra, 19.90);
+    const pEssencial = parsePrice(dynamicPrices?.preco_essencial, 67.90) / 5;
+    const pPremium = parsePrice(dynamicPrices?.preco_premium, 97.90) / 10;
+    const pElite = parsePrice(dynamicPrices?.preco_elite, 147.90) / 20;
+
+    if (qtd >= 20) return pElite;
+    if (qtd >= 10) return pPremium;
+    if (qtd >= 5) return pEssencial;
+    return pBase;
   };
 
-  const getStyleLimit = () => {
-    if (selectedPackage === 'sazonal') return 1;
-    if (selectedPackage === 'amostra') return 1;
-    if (selectedPackage === 'essencial') return 1;
-    if (selectedPackage === 'premium') return 3;
-    if (selectedPackage === 'elite') return 5;
-    return 0;
+  const currentTotal = selectedStyles.length * getPrecoUnitario(selectedStyles.length);
+
+  const getDynamicPackageName = (qtd: number) => {
+    if (qtd >= 20) return 'dinamico_elite';
+    if (qtd >= 10) return 'dinamico_premium';
+    if (qtd >= 5) return 'dinamico_essencial';
+    return 'dinamico_avulso';
   };
 
-  const totalAmount = selectedPackage === 'sazonal' ? 19.90 :
-    selectedPackage === 'amostra' ? parsePrice(dynamicPrices?.preco_amostra, 19.90) :
-      selectedPackage === 'essencial' ? parsePrice(dynamicPrices?.preco_essencial, 89.90) :
-        selectedPackage === 'premium' ? parsePrice(dynamicPrices?.preco_premium, 149.90) :
-          selectedPackage === 'elite' ? parsePrice(dynamicPrices?.preco_elite, 247.90) : 0;
+  const getDisplayPackageName = (qtd: number) => {
+    if (qtd >= 20) return 'Pack Elite';
+    if (qtd >= 10) return 'Pack Premium';
+    if (qtd >= 5) return 'Pack Essencial';
+    if (qtd > 0) return 'Avulso';
+    return 'Não selecionado';
+  };
   // ====================================================================
 
   // ===== SISTEMA DE NOTIFICAÇÃO SONORA (BEEP VIA CÓDIGO) =====
@@ -391,7 +398,7 @@ export default function Dashboard() {
   };
 
 
-  const toggleStyle = (style: string) => { const limit = getStyleLimit(); if (selectedStyles.includes(style)) { setSelectedStyles(selectedStyles.filter(s => s !== style)); } else if (selectedStyles.length < limit) { setSelectedStyles([...selectedStyles, style]); } else { alert(`O pacote escolhido permite apenas ${limit} estilo(s).`); } };
+  const toggleStyle = (style: string) => { if (selectedStyles.includes(style)) { setSelectedStyles(selectedStyles.filter(s => s !== style)); } else { setSelectedStyles([...selectedStyles, style]); } };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => { if (e.target.files) { const newFiles = Array.from(e.target.files); setSelectedFiles([...selectedFiles, ...newFiles].slice(0, 10)); } };
   const handleDrop = (e: React.DragEvent) => { e.preventDefault(); if (e.dataTransfer.files) { const newFiles = Array.from(e.dataTransfer.files); setSelectedFiles([...selectedFiles, ...newFiles].slice(0, 10)); } };
   const removeFile = (index: number) => { setSelectedFiles(prev => prev.filter((_, i) => i !== index)); };
@@ -402,19 +409,15 @@ export default function Dashboard() {
       return;
     }
 
-    if (selectedPackage === 'amostra' && pedidos.length > 0) {
-      alert("A Amostra VIP só está disponível para o seu primeiro pedido! Por favor, escolha um dos nossos pacotes completos.");
-      return;
-    }
-
-    if (!selectedPackage || selectedStyles.length === 0 || selectedFiles.length < 5) {
-      alert("Preencha todos os campos obrigatórios e envie no mínimo 5 fotos.");
+    if (selectedStyles.length === 0 || selectedFiles.length < 5) {
+      alert("Selecione os estilos desejados e envie no mínimo 5 fotos.");
       return;
     }
 
     setIsUploading(true);
     try {
-      const { data: orderData, error: dbError } = await supabase.from('pedidos').insert({ user_id: userId, user_email: userEmail, pacote: selectedPackage, estilos: selectedStyles, status: 'Aguardando Produção' }).select().single();
+      const pkgName = getDynamicPackageName(selectedStyles.length);
+      const { data: orderData, error: dbError } = await supabase.from('pedidos').insert({ user_id: userId, user_email: userEmail, pacote: pkgName, estilos: selectedStyles, status: 'Aguardando Produção' }).select().single();
       if (dbError) throw dbError;
       const orderId = orderData.id;
 
@@ -423,7 +426,7 @@ export default function Dashboard() {
         const { error: storageError } = await supabase.storage.from('fotos_clientes').upload(filePath, file);
         if (storageError) throw storageError;
       }
-      setAlertMessage("Pedido enviado com sucesso!"); setShowSuccessAlert(true); changeTab('home'); setSelectedPackage(null); setSelectedStyles([]); setSelectedFiles([]); fetchPedidos(userId!); setTimeout(() => setShowSuccessAlert(false), 5000);
+      setAlertMessage("Pedido enviado com sucesso!"); setShowSuccessAlert(true); changeTab('home'); setSelectedStyles([]); setSelectedFiles([]); fetchPedidos(userId!); setTimeout(() => setShowSuccessAlert(false), 5000);
     } catch (error: any) { alert(`Falha no envio: ${error.message}`); } finally { setIsUploading(false); }
   };
 
@@ -481,19 +484,28 @@ export default function Dashboard() {
     } catch (error: any) { alert("Erro ao carregar prévia: " + error.message); } finally { setIsFetchingPreview(false); }
   };
 
-  const getSelectionLimit = (packageName: string) => {
-    const pkg = packageName?.toLowerCase();
-    if (pkg?.includes('sazonal')) return 1;
+  const getSelectionLimit = (pedido: any) => {
+    if (!pedido) return 0;
+    const pkg = pedido.pacote?.toLowerCase();
+
+    // NOVA REGRA (À La Carte): 1 Estilo = 1 Foto
+    if (pkg?.includes('dinamico_')) {
+      return pedido.estilos?.length || 1;
+    }
+
+    // REGRA LEGADO (Para não quebrar os pedidos antigos)
     if (pkg?.includes('amostra')) return 1;
     if (pkg?.includes('essencial')) return 10;
     if (pkg?.includes('premium')) return 25;
     if (pkg?.includes('elite')) return 50;
+    if (pkg?.includes('sazonal')) return 1;
+
     return 0;
   };
 
   const togglePhotoSelection = (fileName: string) => {
     const pedido = pedidos.find(p => p.id === selectedOrderId);
-    const limit = getSelectionLimit(pedido?.pacote || '');
+    const limit = getSelectionLimit(pedido);
 
     if (selectedPreviewPhotos.includes(fileName)) {
       setSelectedPreviewPhotos(prev => prev.filter(name => name !== fileName));
@@ -507,7 +519,7 @@ export default function Dashboard() {
   const handleApproveSelection = async () => {
     if (!selectedOrderId) return;
     const pedido = pedidos.find(p => p.id === selectedOrderId);
-    const limit = getSelectionLimit(pedido?.pacote || '');
+    const limit = getSelectionLimit(pedido);
 
     if (selectedPreviewPhotos.length !== limit) {
       alert(`Por favor, selecione exatamente ${limit} fotos para prosseguir.`);
@@ -725,9 +737,7 @@ export default function Dashboard() {
 
   const availableCategories = ['Todos', ...Array.from(new Set(dbStyles.map(s => s.categoria).filter(Boolean)))];
 
-  const displayStyles = selectedPackage === 'sazonal'
-    ? dbStyles.filter(s => s.titulo === EVENTO_SAZONAL.nomeDoEstilo)
-    : dbStyles.filter(s =>
+  const displayStyles = dbStyles.filter(s =>
       s.titulo !== EVENTO_SAZONAL.nomeDoEstilo && // <- O CADEADO AQUI: Esconde o sazonal dos outros pacotes
       (s.genero === genderFilter || s.genero === 'Ambos') &&
       (categoryFilter === 'Todos' || s.categoria === categoryFilter)
@@ -792,8 +802,10 @@ export default function Dashboard() {
                 <p className="text-gray-400 text-[10px] uppercase tracking-widest mt-1 font-bold">
                   {(() => {
                     const pedido = pedidos.find(p => p.id === selectedOrderId);
-                    const limit = getSelectionLimit(pedido?.pacote || '');
-                    return `Selecionadas: ${selectedPreviewPhotos.length} de ${limit} (${pedido?.pacote})`;
+                    const limit = getSelectionLimit(pedido);
+                    let displayPacote = pedido?.pacote || '';
+                    if (displayPacote.includes('dinamico_')) displayPacote = displayPacote.replace('dinamico_', 'À La Carte: ');
+                    return `Selecionadas: ${selectedPreviewPhotos.length} de ${limit} (${displayPacote})`;
                   })()}
                 </p>
               </div>
@@ -847,7 +859,7 @@ export default function Dashboard() {
             <div className="p-6 border-t border-white/10 bg-studio-black/90 flex justify-center">
               {(() => {
                 const pedido = pedidos.find(p => p.id === selectedOrderId);
-                const limit = getSelectionLimit(pedido?.pacote || '');
+                const limit = getSelectionLimit(pedido);
                 const isReady = selectedPreviewPhotos.length === limit;
 
                 return (
@@ -1256,185 +1268,96 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   <div className="lg:col-span-2 space-y-12 pb-20">
                     <section>
-                      <div className="flex items-center gap-4 mb-8"><span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">1</span><h3 className="text-xl font-bold font-display uppercase tracking-widest">Escolha o seu Pacote</h3></div>
+                      <div className="flex justify-between items-end mb-4">
+                        <div className="flex items-center gap-4">
+                          <span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">1</span>
+                          <h3 className="text-xl font-bold font-display uppercase tracking-widest">Monte o seu Ensaio (Escolha os Estilos)</h3>
+                        </div>
+                        <span className="text-gray-500 text-xs font-bold tracking-widest uppercase">Selecionados: <span className="text-studio-gold">{selectedStyles.length} fotos</span></span>
+                      </div>
 
-                      {/* ADICIONADO: Banner de Destaque para a Amostra VIP (SÓ APARECE NA 1ª VEZ) */}
-                      {pedidos.length === 0 && (
-                        <div
-                          onClick={() => { setSelectedPackage('amostra'); setSelectedStyles([]); }}
-                          className={`mb-6 border-2 rounded-2xl p-6 relative overflow-hidden transition-all group cursor-pointer ${selectedPackage === 'amostra' ? 'border-studio-gold bg-studio-gold/5 shadow-[0_0_30px_rgba(212,175,55,0.15)]' : 'border-white/10 bg-[#121212] hover:border-studio-gold/50'}`}
-                        >
-                          <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[10px] font-bold px-4 py-1.5 uppercase tracking-widest rounded-bl-xl">NOVO</div>
-                          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
-                            <div className="flex items-center gap-4">
-                              <div className="w-14 h-14 rounded-full bg-studio-gold/10 flex items-center justify-center text-studio-gold shrink-0 border border-studio-gold/20">
-                                <Sparkles size={24} />
-                              </div>
-                              <div>
-                                <h4 className="text-lg font-bold font-display uppercase tracking-widest text-studio-gold flex items-center gap-2">Amostra VIP <span className="text-sm">💎</span></h4>
-                                <p className="text-xs text-gray-400 mt-1 max-w-sm leading-relaxed">Ainda na dúvida? Teste o poder da nossa IA com 1 Estilo (1 Foto de alta definição). <strong className="text-white font-normal">O valor é descontado caso faça um upgrade depois.</strong></p>
-                              </div>
-                            </div>
-                            <div className="text-left md:text-right shrink-0 bg-white/5 md:bg-transparent p-4 md:p-0 rounded-xl w-full md:w-auto">
-                              <p className="text-2xl font-bold text-white tracking-wider">{getPriceDisplay('amostra', 19.90)}</p>
-                              <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Teste de Confiança</p>
-                            </div>
-                          </div>
-                          {selectedPackage === 'amostra' && <div className="absolute inset-0 border-2 border-studio-gold rounded-2xl pointer-events-none"></div>}
+                      {selectedStyles.length > 0 && selectedStyles.length < 5 && (
+                        <div className="mb-4 mt-2 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-lg flex items-center gap-3">
+                          <Sparkles size={16} className="text-emerald-500" />
+                          <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">Dica: Adicione mais {5 - selectedStyles.length} {5 - selectedStyles.length === 1 ? 'foto' : 'fotos'} para liberar o desconto do Pack Essencial!</span>
                         </div>
                       )}
 
-                      {/* BANNER SAZONAL / TEMÁTICO */}
-                      {EVENTO_SAZONAL.ativo && (
-                        <div
-                          onClick={() => {
-                            setSelectedPackage('sazonal');
-                            setSelectedStyles([EVENTO_SAZONAL.nomeDoEstilo]);
-                          }}
-                          className={`mb-8 w-full border-2 rounded-2xl p-6 relative overflow-hidden transition-all group cursor-pointer ${selectedPackage === 'sazonal'
-                            ? 'border-studio-gold bg-gradient-to-r from-purple-900/40 to-studio-black shadow-[0_0_30px_rgba(212,175,55,0.3)] ring-2 ring-studio-gold/20'
-                            : 'border-purple-500/30 bg-gradient-to-r from-purple-900/20 to-studio-black hover:border-studio-gold transition-all'}`}
-                        >
-                          <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[9px] font-black px-4 py-1.5 uppercase tracking-[0.2em] rounded-bl-xl shadow-lg z-20">TEMPO LIMITADO</div>
+                      <div className="mb-6 p-4 bg-studio-gold/5 border border-studio-gold/20 rounded-xl flex items-start gap-3">
+                        <Info size={18} className="text-studio-gold shrink-0 mt-0.5" />
+                        <p className="text-xs text-gray-300 leading-relaxed font-light">
+                          <strong className="text-studio-gold uppercase tracking-wider text-[10px] block mb-1">Dica: Direção de Arte</strong>
+                          Você não escolhe uma simples "pose rígida". A IA atua como um fotógrafo real: ela <strong>manterá a estética e o cenário</strong> do estilo, mas gerará variações de iluminação, ângulos e expressões (olhares focados, sorrisos).
+                        </p>
+                      </div>
 
-                          <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10 w-full">
-                            {/* LADO ESQUERDO: Ícone e Textos */}
-                            <div className="flex items-center gap-5 flex-1">
-                              <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center shrink-0 border-2 transition-all duration-500 ${selectedPackage === 'sazonal' ? 'bg-studio-gold text-studio-black border-white/20' : 'bg-purple-500/10 text-purple-400 border-purple-500/20'}`}>
-                                <Sparkles size={28} className={selectedPackage === 'sazonal' ? 'animate-pulse' : ''} />
-                              </div>
-                              <div className="text-left">
-                                <h4 className="text-lg md:text-xl font-black font-display uppercase tracking-widest text-white">{EVENTO_SAZONAL.titulo}</h4>
-                                <p className="text-[10px] md:text-xs text-gray-300 mt-1 max-w-md leading-relaxed font-medium">{EVENTO_SAZONAL.descricao}</p>
-                                <div className="flex items-center gap-2 mt-2">
-                                  <span className="px-2 py-0.5 bg-studio-gold/10 border border-studio-gold/20 rounded text-[8px] font-bold text-studio-gold uppercase tracking-wider">{EVENTO_SAZONAL.estilos}</span>
+                      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                        <div className="flex bg-[#121212] border border-white/10 rounded-lg p-1 w-fit shrink-0">
+                          <button onClick={() => setGenderFilter('Feminino')} className={`px-6 py-2 rounded-md text-[10px] font-bold uppercase tracking-widest transition-colors ${genderFilter === 'Feminino' ? 'bg-studio-gold text-black' : 'text-gray-400 hover:text-white'}`}>Feminino</button>
+                          <button onClick={() => setGenderFilter('Masculino')} className={`px-6 py-2 rounded-md text-[10px] font-bold uppercase tracking-widest transition-colors ${genderFilter === 'Masculino' ? 'bg-studio-gold text-black' : 'text-gray-400 hover:text-white'}`}>Masculino</button>
+                        </div>
+
+                        <div className="relative w-full sm:max-w-[240px]">
+                          <select
+                            value={categoryFilter}
+                            onChange={(e) => setCategoryFilter(e.target.value)}
+                            className="w-full h-full min-h-[44px] px-4 pr-10 bg-[#121212] border border-white/10 rounded-lg focus:border-studio-gold outline-none text-[10px] font-bold uppercase tracking-widest text-white transition-colors appearance-none cursor-pointer"
+                          >
+                            {availableCategories.map((cat: any) => (
+                              <option key={cat} value={cat}>{cat?.toLowerCase()?.includes('executivo') ? 'Executivo/Corporativo' : cat}</option>
+                            ))}
+                          </select>
+                          <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-studio-gold">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="relative group">
+                        <button type="button" onClick={() => scrollStyles('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -ml-4 z-10 w-10 h-10 bg-[#121212] border border-white/10 rounded-full flex items-center justify-center text-white hover:text-studio-gold hover:border-studio-gold transition-all shadow-xl opacity-0 group-hover:opacity-100 hidden md:flex"><ChevronLeft size={20} className="pr-[2px] pt-[1px]" /></button>
+
+                        <div ref={stylesScrollRef} className="flex overflow-x-auto snap-x gap-4 pb-6 no-scrollbar scroll-smooth">
+                          {displayStyles.length === 0 ? (
+                            <p className="text-gray-500 text-xs italic p-4">Nenhum estilo disponível nesta categoria.</p>
+                          ) : (
+                            displayStyles.map((style) => (
+                              <div key={style.id} onClick={() => toggleStyle(style.titulo)} className={`min-w-[180px] h-[240px] snap-start relative rounded-xl overflow-hidden cursor-pointer border-2 transition-all ${selectedStyles.includes(style.titulo) ? 'border-studio-gold scale-[0.98]' : 'border-white/5 hover:border-studio-gold/40'}`}>
+                                <Image src={style.img_url} alt={style.titulo} fill className="object-contain" unoptimized />
+                                <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent flex flex-col justify-end p-4 transition-all ${selectedStyles.includes(style.titulo) ? 'bg-studio-gold/20' : 'opacity-80'}`}>
+                                  <p className="text-[10px] font-bold uppercase tracking-widest text-white">{style.titulo}</p>
+                                  {selectedStyles.includes(style.titulo) && <div className="absolute top-2 right-2 bg-studio-gold text-studio-black rounded-full p-1"><Check size={10} strokeWidth={4} /></div>}
                                 </div>
                               </div>
-                            </div>
+                            ))
+                          )}
+                        </div>
 
-                            {/* LADO DIREITO: Preço e Check */}
-                            <div className="flex flex-col items-center md:items-end shrink-0">
-                              <p className="text-xl md:text-2xl font-black text-studio-gold tracking-tight drop-shadow-xl">R$ {EVENTO_SAZONAL.preco.toFixed(2).replace('.', ',')}</p>
-                              <p className="text-[8px] md:text-[9px] text-gray-500 uppercase tracking-[0.2em] font-black mt-1">Oferta Exclusiva</p>
-                              {selectedPackage === 'sazonal' && (
-                                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="mt-3 w-8 h-8 bg-studio-gold text-studio-black rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.6)]">
-                                  <Check size={16} strokeWidth={4} />
-                                </motion.div>
-                              )}
-                            </div>
+                        <button type="button" onClick={() => scrollStyles('right')} className="absolute right-0 top-1/2 -translate-y-1/2 -mr-4 z-10 w-10 h-10 bg-[#121212] border border-white/10 rounded-full flex items-center justify-center text-white hover:text-studio-gold hover:border-studio-gold transition-all shadow-xl opacity-0 group-hover:opacity-100 hidden md:flex"><ChevronRight size={20} className="pl-[2px] pt-[1px]" /></button>
+                      </div>
+
+                      {selectedStyles.length > 0 && (
+                        <div className="mt-2 mb-4 p-5 border border-white/10 bg-[#121212] rounded-xl">
+                          <h4 className="text-white font-bold text-xs uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <Info size={14} className="text-studio-gold" /> Detalhes dos Estilos Escolhidos
+                          </h4>
+                          <div className="space-y-3">
+                            {selectedStyles.map(st => {
+                              const styleInfo = dbStyles.find(d => d.titulo === st);
+                              if (!styleInfo?.descricao) return null;
+                              return (
+                                <div key={st} className="text-xs text-gray-300 leading-relaxed bg-white/5 p-3 rounded-lg border border-white/5 flex flex-col gap-1">
+                                  <strong className="text-white uppercase tracking-widest">{st}</strong>
+                                  <p>{styleInfo.descricao}</p>
+                                </div>
+                              );
+                            })}
                           </div>
-
-                          {/* Efeito de brilho de fundo */}
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-studio-gold/5 blur-[80px] pointer-events-none opacity-50"></div>
                         </div>
                       )}
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {[
-                          { id: 'essencial', title: 'Essencial (10 fotos)', styles: '1 Estilo', price: getPriceDisplay('essencial', 89.90), icon: User },
-                          { id: 'premium', title: 'Premium (25 fotos)', styles: '3 Estilos', price: getPriceDisplay('premium', 149.90), icon: Sparkles, popular: true },
-                          { id: 'elite', title: 'Elite (50 fotos)', styles: '5 Estilos', price: getPriceDisplay('elite', 247.90), icon: Zap },
-                        ].map((pkg) => (
-                          <button key={pkg.id} onClick={() => { setSelectedPackage(pkg.id as any); setSelectedStyles([]); }} className={`p-6 border text-left rounded-xl transition-all relative overflow-hidden group ${selectedPackage === pkg.id ? 'border-studio-gold bg-studio-gold/5 shadow-lg' : 'border-white/10 hover:border-studio-gold/30'}`}>
-                            {pkg.popular && <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[8px] font-bold px-2 py-0.5 uppercase tracking-tighter">Mais Vendido</div>}
-                            {selectedPackage === pkg.id && <div className="absolute top-2 right-2 text-studio-gold"><CheckCircle2 size={16} /></div>}
-                            <pkg.icon className={`mb-4 transition-colors ${selectedPackage === pkg.id ? 'text-studio-gold' : 'text-gray-500'}`} size={24} />
-                            <h4 className="font-bold uppercase tracking-widest text-sm mb-1">{pkg.title}</h4>
-                            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-4">{pkg.styles}</p>
-                            <p className={`text-xs font-bold ${selectedPackage === pkg.id ? 'text-studio-gold' : 'text-gray-400'}`}>{pkg.price}</p>
-                          </button>
-                        ))}
-                      </div>
                     </section>
 
-                    {selectedPackage && (
-                      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                        <div className="flex justify-between items-end mb-4">
-                          <div className="flex items-center gap-4">
-                            <span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">2</span>
-                            <h3 className="text-xl font-bold font-display uppercase tracking-widest">Escolha o seu Estilo visual</h3>
-                          </div>
-                          <span className="text-gray-500 text-xs font-bold tracking-widest uppercase">Selecionados: <span className={selectedStyles.length === getStyleLimit() ? 'text-studio-gold' : 'text-white'}>{selectedStyles.length}/{getStyleLimit()}</span></span>
-                        </div>
-
-                        <div className="mb-6 p-4 bg-studio-gold/5 border border-studio-gold/20 rounded-xl flex items-start gap-3">
-                          <Info size={18} className="text-studio-gold shrink-0 mt-0.5" />
-                          <p className="text-xs text-gray-300 leading-relaxed font-light">
-                            <strong className="text-studio-gold uppercase tracking-wider text-[10px] block mb-1">Dica: Direção de Arte</strong>
-                            Você não escolhe uma simples "pose rígida". A IA atua como um fotógrafo real: ela <strong>manterá a estética e o cenário</strong> do estilo, mas gerará variações de iluminação, ângulos e expressões (olhares focados, sorrisos).
-                          </p>
-                        </div>
-
-                        {selectedPackage !== 'sazonal' && (
-                          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                            <div className="flex bg-[#121212] border border-white/10 rounded-lg p-1 w-fit shrink-0">
-                              <button onClick={() => setGenderFilter('Feminino')} className={`px-6 py-2 rounded-md text-[10px] font-bold uppercase tracking-widest transition-colors ${genderFilter === 'Feminino' ? 'bg-studio-gold text-black' : 'text-gray-400 hover:text-white'}`}>Feminino</button>
-                              <button onClick={() => setGenderFilter('Masculino')} className={`px-6 py-2 rounded-md text-[10px] font-bold uppercase tracking-widest transition-colors ${genderFilter === 'Masculino' ? 'bg-studio-gold text-black' : 'text-gray-400 hover:text-white'}`}>Masculino</button>
-                            </div>
-
-                            <div className="relative w-full sm:max-w-[240px]">
-                              <select
-                                value={categoryFilter}
-                                onChange={(e) => setCategoryFilter(e.target.value)}
-                                className="w-full h-full min-h-[44px] px-4 pr-10 bg-[#121212] border border-white/10 rounded-lg focus:border-studio-gold outline-none text-[10px] font-bold uppercase tracking-widest text-white transition-colors appearance-none cursor-pointer"
-                              >
-                                {availableCategories.map((cat: any) => (
-                                  <option key={cat} value={cat}>{cat?.toLowerCase()?.includes('executivo') ? 'Executivo/Corporativo' : cat}</option>
-                                ))}
-                              </select>
-                              <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-studio-gold">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="relative group">
-                          <button type="button" onClick={() => scrollStyles('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -ml-4 z-10 w-10 h-10 bg-[#121212] border border-white/10 rounded-full flex items-center justify-center text-white hover:text-studio-gold hover:border-studio-gold transition-all shadow-xl opacity-0 group-hover:opacity-100 hidden md:flex"><ChevronLeft size={20} className="pr-[2px] pt-[1px]" /></button>
-
-                          <div ref={stylesScrollRef} className="flex overflow-x-auto snap-x gap-4 pb-6 no-scrollbar scroll-smooth">
-                            {displayStyles.length === 0 ? (
-                              <p className="text-gray-500 text-xs italic p-4">Nenhum estilo disponível nesta categoria.</p>
-                            ) : (
-                              displayStyles.map((style) => (
-                                <div key={style.id} onClick={() => toggleStyle(style.titulo)} className={`min-w-[180px] h-[240px] snap-start relative rounded-xl overflow-hidden cursor-pointer border-2 transition-all ${selectedStyles.includes(style.titulo) ? 'border-studio-gold scale-[0.98]' : 'border-white/5 hover:border-studio-gold/40'}`}>
-                                  <Image src={style.img_url} alt={style.titulo} fill className="object-contain" unoptimized />
-                                  <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent flex flex-col justify-end p-4 transition-all ${selectedStyles.includes(style.titulo) ? 'bg-studio-gold/20' : 'opacity-80'}`}>
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-white">{style.titulo}</p>
-                                    {selectedStyles.includes(style.titulo) && <div className="absolute top-2 right-2 bg-studio-gold text-studio-black rounded-full p-1"><Check size={10} strokeWidth={4} /></div>}
-                                  </div>
-                                </div>
-                              ))
-                            )}
-                          </div>
-
-                          <button type="button" onClick={() => scrollStyles('right')} className="absolute right-0 top-1/2 -translate-y-1/2 -mr-4 z-10 w-10 h-10 bg-[#121212] border border-white/10 rounded-full flex items-center justify-center text-white hover:text-studio-gold hover:border-studio-gold transition-all shadow-xl opacity-0 group-hover:opacity-100 hidden md:flex"><ChevronRight size={20} className="pl-[2px] pt-[1px]" /></button>
-                        </div>
-
-                        {selectedStyles.length > 0 && (
-                          <div className="mt-2 mb-4 p-5 border border-white/10 bg-[#121212] rounded-xl">
-                            <h4 className="text-white font-bold text-xs uppercase tracking-widest mb-3 flex items-center gap-2">
-                              <Info size={14} className="text-studio-gold" /> Detalhes dos Estilos Escolhidos
-                            </h4>
-                            <div className="space-y-3">
-                              {selectedStyles.map(st => {
-                                const styleInfo = dbStyles.find(d => d.titulo === st);
-                                if (!styleInfo?.descricao) return null;
-                                return (
-                                  <div key={st} className="text-xs text-gray-300 leading-relaxed bg-white/5 p-3 rounded-lg border border-white/5 flex flex-col gap-1">
-                                    <strong className="text-white uppercase tracking-widest">{st}</strong>
-                                    <p>{styleInfo.descricao}</p>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-                      </motion.section>
-                    )}
-
                     <section>
-                      <div className="flex items-center gap-4 mb-6"><span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">3</span><h3 className="text-xl font-bold font-display uppercase tracking-widest">suas Fotos de Referência</h3></div>
+                      <div className="flex items-center gap-4 mb-6"><span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">2</span><h3 className="text-xl font-bold font-display uppercase tracking-widest">Suas Fotos de Referência</h3></div>
 
                       <input type="file" multiple accept="image/jpeg, image/png, image/webp" hidden ref={fileInputRef} onChange={handleFileChange} />
                       <div onDragOver={(e) => e.preventDefault()} onDrop={handleDrop} onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-white/10 p-12 flex flex-col items-center justify-center text-center bg-white/5 hover:border-studio-gold/30 transition-all cursor-pointer group rounded-2xl">
@@ -1459,13 +1382,14 @@ export default function Dashboard() {
                     <div className="bg-white/5 border border-white/10 p-6 rounded-2xl sticky top-8">
                       <h3 className="text-lg font-bold mb-6 font-display uppercase tracking-widest border-b border-white/5 pb-4">Resumo do Pedido</h3>
                       <div className="space-y-4 mb-8">
-                        <div className="flex justify-between items-center text-xs"><span className="text-gray-500 uppercase tracking-widest">Pacote</span><span className="font-bold text-white uppercase">{selectedPackage || 'Não selecionado'}</span></div>
-                        <div className="flex justify-between items-center text-xs"><span className="text-gray-500 uppercase tracking-widest">Estilos</span><span className={`font-bold ${selectedStyles.length === getStyleLimit() ? 'text-studio-gold' : 'text-white'}`}>{selectedStyles.length}/{getStyleLimit()}</span></div>
-                        <div className="flex justify-between items-center text-xs"><span className="text-gray-500 uppercase tracking-widest">Fotos Env.</span><span className={`font-bold ${selectedFiles.length >= 5 ? 'text-emerald-400' : 'text-red-500'}`}>{selectedFiles.length}/10</span></div>
+                        <div className="flex justify-between items-center text-xs"><span className="text-gray-500 uppercase tracking-widest">Pacote</span><span className="font-bold text-white uppercase">{getDisplayPackageName(selectedStyles.length)}</span></div>
+                        <div className="flex justify-between items-center text-xs"><span className="text-gray-500 uppercase tracking-widest">Fotos/Estilos Comprados</span><span className="font-bold text-studio-gold">{selectedStyles.length} Unidades</span></div>
+                        <div className="flex justify-between items-center text-xs"><span className="text-gray-500 uppercase tracking-widest">Valor Unitário</span><span className="font-bold text-white uppercase">R$ {getPrecoUnitario(selectedStyles.length).toFixed(2).replace('.', ',')} / foto</span></div>
+                        <div className="flex justify-between items-center text-xs"><span className="text-gray-500 uppercase tracking-widest">Fotos Env.</span><span className={`font-bold ${selectedFiles.length >= 5 ? 'text-emerald-400' : 'text-red-500'}`}>{selectedFiles.length}/10 (Mín. 5)</span></div>
                       </div>
                       <div className="p-6 bg-white/5 border-t border-white/10 -mx-6 -mb-6 rounded-b-2xl">
-                        <div className="flex justify-between items-center font-bold font-display uppercase tracking-widest text-lg mb-6"><span>Total:</span><span className="text-studio-gold">R$ {totalAmount.toFixed(2).replace('.', ',')}</span></div>
-                        <button onClick={handleSendToProduction} disabled={!selectedPackage || selectedStyles.length < getStyleLimit() || selectedFiles.length < 5 || isUploading} className="w-full py-4 bg-studio-gold text-studio-black font-bold uppercase tracking-widest hover:bg-studio-gold-light transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-xl">
+                        <div className="flex justify-between items-center font-bold font-display uppercase tracking-widest text-lg mb-6"><span>Total:</span><span className="text-studio-gold">R$ {currentTotal.toFixed(2).replace('.', ',')}</span></div>
+                        <button onClick={handleSendToProduction} disabled={selectedStyles.length === 0 || selectedFiles.length < 5 || isUploading} className="w-full py-4 bg-studio-gold text-studio-black font-bold uppercase tracking-widest hover:bg-studio-gold-light transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-xl">
                           {isUploading ? <><Loader2 size={18} className="animate-spin" /> Processando Imagens...</> : <><Sparkles size={18} /> Confirmar Pedido</>}
                         </button>
                       </div>
