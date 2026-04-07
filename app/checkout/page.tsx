@@ -2,49 +2,26 @@
 
 import { useState, useEffect, Suspense, useRef } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import {
-  Home,
-  Library,
-  PlusCircle,
-  User,
-  Settings,
-  LogOut,
-  ArrowRight,
-  ShieldCheck,
-  Zap,
-  Star,
-  CheckCircle2,
-  X,
-  Copy,
-  QrCode,
-  UploadCloud,
-  FileImage,
-  Sparkles
+  Home, Library, LogOut, ArrowRight, ShieldCheck, Zap, Star,
+  CheckCircle2, X, Copy, QrCode, UploadCloud, FileImage, Sparkles, User
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 
-// ============================================================================
-// ⚠️ CHAVES PIX REAIS DO VIRTUAL STUDIO ⚠️
-// ============================================================================
-const PACOTES_INFO: Record<string, { nome: string, preco: number, fotos: number, icon: any, qrCodeImg: string, copiaECola: string }> = {
+// Chave Real do Bruno (Extraída do Payload antigo)
+const CHAVE_PIX_REAL = '23333811-9c37-469e-8979-d1eaa57e781c';
+
+// Legado para pedidos antigos
+const PACOTES_INFO: Record<string, any> = {
   'basico': { nome: 'Essencial', preco: 89.90, fotos: 10, icon: User, qrCodeImg: '/pix-essencial.png', copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c520400005303986540589.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62170513VIRTUALSTUDIO6304B78D' },
   'popular': { nome: 'Premium', preco: 149.90, fotos: 25, icon: Star, qrCodeImg: '/pix-premium.png', copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c5204000053039865406149.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62170513VIRTUALSTUDIO6304F417' },
   'pro': { nome: 'Elite', preco: 247.90, fotos: 50, icon: Zap, qrCodeImg: '/pix-elite.png', copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c5204000053039865406247.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62170513VIRTUALSTUDIO6304B4F6' },
-  // Fallbacks:
   'essencial': { nome: 'Essencial', preco: 89.90, fotos: 10, icon: User, qrCodeImg: '/pix-essencial.png', copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c520400005303986540589.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62170513VIRTUALSTUDIO6304B78D' },
   'premium': { nome: 'Premium', preco: 149.90, fotos: 25, icon: Star, qrCodeImg: '/pix-premium.png', copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c5204000053039865406149.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62170513VIRTUALSTUDIO6304F417' },
   'elite': { nome: 'Elite', preco: 247.90, fotos: 50, icon: Zap, qrCodeImg: '/pix-elite.png', copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c5204000053039865406247.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62170513VIRTUALSTUDIO6304B4F6' },
-  'amostra': {
-    nome: 'Amostra Premium',
-    preco: 19.90,
-    fotos: 1,
-    icon: Sparkles,
-    qrCodeImg: '/pix-amostra.png',
-    copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c520400005303986540519.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62180514AMOSTRAPREMIUM6304AD85'
-  }
+  'amostra': { nome: 'Amostra VIP', preco: 19.90, fotos: 1, icon: Sparkles, qrCodeImg: '/pix-amostra.png', copiaECola: '00020126580014br.gov.bcb.pix013623333811-9c37-469e-8979-d1eaa57e781c520400005303986540519.905802BR5924BRUNO ADRIANO COSTA REIS6008BRASILIA62180514AMOSTRAPREMIUM6304AD85' }
 };
 
 function CheckoutContent() {
@@ -58,10 +35,10 @@ function CheckoutContent() {
   const [isLoading, setIsLoading] = useState(true);
 
   const [pedido, setPedido] = useState<any>(null);
-  const [previewPhotos, setPreviewPhotos] = useState<string[]>([]);
   const [dynamicPrices, setDynamicPrices] = useState<any>(null);
+  const [infoCalculada, setInfoCalculada] = useState<any>(null);
 
-  // Estados do Modal PIX e Comprovante
+  // Estados do Modal PIX
   const [showPixModal, setShowPixModal] = useState(false);
   const [isConfirmingPix, setIsConfirmingPix] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -70,364 +47,251 @@ function CheckoutContent() {
 
   useEffect(() => {
     const loadData = async () => {
-      if (!orderId) {
-        alert("Pedido não encontrado.");
-        router.push('/dashboard');
-        return;
-      }
+      if (!orderId) { alert("Pedido não encontrado."); router.push('/dashboard'); return; }
 
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          router.push('/login');
-          return;
-        }
+        if (!session) { router.push('/login'); return; }
 
-        const currentUserId = session.user.id;
-        setUserId(currentUserId);
+        setUserId(session.user.id);
         setUserEmail(session.user.email ?? '');
         setAvatarUrl(session.user.user_metadata?.avatar_url || null);
 
-        const { data: orderData, error: orderError } = await supabase
-          .from('pedidos')
-          .select('*')
-          .eq('id', orderId)
-          .single();
-
-        if (orderError || !orderData) throw new Error("Erro ao buscar detalhes do pedido.");
-        if (orderData.user_id !== currentUserId) throw new Error("Acesso negado.");
+        const { data: orderData, error: orderError } = await supabase.from('pedidos').select('*').eq('id', orderId).single();
+        if (orderError || !orderData || orderData.user_id !== session.user.id) throw new Error("Acesso negado.");
 
         setPedido(orderData);
 
-        // Fetch preços dinâmicos
         const { data: configData } = await supabase.from('plataforma_config').select('*').eq('id', 1).single();
-        if (configData) {
-          setDynamicPrices(configData);
-        }
+        if (configData) setDynamicPrices(configData);
 
-        const path = `${currentUserId}/${orderId}/`;
-        const { data: files, error: filesError } = await supabase.storage.from('previa_ensaios').list(path);
-        if (filesError) throw filesError;
-
-        const validFiles = files ? files.filter(f => f.name !== '.emptyFolderPlaceholder') : [];
-        const urlPromises = validFiles.map(async (file) => {
-          const { data, error } = await supabase.storage.from('previa_ensaios').createSignedUrl(`${path}${file.name}`, 3600);
-          if (error) throw error;
-          return data.signedUrl;
-        });
-
-        setPreviewPhotos(await Promise.all(urlPromises));
       } catch (error: any) {
-        console.error(error);
-        alert(error.message);
-        router.push('/dashboard');
-      } finally {
-        setIsLoading(false);
-      }
+        alert(error.message); router.push('/dashboard');
+      } finally { setIsLoading(false); }
     };
-
     loadData();
   }, [orderId, router]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push('/login');
-  };
+  // Motor de Cálculo Inteligente
+  useEffect(() => {
+    if (!pedido) return;
 
-  const handleOpenPix = () => {
-    setShowPixModal(true);
-  };
+    const parsePrice = (val: any, fallback: number) => {
+      if (!val) return fallback;
+      if (typeof val === 'number') return val;
+      const num = parseFloat(String(val).replace(',', '.').replace(/[^0-9.-]/g, ''));
+      return isNaN(num) ? fallback : num;
+    };
 
-  const handleCopyPix = (codigo: string) => {
-    navigator.clipboard.writeText(codigo);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+    const pkgNome = pedido.pacote?.toLowerCase() || '';
+    const isLegacy = !pkgNome.includes('dinamico_') && !pkgNome.includes('sazonal');
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setComprovante(e.target.files[0]);
+    if (isLegacy) {
+      // Regra Antiga (Usa QR Code estático)
+      const baseInfo = PACOTES_INFO[pkgNome] || PACOTES_INFO['premium'];
+      let precoFinal = baseInfo.preco;
+      if (dynamicPrices) {
+        if (pkgNome.includes('essencial') || pkgNome.includes('basico')) precoFinal = parsePrice(dynamicPrices.preco_essencial, 89.90);
+        else if (pkgNome.includes('premium') || pkgNome.includes('popular')) precoFinal = parsePrice(dynamicPrices.preco_premium, 149.90);
+        else if (pkgNome.includes('elite') || pkgNome.includes('pro')) precoFinal = parsePrice(dynamicPrices.preco_elite, 247.90);
+        else if (pkgNome.includes('amostra')) precoFinal = parsePrice(dynamicPrices.preco_amostra, 19.90);
+      }
+      setInfoCalculada({ ...baseInfo, preco: precoFinal, isLegacy: true });
+    } else {
+      // Regra Nova (À La Carte Dinâmico)
+      const qtdFotos = pedido.estilos?.length || 1;
+      const pBase = parsePrice(dynamicPrices?.preco_amostra, 19.90);
+      const pEssencial = parsePrice(dynamicPrices?.preco_essencial, 67.90) / 5;
+      const pPremium = parsePrice(dynamicPrices?.preco_premium, 97.90) / 10;
+      const pElite = parsePrice(dynamicPrices?.preco_elite, 147.90) / 20;
+
+      let precoUnitario = pBase;
+      let nomePlano = 'Amostra / Avulso';
+      let icon = Sparkles;
+
+      if (qtdFotos >= 20) { precoUnitario = pElite; nomePlano = 'Pack Elite'; icon = Zap; }
+      else if (qtdFotos >= 10) { precoUnitario = pPremium; nomePlano = 'Pack Premium'; icon = Star; }
+      else if (qtdFotos >= 5) { precoUnitario = pEssencial; nomePlano = 'Pack Essencial'; icon = User; }
+
+      if (pkgNome.includes('sazonal')) nomePlano = 'Edição Especial';
+
+      setInfoCalculada({
+        nome: nomePlano,
+        preco: qtdFotos * precoUnitario,
+        fotos: qtdFotos,
+        icon: icon,
+        isLegacy: false
+      });
     }
-  };
+  }, [pedido, dynamicPrices]);
 
-  // Confirmação de Pagamento PIX com Upload Obrigatório
+  const handleLogout = async () => { await supabase.auth.signOut(); router.push('/login'); };
+  const handleCopyPix = (codigo: string) => { navigator.clipboard.writeText(codigo); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => { if (e.target.files && e.target.files.length > 0) setComprovante(e.target.files[0]); };
+
   const handleConfirmPix = async () => {
-    if (!comprovante) {
-      alert("Por favor, anexe a foto ou PDF do comprovante para continuarmos.");
-      return;
-    }
-
+    if (!comprovante) { alert("Anexe o comprovativo para continuarmos."); return; }
     setIsConfirmingPix(true);
 
     try {
-      // 1. Upload do comprovante no Bucket
       const fileExt = comprovante.name.split('.').pop();
       const fileName = `comprovante_${orderId}_${Date.now()}.${fileExt}`;
       const filePath = `${userId}/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('comprovantes_pix')
-        .upload(filePath, comprovante);
-
+      const { error: uploadError } = await supabase.storage.from('comprovantes_pix').upload(filePath, comprovante);
       if (uploadError) throw uploadError;
 
-      // 2. Disparar a Notificação para o Admin
-      await supabase.from('notificacoes_admin').insert({
-        user_id: userId,
-        user_email: userEmail,
-        order_id: orderId,
-        pacote: pedido.pacote,
-        mensagem: 'Novo PIX para análise com comprovante!'
-      });
+      await supabase.from('notificacoes_admin').insert({ user_id: userId, user_email: userEmail, order_id: orderId, pacote: pedido.pacote, mensagem: 'Novo PIX para análise!' });
 
-      // 3. Salvar na tabela de mensagens (para histórico do admin ver o comprovante)
       const { data: { publicUrl } } = supabase.storage.from('comprovantes_pix').getPublicUrl(filePath);
-      await supabase.from('mensagens').insert({
-        user_id: userId,
-        order_id: orderId,
-        conteudo: publicUrl,
-        tipo: 'comprovante'
-      });
+      await supabase.from('mensagens').insert({ user_id: userId, order_id: orderId, conteudo: publicUrl, tipo: 'comprovante' });
 
-      // 4. Mudar o Status do Pedido para Análise
-      const { error } = await supabase
-        .from('pedidos')
-        .update({ status: 'Pagamento em Análise' })
-        .eq('id', orderId);
-
+      const { error } = await supabase.from('pedidos').update({ status: 'Pagamento em Análise' }).eq('id', orderId);
       if (error) throw error;
 
       setShowPixModal(false);
-      alert("Comprovante enviado com sucesso! Nossa equipe financeira está conferindo o PIX. Assim que confirmado, suas fotos serão liberadas.");
-      router.push('/dashboard');
+      router.push(`/checkout/success?orderId=${orderId}`);
     } catch (error: any) {
-      alert("Erro ao enviar o comprovante: " + error.message);
-    } finally {
-      setIsConfirmingPix(false);
-    }
+      alert("Erro ao enviar: " + error.message);
+    } finally { setIsConfirmingPix(false); }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-studio-black flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-studio-gold border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
+  if (isLoading || !infoCalculada) return <div className="min-h-screen bg-studio-black flex items-center justify-center"><div className="w-10 h-10 border-4 border-studio-gold border-t-transparent rounded-full animate-spin"></div></div>;
 
-  const pacoteInfo = pedido?.pacote ? PACOTES_INFO[pedido.pacote.toLowerCase()] : PACOTES_INFO['premium'];
-  
-  if (pacoteInfo && dynamicPrices) {
-    if (pedido?.pacote?.toLowerCase() === 'essencial' || pedido?.pacote?.toLowerCase() === 'basico') {
-      pacoteInfo.preco = dynamicPrices.preco_essencial || pacoteInfo.preco;
-    } else if (pedido?.pacote?.toLowerCase() === 'premium' || pedido?.pacote?.toLowerCase() === 'popular') {
-      pacoteInfo.preco = dynamicPrices.preco_premium || pacoteInfo.preco;
-    } else if (pedido?.pacote?.toLowerCase() === 'elite' || pedido?.pacote?.toLowerCase() === 'pro') {
-      pacoteInfo.preco = dynamicPrices.preco_elite || pacoteInfo.preco;
-    } else if (pedido?.pacote?.toLowerCase() === 'amostra') {
-      pacoteInfo.preco = dynamicPrices.preco_amostra || pacoteInfo.preco;
-    }
-  }
-
-  const PacoteIcon = pacoteInfo.icon;
+  const PacoteIcon = infoCalculada.icon;
 
   return (
     <div className="flex min-h-screen bg-studio-black text-white font-sans selection:bg-studio-gold selection:text-studio-black">
 
-      {/* 🧭 MODAL PIX COM UPLOAD DE COMPROVANTE 🧭 */}
+      {/* MODAL PIX */}
       {showPixModal && (
         <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-[#121212] border border-studio-gold/20 rounded-2xl w-full max-w-sm overflow-hidden shadow-[0_0_50px_rgba(212,175,55,0.15)] relative my-auto">
             <div className="bg-white/5 border-b border-white/10 p-4 flex justify-between items-center">
-              <div className="flex items-center gap-2 text-studio-gold">
-                <QrCode size={20} />
-                <span className="font-display uppercase tracking-widest font-bold text-sm">Pagamento via PIX</span>
-              </div>
-              <button onClick={() => setShowPixModal(false)} className="text-gray-400 hover:text-white transition-colors">
-                <X size={20} />
-              </button>
+              <div className="flex items-center gap-2 text-studio-gold"><QrCode size={20} /><span className="font-display uppercase tracking-widest font-bold text-sm">Pagamento via PIX</span></div>
+              <button onClick={() => setShowPixModal(false)} className="text-gray-400 hover:text-white transition-colors"><X size={20} /></button>
             </div>
 
             <div className="p-6 flex flex-col items-center text-center">
               <h3 className="text-gray-400 text-[10px] uppercase tracking-widest font-bold mb-1">Valor a pagar</h3>
-              <p className="text-3xl font-display text-white mb-6">R$ {pacoteInfo.preco.toFixed(2)}</p>
+              <p className="text-3xl font-display text-white mb-6">R$ {infoCalculada.preco.toFixed(2).replace('.', ',')}</p>
 
-              <div className="bg-white p-3 rounded-xl mb-6">
-                <div className="relative w-40 h-40">
-                  <Image src={pacoteInfo.qrCodeImg} alt="QR Code PIX" fill className="object-contain" />
+              {infoCalculada.isLegacy && infoCalculada.qrCodeImg ? (
+                // UI PARA PEDIDOS ANTIGOS (COM QR CODE)
+                <>
+                  <div className="bg-white p-3 rounded-xl mb-4">
+                    <div className="relative w-40 h-40"><Image src={infoCalculada.qrCodeImg} alt="QR Code PIX" fill className="object-contain" /></div>
+                  </div>
+                  <div className="w-full space-y-2 mb-6">
+                    <p className="text-[9px] text-gray-500 uppercase tracking-widest font-bold text-left px-1">Ou use o Pix Copia e Cola:</p>
+                    <div className="flex gap-2">
+                      <input type="text" readOnly value={infoCalculada.copiaECola} className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-[10px] text-gray-400 outline-none" />
+                      <button onClick={() => handleCopyPix(infoCalculada.copiaECola)} className="bg-studio-gold/10 border border-studio-gold/30 text-studio-gold px-4 rounded-lg hover:bg-studio-gold hover:text-black transition-all flex items-center justify-center shrink-0">{copied ? <CheckCircle2 size={18} /> : <Copy size={18} />}</button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                // UI PARA PEDIDOS NOVOS (DINÂMICOS) - CHAVE PIX DIRETA
+                <div className="w-full space-y-4 mb-6">
+                  <div className="bg-studio-gold/10 border border-studio-gold/30 p-4 rounded-xl text-left">
+                    <p className="text-[10px] text-studio-gold uppercase tracking-widest font-bold mb-2">Instruções de Pagamento:</p>
+                    <p className="text-xs text-gray-300 leading-relaxed font-light mb-4">1. Abra o seu banco e escolha <strong>Transferir</strong> ou <strong>PIX Copia e Cola</strong>.<br />2. Cole a chave aleatória abaixo.<br />3. Digite o valor exato de <strong>R$ {infoCalculada.preco.toFixed(2).replace('.', ',')}</strong>.</p>
+
+                    <p className="text-[9px] text-gray-500 uppercase tracking-widest font-bold mb-1">Chave PIX Aleatória:</p>
+                    <div className="flex gap-2">
+                      <input type="text" readOnly value={CHAVE_PIX_REAL} className="flex-1 bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-[10px] text-gray-300 outline-none" />
+                      <button onClick={() => handleCopyPix(CHAVE_PIX_REAL)} className="bg-studio-gold text-black px-3 rounded-lg hover:bg-studio-gold-light transition-all flex items-center justify-center shrink-0">{copied ? <CheckCircle2 size={14} /> : <Copy size={14} />}</button>
+                    </div>
+                    <p className="text-[9px] text-gray-500 mt-2">Favorecido: Bruno Adriano Costa Reis</p>
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <div className="w-full space-y-2 mb-6">
-                <p className="text-[9px] text-gray-500 uppercase tracking-widest font-bold text-left px-1">Ou use o Pix Copia e Cola:</p>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    readOnly
-                    value={pacoteInfo.copiaECola}
-                    className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-[10px] text-gray-400 outline-none"
-                  />
-                  <button
-                    onClick={() => handleCopyPix(pacoteInfo.copiaECola)}
-                    className="bg-studio-gold/10 border border-studio-gold/30 text-studio-gold px-4 rounded-lg hover:bg-studio-gold hover:text-black transition-all flex items-center justify-center gap-2 shrink-0"
-                  >
-                    {copied ? <CheckCircle2 size={18} /> : <Copy size={18} />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Área de Upload do Comprovante */}
+              {/* Upload do Comprovante */}
               <div className="w-full mb-8">
                 <input type="file" accept="image/*,.pdf" hidden ref={fileInputRef} onChange={handleFileChange} />
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition-all ${comprovante ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-white/10 hover:border-studio-gold/50 bg-white/5'}`}
-                >
+                <div onClick={() => fileInputRef.current?.click()} className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition-all ${comprovante ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-white/10 hover:border-studio-gold/50 bg-white/5'}`}>
                   {comprovante ? (
-                    <div className="flex items-center gap-2 text-emerald-400">
-                      <FileImage size={20} />
-                      <span className="text-xs font-bold truncate max-w-[200px]">{comprovante.name}</span>
-                    </div>
+                    <div className="flex items-center gap-2 text-emerald-400"><FileImage size={20} /><span className="text-xs font-bold truncate max-w-[200px]">{comprovante.name}</span></div>
                   ) : (
-                    <>
-                      <UploadCloud size={24} className="text-gray-400 mb-2" />
-                      <p className="text-xs font-bold text-white uppercase tracking-widest">Anexar Comprovante</p>
-                      <p className="text-[9px] text-gray-500 mt-1">Obrigatório para liberação do ensaio</p>
-                    </>
+                    <><UploadCloud size={24} className="text-gray-400 mb-2" /><p className="text-xs font-bold text-white uppercase tracking-widest">Anexar Comprovante</p><p className="text-[9px] text-gray-500 mt-1">Obrigatório para liberação</p></>
                   )}
                 </div>
               </div>
 
-              <button
-                onClick={handleConfirmPix}
-                disabled={isConfirmingPix || !comprovante}
-                className="w-full py-4 bg-studio-gold text-studio-black font-display font-black uppercase tracking-widest hover:bg-studio-gold-light transition-all rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {isConfirmingPix ? (
-                  <div className="w-5 h-5 border-2 border-studio-black border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <>Enviar Comprovante e Finalizar</>
-                )}
+              <button onClick={handleConfirmPix} disabled={isConfirmingPix || !comprovante} className="w-full py-4 bg-studio-gold text-studio-black font-display font-black uppercase tracking-widest hover:bg-studio-gold-light transition-all rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
+                {isConfirmingPix ? <div className="w-5 h-5 border-2 border-studio-black border-t-transparent rounded-full animate-spin"></div> : <>Finalizar Compra</>}
               </button>
-              <p className="text-[9px] text-gray-500 mt-4 max-w-xs leading-relaxed uppercase tracking-widest">
-                Após enviar o comprovante, nossa equipe financeira confirmará o recebimento e liberará seu ensaio em instantes.
-              </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* 🧭 SIDEBAR DO CLIENTE */}
+      {/* SIDEBAR DO CLIENTE */}
       <aside className="w-64 border-r border-white/5 bg-studio-black flex flex-col sticky top-0 h-screen hidden md:flex shrink-0">
         <div className="p-6">
           <div className="flex items-center gap-2 mb-8">
-            <div className="relative w-10 h-10 flex items-center justify-center">
-              <Image src="/logo.2.png" alt="Virtual Studio Logo" fill className="object-contain" priority />
-            </div>
-            <div>
-              <h1 className="text-white text-sm font-bold">VIRTUAL STUDIO</h1>
-              <p className="text-gray-500 text-[10px] uppercase tracking-widest">Painel do Cliente</p>
-            </div>
+            <div className="relative w-10 h-10 flex items-center justify-center"><Image src="/logo.2.png" alt="Virtual Studio Logo" fill className="object-contain" priority /></div>
+            <div><h1 className="text-white text-sm font-bold">VIRTUAL STUDIO</h1><p className="text-gray-500 text-[10px] uppercase tracking-widest">Painel do Cliente</p></div>
           </div>
           <nav className="flex flex-col gap-1">
-            <button onClick={() => router.push('/dashboard')} className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-studio-gold transition-colors">
-              <Home size={18} />
-              <span className="text-sm font-medium">Home</span>
-            </button>
-            <button onClick={() => router.push('/dashboard')} className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-studio-gold transition-colors">
-              <Library size={18} />
-              <span className="text-sm font-medium">Meus Ensaios</span>
-            </button>
+            <button onClick={() => router.push('/dashboard')} className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-studio-gold transition-colors"><Home size={18} /><span className="text-sm font-medium">Home</span></button>
           </nav>
         </div>
         <div className="mt-auto p-6 border-t border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-studio-gold/20 flex items-center justify-center overflow-hidden relative border border-studio-gold/30">
-              {avatarUrl ? (
-                <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
-              ) : (
-                <div className="w-full h-full bg-studio-gold text-studio-black flex items-center justify-center font-bold text-lg">
-                  {userEmail?.charAt(0).toUpperCase()}
-                </div>
-              )}
+              {avatarUrl ? <Image src={avatarUrl} alt="Avatar" fill className="object-cover" /> : <div className="w-full h-full bg-studio-gold text-studio-black flex items-center justify-center font-bold text-lg">{userEmail?.charAt(0).toUpperCase()}</div>}
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold truncate font-display tracking-widest">{userEmail ? userEmail.split('@')[0] : 'Usuário'}</p>
-            </div>
-            <div className="relative flex gap-2">
-              <button onClick={handleLogout} title="Sair da conta">
-                <LogOut className="text-red-500 cursor-pointer hover:text-red-400 transition-colors" size={18} />
-              </button>
-            </div>
+            <div className="flex-1 min-w-0"><p className="text-sm font-bold truncate font-display tracking-widest">{userEmail ? userEmail.split('@')[0] : 'Usuário'}</p></div>
+            <button onClick={handleLogout} title="Sair da conta"><LogOut className="text-red-500 hover:text-red-400 transition-colors" size={18} /></button>
           </div>
         </div>
       </aside>
 
-      {/* 🛒 MAIN CHECKOUT CONTENT */}
+      {/* MAIN CHECKOUT CONTENT */}
       <main className="flex-1 p-4 md:p-8 overflow-y-auto bg-[#121212] flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-2xl bg-studio-black border border-white/10 rounded-[2rem] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.8)] relative"
-        >
-          {/* Header do Checkout */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl bg-studio-black border border-white/10 rounded-[2rem] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.8)] relative">
           <div className="p-8 border-b border-white/5 bg-white/5 text-center relative z-10">
             <h2 className="text-3xl font-display uppercase tracking-widest mb-2 text-white">Finalizar Ensaio</h2>
             <p className="text-studio-gold font-bold uppercase tracking-widest text-xs">Pedido #{pedido?.id.slice(0, 8)}</p>
           </div>
 
           <div className="p-8 space-y-10 relative z-10">
-            {/* Pacote Selecionado */}
             <div className="bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-studio-gold/20 relative overflow-hidden text-center flex flex-col items-center">
               <div className="absolute top-0 right-0 w-32 h-32 bg-studio-gold/10 rounded-full blur-3xl"></div>
-
-              <div className="w-16 h-16 rounded-full bg-studio-gold/10 text-studio-gold flex items-center justify-center border border-studio-gold/30 mb-4">
-                <PacoteIcon size={32} />
-              </div>
-
-              <h3 className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">Pacote Selecionado</h3>
-              <p className="font-display text-3xl uppercase text-white mb-6">{pacoteInfo.nome}</p>
+              <div className="w-16 h-16 rounded-full bg-studio-gold/10 text-studio-gold flex items-center justify-center border border-studio-gold/30 mb-4"><PacoteIcon size={32} /></div>
+              <h3 className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">{infoCalculada.isLegacy ? 'Pacote' : 'Combo'} Selecionado</h3>
+              <p className="font-display text-3xl uppercase text-white mb-6">{infoCalculada.nome}</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-gray-300 w-full text-left max-w-md mx-auto">
-                <div className="flex items-center gap-3"><CheckCircle2 size={16} className="text-studio-gold" /> Até {pacoteInfo.fotos} fotos HD</div>
+                <div className="flex items-center gap-3"><CheckCircle2 size={16} className="text-studio-gold" /> {infoCalculada.fotos} fotos HD Inclusas</div>
                 <div className="flex items-center gap-3"><CheckCircle2 size={16} className="text-studio-gold" /> Sem marca d'água</div>
                 <div className="flex items-center gap-3"><CheckCircle2 size={16} className="text-studio-gold" /> Uso comercial livre</div>
-                <div className="flex items-center gap-3"><CheckCircle2 size={16} className="text-studio-gold" /> Entrega instantânea</div>
+                <div className="flex items-center gap-3"><CheckCircle2 size={16} className="text-studio-gold" /> Liberação via PIX</div>
               </div>
             </div>
 
-            {/* Resumo e Pagamento (PIX) */}
             <div className="space-y-6">
               <div className="flex justify-between items-center text-sm border-b border-white/10 pb-4">
                 <span className="text-gray-400 uppercase tracking-widest text-xs font-bold">Investimento Total</span>
-                <span className="text-white font-display text-4xl font-black">R$ {pacoteInfo.preco.toFixed(2)}</span>
+                <span className="text-white font-display text-4xl font-black">R$ {infoCalculada.preco.toFixed(2).replace('.', ',')}</span>
               </div>
 
               <div className="space-y-4">
-                <button
-                  onClick={handleOpenPix}
-                  className="w-full py-6 bg-studio-gold text-studio-black font-display font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-studio-gold-light hover:scale-[1.02] transition-all rounded-2xl shadow-[0_0_40px_rgba(212,175,55,0.3)] text-lg"
-                >
-                  Pagar Agora via PIX
-                  <ArrowRight size={20} />
+                <button onClick={handleOpenPix} className="w-full py-6 bg-studio-gold text-studio-black font-display font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-studio-gold-light hover:scale-[1.02] transition-all rounded-2xl shadow-[0_0_40px_rgba(212,175,55,0.3)] text-lg">
+                  Pagar Agora via PIX <ArrowRight size={20} />
                 </button>
-
                 <div className="flex flex-col items-center gap-4 text-center">
                   <div className="flex items-center justify-center space-x-2 text-gray-500">
                     <ShieldCheck size={16} className="text-emerald-500" />
-                    <span className="text-[10px] uppercase tracking-widest font-bold tracking-[0.2em]">Pagamento Seguro direto na Conta</span>
+                    <span className="text-[10px] uppercase tracking-widest font-bold tracking-[0.2em]">Pagamento Seguro</span>
                   </div>
-                  <p className="text-[9px] text-gray-600 uppercase tracking-wider leading-relaxed max-w-xs">
-                    As fotos em alta resolução serão liberadas após a confirmação do pagamento.
-                  </p>
+                  <p className="text-[9px] text-gray-600 uppercase tracking-wider leading-relaxed max-w-xs">As fotos em alta resolução serão liberadas após a confirmação do seu comprovante.</p>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Decoração de fundo sutil */}
-          <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-studio-gold/5 rounded-full blur-3xl -z-0"></div>
-          <div className="absolute -top-20 -right-20 w-64 h-64 bg-studio-gold/5 rounded-full blur-3xl -z-0"></div>
         </motion.div>
       </main>
     </div>
@@ -436,11 +300,7 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-studio-black flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-studio-gold border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    }>
+    <Suspense fallback={<div className="min-h-screen bg-studio-black flex items-center justify-center"><div className="w-10 h-10 border-4 border-studio-gold border-t-transparent rounded-full animate-spin"></div></div>}>
       <CheckoutContent />
     </Suspense>
   );
