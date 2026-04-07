@@ -14,11 +14,11 @@ const faqs = [
   },
   {
     question: "Como funciona a escolha dos Estilos?",
-    answer: "Você não escolhe apenas uma 'pose rígida', você escolhe uma Direção de Arte. Se você escolher o estilo 'Corporativo Executivo', a nossa IA atua como um fotógrafo real: ela manterá a estética, as roupas e o cenário luxuoso daquele estilo, mas gerará variações naturais de ângulos, iluminação e expressões (sorrisos, olhares focados, planos fechados e abertos). Você recebe um ensaio fotográfico dinâmico e realista do mesmo momento."
+    answer: "No nosso modelo 'À La Carte', você tem total controle. Cada estilo selecionado no catálogo equivale a 1 foto final. A nossa IA aplicará o seu rosto mantendo a estética, a iluminação, a roupa e o cenário exatos do card escolhido. Você sabe exatamente a direção de arte que vai receber, sem surpresas, garantindo um ensaio incrivelmente realista e focado no seu objetivo."
   },
   {
     question: "Quantas fotos eu preciso enviar?",
-    answer: "Recomendamos o envio de 10 a 20 fotos de diferentes ângulos, iluminações e expressões. Quanto mais variadas as fotos, melhor nossa IA poderá aprender sua fisionomia para resultados perfeitos."
+    answer: "Recomendamos o envio de 5 a 10 fotos nítidas do seu rosto, de diferentes ângulos e expressões. Quanto melhores as fotos enviadas, melhor nossa IA poderá aprender sua fisionomia para resultados perfeitos."
   },
   {
     question: "Em quanto tempo recebo meu ensaio?",
@@ -212,7 +212,7 @@ export default function LandingPage() {
                   <h4 className="text-xl mb-2 text-studio-gold flex items-center gap-3 font-bold">
                     <span className="w-8 h-[1px] bg-white"></span> VIRTUAL STUDIO
                   </h4>
-                  <p className="text-gray-200">Resultados de nível editorial em pouco tempo, em qualquer cenário do mundo, com curadoria artística humana.</p>
+                  <p className="text-gray-200">Resultados de nível editorial em pouco tempo, escolhendo cenários e roupas incríveis, com curadoria artística humana.</p>
                 </div>
               </div>
             </div>
@@ -267,11 +267,11 @@ export default function LandingPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
             {[
-              { step: '01', title: 'Upload', desc: 'Envie 10 ou mais fotos suas de diferentes ângulos para treinar nossa IA.' },
-              { step: '02', title: 'Estilo', desc: 'Escolha entre nossos +100 estilos e poses.' },
-              { step: '03', title: 'Geração', desc: 'Nossa IA cria centenas de variações baseadas na sua fisionomia real.' },
-              { step: '04', title: 'Curadoria', desc: 'Nossos artistas selecionam e retocam as melhores imagens para perfeição.' },
-              { step: '05', title: 'Entrega', desc: 'Receba seu ensaio em alta resolução pronto para suas redes.' }
+              { step: '01', title: 'Upload', desc: 'Envie de 5 a 10 fotos suas de diferentes ângulos para treinar nossa IA.' },
+              { step: '02', title: 'Estilo', desc: 'Escolha entre nossos +100 estilos no modelo À La Carte.' },
+              { step: '03', title: 'Geração', desc: 'Nossa IA recria você perfeitamente nos cenários e iluminações escolhidos.' },
+              { step: '04', title: 'Curadoria', desc: 'Nossos artistas selecionam e retocam as imagens para uma perfeição absoluta.' },
+              { step: '05', title: 'Entrega', desc: 'Receba seu ensaio em alta resolução pronto para as suas redes.' }
             ].map((item, i) => (
               <div key={i} className="text-center group">
                 <div className="w-16 h-16 border border-studio-gold rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-studio-gold group-hover:text-studio-black transition text-xl font-display">{item.step}</div>
@@ -403,7 +403,7 @@ export default function LandingPage() {
             >
               INVESTIMENTO NA SUA <span className="text-studio-gold">AUTORIDADE</span>
             </motion.h2>
-            <p className="text-gray-400 tracking-widest uppercase text-sm font-light">Escolha a escala da sua transformação visual</p>
+            <p className="text-gray-400 tracking-widest uppercase text-sm font-light">Escolha a escala da sua transformação visual com Descontos Progressivos</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -440,10 +440,10 @@ export default function LandingPage() {
                   </p>
                   <div className="space-y-3 pt-6 border-t border-white/5">
                     <div className="flex items-center gap-3 text-xs text-gray-300">
-                      <Check size={14} className="text-studio-gold" /> <strong>10 fotos</strong> em Alta Resolução
+                      <Check size={14} className="text-studio-gold" /> <strong>5 fotos</strong> em Alta Resolução
                     </div>
                     <div className="flex items-center gap-3 text-xs text-gray-300">
-                      <Check size={14} className="text-studio-gold" /> Escolha de 1 estilo fotográfico
+                      <Check size={14} className="text-studio-gold" /> Escolha de <strong>5 estilos</strong> exatos
                     </div>
                     <div className="flex items-center gap-3 text-xs text-gray-300">
                       <Check size={14} className="text-studio-gold" /> Curadoria manual de qualidade
@@ -499,10 +499,10 @@ export default function LandingPage() {
                   </p>
                   <div className="space-y-3 pt-6 border-t border-white/5">
                     <div className="flex items-center gap-3 text-xs text-gray-300">
-                      <Star size={14} className="text-studio-gold fill-studio-gold" /> <strong>25 fotos</strong> em Alta Resolução
+                      <Star size={14} className="text-studio-gold fill-studio-gold" /> <strong>10 fotos</strong> em Alta Resolução
                     </div>
                     <div className="flex items-center gap-3 text-xs text-gray-300">
-                      <CheckCheck size={14} className="text-studio-gold" /> Escolha de até 3 estilos fotográficos
+                      <CheckCheck size={14} className="text-studio-gold" /> Escolha de <strong>10 estilos</strong> exatos
                     </div>
                     <div className="flex items-center gap-3 text-xs text-gray-300">
                       <CheckCheck size={14} className="text-studio-gold" /> Curadoria manual de qualidade
@@ -555,10 +555,10 @@ export default function LandingPage() {
                   </p>
                   <div className="space-y-3 pt-6 border-t border-white/5">
                     <div className="flex items-center gap-3 text-xs text-gray-300">
-                      <Zap size={14} className="text-studio-gold shadow-[0_0_10px_rgba(195,157,93,0.5)]" /> <strong>50 fotos</strong> em Alta Resolução
+                      <Zap size={14} className="text-studio-gold shadow-[0_0_10px_rgba(195,157,93,0.5)]" /> <strong>20 fotos</strong> em Alta Resolução
                     </div>
                     <div className="flex items-center gap-3 text-xs text-gray-300">
-                      <Check size={14} className="text-studio-gold" /> Escolha de até 5 estilos fotográficos
+                      <Check size={14} className="text-studio-gold" /> Escolha de <strong>20 estilos</strong> exatos
                     </div>
                     <div className="flex items-center gap-3 text-xs text-gray-300 font-bold text-studio-gold">
                       <Sparkles size={14} /> Retoque FINO avançado
@@ -710,7 +710,6 @@ export default function LandingPage() {
       <section className="py-12 bg-studio-black border-t border-white/5" id="ecossistema">
         <div className="container mx-auto px-6">
 
-          {/* Re-restored Header (Elegant & subtle - Centered) */}
           <div className="mb-10 text-center mx-auto">
             <h2 className="text-2xl md:text-3xl font-bold mb-3 uppercase tracking-tight">
               Ferramentas <span className="text-studio-gold italic">Recomendadas</span>
@@ -720,7 +719,6 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Compact 4-col grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 
             {/* Social Prime */}
@@ -738,8 +736,8 @@ export default function LandingPage() {
                 />
               </div>
               <span className="text-xs font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-200 transition-colors">Social Prime</span>
-              <span className="text-[11px] text-gray-600 font-light leading-relaxed">Estratégia e crescimento nas redes sociais.</span>
-              <span className="text-[10px] uppercase tracking-widest text-gray-700 group-hover:text-studio-gold/70 transition-colors flex items-center gap-1 mt-auto pt-2">
+              <span className="text-[11px] text-gray-400 font-light leading-relaxed">Estratégia e crescimento nas redes sociais.</span>
+              <span className="text-[10px] uppercase tracking-widest text-gray-500 group-hover:text-studio-gold/70 transition-colors flex items-center gap-1 mt-auto pt-2">
                 socialprime.space <ArrowRight size={10} />
               </span>
             </a>
@@ -759,8 +757,8 @@ export default function LandingPage() {
                 />
               </div>
               <span className="text-xs font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-200 transition-colors">Link na Bio Pro</span>
-              <span className="text-[11px] text-gray-600 font-light leading-relaxed">Cartão de visitas digital de alta conversão.</span>
-              <span className="text-[10px] uppercase tracking-widest text-gray-700 group-hover:text-studio-gold/70 transition-colors flex items-center gap-1 mt-auto pt-2">
+              <span className="text-[11px] text-gray-400 font-light leading-relaxed">Cartão de visitas digital de alta conversão.</span>
+              <span className="text-[10px] uppercase tracking-widest text-gray-500 group-hover:text-studio-gold/70 transition-colors flex items-center gap-1 mt-auto pt-2">
                 linknabio.pro <ArrowRight size={10} />
               </span>
             </a>
@@ -780,8 +778,8 @@ export default function LandingPage() {
                 />
               </div>
               <span className="text-xs font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-200 transition-colors">Social Media Cristã</span>
-              <span className="text-[11px] text-gray-600 font-light leading-relaxed">Legendas inspiradoras para igrejas e criadores cristãos geradas por IA em segundos.</span>
-              <span className="text-[10px] uppercase tracking-widest text-gray-700 group-hover:text-studio-gold/70 transition-colors flex items-center gap-1 mt-auto pt-2">
+              <span className="text-[11px] text-gray-400 font-light leading-relaxed">Legendas inspiradoras geradas por IA em segundos.</span>
+              <span className="text-[10px] uppercase tracking-widest text-gray-500 group-hover:text-studio-gold/70 transition-colors flex items-center gap-1 mt-auto pt-2">
                 legendas-cristas.app <ArrowRight size={10} />
               </span>
             </a>
@@ -792,11 +790,11 @@ export default function LandingPage() {
               className="group flex flex-col gap-2 p-5 rounded-xl border border-dashed border-white/5 hover:border-white/15 bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-300"
             >
               <div className="w-8 h-8 rounded-lg overflow-hidden mb-1 bg-white/5 flex items-center justify-center">
-                <Handshake size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
+                <Handshake size={16} className="text-gray-400 group-hover:text-white transition-colors" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 transition-colors">Seja um Parceiro</span>
-              <span className="text-[11px] text-gray-700 font-light leading-relaxed">Anuncie para a nossa base de clientes.</span>
-              <span className="text-[10px] uppercase tracking-widest text-gray-700 group-hover:text-studio-gold/70 transition-colors flex items-center gap-1 mt-auto pt-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-200 transition-colors">Seja um Parceiro</span>
+              <span className="text-[11px] text-gray-400 font-light leading-relaxed">Anuncie para a nossa base de clientes.</span>
+              <span className="text-[10px] uppercase tracking-widest text-gray-500 group-hover:text-studio-gold/70 transition-colors flex items-center gap-1 mt-auto pt-2">
                 Falar com a equipa <ArrowRight size={10} />
               </span>
             </a>
@@ -809,14 +807,14 @@ export default function LandingPage() {
       <footer className="py-12 bg-studio-black border-t border-white/5" id="contato">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-10 md:gap-6">
-            
+
             {/* Logo and Copyright */}
             <div className="flex flex-col items-center md:items-start order-2 md:order-1">
               <div className="relative w-[150px] h-[60px] mb-2">
                 <Image src="/logo.2.png" alt="Virtual Studio Logo" fill className="object-contain" />
               </div>
               <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-light">
-                © 2026 VIRTUAL STUDIO<br/>
+                © 2026 VIRTUAL STUDIO<br />
                 <span className="opacity-60">Todos os direitos reservados</span>
               </p>
             </div>
@@ -830,16 +828,16 @@ export default function LandingPage() {
             {/* Social and Contact */}
             <div className="flex flex-col items-center md:items-end gap-3 order-1 md:order-3">
               <div className="flex gap-4">
-                <a 
-                  href="mailto:suporte@virtualstudio.click" 
+                <a
+                  href="mailto:suporte@virtualstudio.click"
                   className="w-10 h-10 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-gray-400 hover:text-studio-gold hover:border-studio-gold/30 transition-all duration-300"
                   aria-label="Email support"
                 >
                   <Mail size={16} /> {/* Proper Mail icon */}
                 </a>
-                <a 
-                  href="https://www.instagram.com/virtualstudio.click/" 
-                  target="_blank" 
+                <a
+                  href="https://www.instagram.com/virtualstudio.click/"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-gray-400 hover:text-studio-gold hover:border-studio-gold/30 transition-all duration-300"
                   aria-label="Instagram profile"
