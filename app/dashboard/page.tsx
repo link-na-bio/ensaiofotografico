@@ -15,7 +15,7 @@ declare global { interface Window { JSZip: any; } }
 
 export default function Dashboard() {
   const EVENTO_SAZONAL = {
-    ativo: true,
+    ativo: false,
     id: 'sazonal',
     titulo: 'Especial de Páscoa 🐰',
     descricao: '1 Foto Temática em altíssima resolução perfeita para as redes sociais.',
@@ -270,9 +270,9 @@ export default function Dashboard() {
 
   const totalAmount = selectedPackage === 'sazonal' ? 19.90 :
     selectedPackage === 'amostra' ? parsePrice(dynamicPrices?.preco_amostra, 19.90) :
-    selectedPackage === 'essencial' ? parsePrice(dynamicPrices?.preco_essencial, 89.90) :
-      selectedPackage === 'premium' ? parsePrice(dynamicPrices?.preco_premium, 149.90) :
-        selectedPackage === 'elite' ? parsePrice(dynamicPrices?.preco_elite, 247.90) : 0;
+      selectedPackage === 'essencial' ? parsePrice(dynamicPrices?.preco_essencial, 89.90) :
+        selectedPackage === 'premium' ? parsePrice(dynamicPrices?.preco_premium, 149.90) :
+          selectedPackage === 'elite' ? parsePrice(dynamicPrices?.preco_elite, 247.90) : 0;
   // ====================================================================
 
   // ===== SISTEMA DE NOTIFICAÇÃO SONORA (BEEP VIA CÓDIGO) =====
@@ -281,7 +281,7 @@ export default function Dashboard() {
       try {
         const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
         if (!AudioContextClass) return;
-        
+
         const audioCtx = new AudioContextClass();
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
@@ -291,8 +291,8 @@ export default function Dashboard() {
 
         // Som de notificação elegante (Sine wave a 880Hz)
         oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); 
-        
+        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+
         // Envelope: Volume sobe rápido e desce suavemente (evita estalos)
         gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
         gainNode.gain.linearRampToValueAtTime(1.0, audioCtx.currentTime + 0.05); // Pico de volume (100%)
@@ -728,10 +728,10 @@ export default function Dashboard() {
   const displayStyles = selectedPackage === 'sazonal'
     ? dbStyles.filter(s => s.titulo === EVENTO_SAZONAL.nomeDoEstilo)
     : dbStyles.filter(s =>
-        s.titulo !== EVENTO_SAZONAL.nomeDoEstilo && // <- O CADEADO AQUI: Esconde o sazonal dos outros pacotes
-        (s.genero === genderFilter || s.genero === 'Ambos') &&
-        (categoryFilter === 'Todos' || s.categoria === categoryFilter)
-      );
+      s.titulo !== EVENTO_SAZONAL.nomeDoEstilo && // <- O CADEADO AQUI: Esconde o sazonal dos outros pacotes
+      (s.genero === genderFilter || s.genero === 'Ambos') &&
+      (categoryFilter === 'Todos' || s.categoria === categoryFilter)
+    );
 
   return (
     <div className="flex min-h-screen bg-studio-black text-white relative">
@@ -1287,16 +1287,16 @@ export default function Dashboard() {
                       {/* BANNER SAZONAL / TEMÁTICO */}
                       {EVENTO_SAZONAL.ativo && (
                         <div
-                          onClick={() => { 
-                            setSelectedPackage('sazonal'); 
-                            setSelectedStyles([EVENTO_SAZONAL.nomeDoEstilo]); 
+                          onClick={() => {
+                            setSelectedPackage('sazonal');
+                            setSelectedStyles([EVENTO_SAZONAL.nomeDoEstilo]);
                           }}
-                          className={`mb-8 w-full border-2 rounded-2xl p-6 relative overflow-hidden transition-all group cursor-pointer ${selectedPackage === 'sazonal' 
-                            ? 'border-studio-gold bg-gradient-to-r from-purple-900/40 to-studio-black shadow-[0_0_30px_rgba(212,175,55,0.3)] ring-2 ring-studio-gold/20' 
+                          className={`mb-8 w-full border-2 rounded-2xl p-6 relative overflow-hidden transition-all group cursor-pointer ${selectedPackage === 'sazonal'
+                            ? 'border-studio-gold bg-gradient-to-r from-purple-900/40 to-studio-black shadow-[0_0_30px_rgba(212,175,55,0.3)] ring-2 ring-studio-gold/20'
                             : 'border-purple-500/30 bg-gradient-to-r from-purple-900/20 to-studio-black hover:border-studio-gold transition-all'}`}
                         >
                           <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[9px] font-black px-4 py-1.5 uppercase tracking-[0.2em] rounded-bl-xl shadow-lg z-20">TEMPO LIMITADO</div>
-                          
+
                           <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10 w-full">
                             {/* LADO ESQUERDO: Ícone e Textos */}
                             <div className="flex items-center gap-5 flex-1">
@@ -1311,7 +1311,7 @@ export default function Dashboard() {
                                 </div>
                               </div>
                             </div>
-                            
+
                             {/* LADO DIREITO: Preço e Check */}
                             <div className="flex flex-col items-center md:items-end shrink-0">
                               <p className="text-xl md:text-2xl font-black text-studio-gold tracking-tight drop-shadow-xl">R$ {EVENTO_SAZONAL.preco.toFixed(2).replace('.', ',')}</p>
@@ -1323,7 +1323,7 @@ export default function Dashboard() {
                               )}
                             </div>
                           </div>
-                          
+
                           {/* Efeito de brilho de fundo */}
                           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-studio-gold/5 blur-[80px] pointer-events-none opacity-50"></div>
                         </div>
