@@ -812,6 +812,26 @@ export default function Dashboard() {
               <button onClick={() => setIsPreviewOpen(false)} className="text-white hover:text-studio-gold transition-colors p-2 bg-white/5 rounded-full"><X size={24} /></button>
             </div>
 
+            {(() => {
+              const pedido = pedidos.find(p => p.id === selectedOrderId);
+              const isLegacy = pedido && !pedido.pacote.includes('dinamico_') && !pedido.pacote.includes('sazonal');
+              
+              if (isLegacy) {
+                return (
+                  <div className="bg-studio-gold/10 border-l-4 border-studio-gold p-4 mb-4 mx-6 md:mx-10 mt-6 rounded-r-lg flex items-start gap-3">
+                    <Info size={20} className="text-studio-gold shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="text-studio-gold font-bold text-xs uppercase tracking-widest mb-1">Benefício Exclusivo Garantido</h4>
+                      <p className="text-gray-300 text-xs leading-relaxed">
+                        O Virtual Studio atualizou o seu modelo para vendas por unidade. No entanto, como iniciou o seu ensaio durante a nossa janela promocional, o seu pacote fechado de <strong>{getSelectionLimit(pedido)} fotos</strong> está 100% garantido! Conclua a sua seleção para aproveitar esta vantagem que já não está mais disponível para novos clientes.
+                      </p>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+
             <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar bg-[#0a0a0a]">
               <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
