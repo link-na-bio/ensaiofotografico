@@ -13,7 +13,8 @@ import {
   Brush,
   Sparkles,
   Instagram,
-  Home
+  Home,
+  ArrowRight // <- A NOSSA SETA AGORA ESTÁ AQUI!
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
