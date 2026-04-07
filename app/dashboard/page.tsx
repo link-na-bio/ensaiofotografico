@@ -409,25 +409,59 @@ export default function Dashboard() {
       return;
     }
 
+    // A validação agora foca-se em ter pelo menos 1 estilo e 5 fotos.
     if (selectedStyles.length === 0 || selectedFiles.length < 5) {
-      alert("Selecione os estilos desejados e envie no mínimo 5 fotos.");
+      alert("Por favor, escolha pelo menos 1 estilo e envie no mínimo 5 fotos.");
       return;
     }
 
     setIsUploading(true);
     try {
-      const pkgName = getDynamicPackageName(selectedStyles.length);
-      const { data: orderData, error: dbError } = await supabase.from('pedidos').insert({ user_id: userId, user_email: userEmail, pacote: pkgName, estilos: selectedStyles, status: 'Aguardando Produção' }).select().single();
+      // Define o nome dinâmico baseado na quantidade (Retrocompatibilidade)
+      const getDynamicPackageName = (qtd: number) => {
+        if (qtd >= 20) return 'dinamico_elite';
+        if (qtd >= 10) return 'dinamico_premium';
+        if (qtd >= 5) return 'dinamico_essencial';
+        return 'dinamico_avulso';
+      };
+
+      // O Pacote Sazonal também é salvo com prefixo especial
+      const finalPackageName = selectedStyles.includes('Páscoa VIP') || selectedStyles.includes('Mãe VIP') ? 'sazonal' : getDynamicPackageName(selectedStyles.length);
+
+      const { data: orderData, error: dbError } = await supabase.from('pedidos').insert({ 
+        user_id: userId, 
+        user_email: userEmail, 
+        pacote: finalPackageName, 
+        estilos: selectedStyles, 
+        status: 'Aguardando Produção' 
+      }).select().single();
+      
       if (dbError) throw dbError;
       const orderId = orderData.id;
 
+      // Loop de Upload com HIGIENIZAÇÃO DO NOME DO FICHEIRO
       for (const file of selectedFiles) {
-        const filePath = `${userId}/${orderId}/${Date.now()}_${file.name}`;
+        const fileExt = file.name.split('.').pop();
+        // Cria um nome 100% seguro: timestamp + código aleatório + extensão
+        const safeFileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `${userId}/${orderId}/${safeFileName}`;
+        
         const { error: storageError } = await supabase.storage.from('fotos_clientes').upload(filePath, file);
         if (storageError) throw storageError;
       }
-      setAlertMessage("Pedido enviado com sucesso!"); setShowSuccessAlert(true); changeTab('home'); setSelectedStyles([]); setSelectedFiles([]); fetchPedidos(userId!); setTimeout(() => setShowSuccessAlert(false), 5000);
-    } catch (error: any) { alert(`Falha no envio: ${error.message}`); } finally { setIsUploading(false); }
+      
+      setAlertMessage("Pedido enviado com sucesso!"); 
+      setShowSuccessAlert(true); 
+      changeTab('home'); 
+      setSelectedStyles([]); 
+      setSelectedFiles([]); 
+      fetchPedidos(userId!); 
+      setTimeout(() => setShowSuccessAlert(false), 5000);
+    } catch (error: any) { 
+      alert(`Falha no envio: ${error.message}`); 
+    } finally { 
+      setIsUploading(false); 
+    }
   };
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
