@@ -17,11 +17,11 @@ export default function Dashboard() {
   const EVENTO_SAZONAL = {
     ativo: false,
     id: 'sazonal',
-    titulo: 'Especial de Páscoa 🐰',
-    descricao: '1 Foto Temática em altíssima resolução perfeita para as redes sociais.',
+    titulo: 'Especial Dia da Mãe 🌹',
+    descricao: 'Surpreenda com uma foto perfeita! 1 Estilo Temático em altíssima resolução.',
     preco: 19.90,
     estilos: '1 Estilo Temático',
-    nomeDoEstilo: 'Páscoa VIP' // O admin deve criar um estilo com este NOME EXATO no painel
+    nomeDoEstilo: 'Mãe VIP' // O nome do estilo que acabou de criar no painel
   };
 
   const router = useRouter();
