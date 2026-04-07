@@ -70,9 +70,9 @@ function SuccessContent() {
             <CheckCircle size={40} />
           </div>
           <div className="space-y-2">
-            <h1 className="text-3xl md:text-5xl font-bold tracking-tight uppercase font-display bg-gradient-to-r from-studio-gold via-studio-gold-light to-studio-gold bg-clip-text text-transparent">Comprovativo Enviado!</h1>
+            <h1 className="text-3xl md:text-5xl font-bold tracking-tight uppercase font-display bg-gradient-to-r from-studio-gold via-studio-gold-light to-studio-gold bg-clip-text text-transparent">Comprovante Enviado!</h1>
             <p className="text-gray-400 text-sm font-light max-w-lg mx-auto leading-relaxed">
-              Recebemos o seu comprovativo com sucesso. A nossa equipa financeira está a analisar e, em instantes, o seu ensaio será libertado na sua galeria.
+              Recebemos o seu comprovante com sucesso. A nossa equipe financeira está analisando e, em instantes, o seu ensaio será liberado na sua galeria.
             </p>
           </div>
           <div className="flex gap-4 pt-4">
@@ -138,13 +138,13 @@ function SuccessContent() {
                 <div className="text-studio-gold"><Sparkles size={24} /></div>
                 <div>
                   <h5 className="text-xs font-bold text-white uppercase tracking-wider">Aprovação Financeira</h5>
-                  <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-widest leading-relaxed">A nossa equipa vai validar o PIX enviado. É muito rápido.</p>
+                  <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-widest leading-relaxed">A nossa equipe vai validar o PIX enviado. É muito rápido.</p>
                 </div>
               </div>
               <div className="flex gap-4 p-5 bg-white/5 border border-white/10 rounded-xl">
                 <div className="text-emerald-500"><Download size={24} /></div>
                 <div>
-                  <h5 className="text-xs font-bold text-white uppercase tracking-wider">Libertação da Galeria</h5>
+                  <h5 className="text-xs font-bold text-white uppercase tracking-wider">Liberação da Galeria</h5>
                   <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-widest leading-relaxed">As suas fotos ficarão imediatamente disponíveis na aba "Meus Ensaios".</p>
                 </div>
               </div>
