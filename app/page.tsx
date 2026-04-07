@@ -121,7 +121,7 @@ export default function LandingPage() {
           <ul className="hidden md:flex gap-8 text-sm uppercase tracking-widest font-display">
             <li><a className="hover:text-studio-gold transition" href="#galeria">Estilos</a></li>
             <li><a className="hover:text-studio-gold transition" href="#processo">Processo</a></li>
-            <li><a className="hover:text-studio-gold transition" href="#precos">Pacotes</a></li>
+            <li><a className="hover:text-studio-gold transition" href="#precos">Packs</a></li>
             <li><a className="hover:text-studio-gold transition" href="#contato">Contato</a></li>
           </ul>
           <Link href="/signup" className="bg-studio-gold text-studio-black px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-studio-gold-light transition hover:shadow-[0_0_15px_rgba(212,175,55,0.4)]">
