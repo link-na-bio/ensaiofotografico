@@ -1306,8 +1306,8 @@ export default function Dashboard() {
                       <div className="mb-6 p-4 bg-studio-gold/5 border border-studio-gold/20 rounded-xl flex items-start gap-3">
                         <Info size={18} className="text-studio-gold shrink-0 mt-0.5" />
                         <p className="text-xs text-gray-300 leading-relaxed font-light">
-                          <strong className="text-studio-gold uppercase tracking-wider text-[10px] block mb-1">Dica: Direção de Arte</strong>
-                          Você não escolhe uma simples "pose rígida". A IA atua como um fotógrafo real: ela <strong>manterá a estética e o cenário</strong> do estilo, mas gerará variações de iluminação, ângulos e expressões (olhares focados, sorrisos).
+                          <strong className="text-studio-gold uppercase tracking-wider text-[10px] block mb-1">Dica: O Seu Combo Personalizado</strong>
+                          Cada estilo selecionado acima equivale a <strong>1 Foto Final de Alta Resolução</strong>. A nossa IA aplicará o seu rosto mantendo a estética, a iluminação e o cenário exatos do estilo escolhido. Quanto mais estilos adicionar, maior será o seu desconto!
                         </p>
                       </div>
 
