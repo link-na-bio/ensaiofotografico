@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
-import { ChevronLeft, ChevronRight, Check, CheckCheck, Star, ArrowRight, Zap, ChevronDown, ChevronUp, Sparkles, Instagram, Layers, MousePointerClick, Heart, Handshake, Mail } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, CheckCheck, Star, ArrowRight, Zap, ChevronDown, ChevronUp, Sparkles, Instagram, Layers, MousePointerClick, Heart, Handshake, Mail, PlusCircle } from 'lucide-react';
 import SalesNotification from '@/components/SalesNotification';
 import Link from 'next/link';
 
@@ -104,7 +104,7 @@ export default function LandingPage() {
     ativo: true,
     titulo: 'Especial Dia das Mães 🌹',
     descricao: 'Surpreenda com uma foto perfeita! 1 Estilo Temático em altíssima resolução.',
-    preco: 'R$ 19,90',
+    preco: 'R$ 19,90', // Mantido para referência interna se necessário, mas ocultado no visual
   };
 
   return (
@@ -602,7 +602,7 @@ export default function LandingPage() {
             {/* Card Estilo Especial Sazonal (Dia das Mães) */}
             {EVENTO_SAZONAL.ativo && (
               <Link href="/signup" className="block w-full">
-                <div className="border-2 border-purple-500/30 hover:border-purple-500/60 bg-gradient-to-r from-purple-900/40 to-studio-black/80 backdrop-blur-sm rounded-2xl p-6 transition-all duration-300 group relative overflow-hidden text-left shadow-[0_0_30px_rgba(168,85,247,0.15)]">
+                <div className="border-2 border-purple-500/30 hover:border-purple-500/60 bg-gradient-to-r from-purple-900/40 to-studio-black/80 backdrop-blur-sm rounded-2xl p-6 transition-all duration-300 group relative overflow-hidden text-left shadow-[0_0_30px_rgba(168,85,247,0.15)] cursor-pointer">
                   <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[10px] font-black px-4 py-1.5 uppercase tracking-widest rounded-bl-xl shadow-lg z-20">TEMPO LIMITADO</div>
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
                     <div className="flex items-center gap-4">
@@ -612,11 +612,15 @@ export default function LandingPage() {
                       <div>
                         <h4 className="text-lg font-bold font-display uppercase tracking-widest text-white group-hover:text-studio-gold transition-colors">{EVENTO_SAZONAL.titulo}</h4>
                         <p className="text-xs text-gray-400 mt-1 max-w-sm leading-relaxed">{EVENTO_SAZONAL.descricao}</p>
+                        <div className="flex items-center gap-2 mt-2">
+                           <span className="px-2 py-0.5 bg-studio-gold/10 border border-studio-gold/20 rounded text-[9px] font-bold text-studio-gold uppercase tracking-wider">1 Estilo Temático</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="shrink-0 bg-white/5 sm:bg-transparent p-4 sm:p-0 rounded-xl w-full sm:w-auto text-center sm:text-right border border-white/5 sm:border-none">
-                      <p className="text-2xl font-bold text-studio-gold tracking-wider">{EVENTO_SAZONAL.preco}</p>
-                      <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Ver a Mágica Acontecer</p>
+                    <div className="shrink-0 w-full sm:w-auto mt-4 sm:mt-0 flex flex-col items-center sm:items-end gap-2">
+                      <div className="flex items-center gap-2 text-white text-xs font-bold uppercase tracking-widest bg-white/5 px-6 py-3 rounded-lg border border-white/10 group-hover:bg-studio-gold group-hover:text-studio-black transition-all">
+                        <PlusCircle size={16} /> Adicionar
+                      </div>
                     </div>
                   </div>
                   {/* Subtle Glow Effect */}
