@@ -87,16 +87,9 @@ function CheckoutContent() {
     const isLegacy = !pkgNome.includes('dinamico_') && !pkgNome.includes('sazonal');
 
     if (isLegacy) {
-      // Regra Antiga (Usa QR Code estático)
+      // Regra Antiga (Usa QR Code estático e Preço Estático Fixo para não haver divergência)
       const baseInfo = PACOTES_INFO[pkgNome] || PACOTES_INFO['premium'];
-      let precoFinal = baseInfo.preco;
-      if (dynamicPrices) {
-        if (pkgNome.includes('essencial') || pkgNome.includes('basico')) precoFinal = parsePrice(dynamicPrices.preco_essencial, 89.90);
-        else if (pkgNome.includes('premium') || pkgNome.includes('popular')) precoFinal = parsePrice(dynamicPrices.preco_premium, 149.90);
-        else if (pkgNome.includes('elite') || pkgNome.includes('pro')) precoFinal = parsePrice(dynamicPrices.preco_elite, 247.90);
-        else if (pkgNome.includes('amostra')) precoFinal = parsePrice(dynamicPrices.preco_amostra, 19.90);
-      }
-      setInfoCalculada({ ...baseInfo, preco: precoFinal, isLegacy: true });
+      setInfoCalculada({ ...baseInfo, isLegacy: true });
     } else {
       // Regra Nova (À La Carte Dinâmico)
       const qtdFotos = pedido.estilos?.length || 1;
