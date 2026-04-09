@@ -1070,20 +1070,12 @@ export default function Dashboard() {
         </nav>
         <div className="mt-auto p-6 border-t border-white/5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-studio-gold/20 text-studio-gold border border-studio-gold/50 flex items-center justify-center overflow-hidden relative group">
-              {avatarUrl ? (
-                <Image
-                  src={avatarUrl}
-                  alt="Avatar"
-                  fill
-                  className="object-cover transition-opacity group-hover:opacity-80"
-                  onError={() => setAvatarUrl(null)}
-                />
-              ) : (
-                <div className="flex items-center justify-center w-full h-full font-bold text-lg font-display uppercase tracking-widest">
-                  {userEmail ? userEmail.charAt(0).toUpperCase() : <User size={18} className="text-studio-gold/60" />}
-                </div>
-              )}
+            <div className="w-10 h-10 rounded-full border border-white/10 overflow-hidden shrink-0">
+              <img
+                src={avatarUrl?.startsWith('http') ? avatarUrl : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${avatarUrl}`}
+                alt="Perfil"
+                className="w-10 h-10 rounded-full object-cover"
+              />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold truncate font-display tracking-widest text-white">{userEmail ? userEmail.split('@')[0] : 'Utilizador'}</p>
@@ -1734,20 +1726,12 @@ export default function Dashboard() {
               <div className="space-y-6">
                 <div className="bg-white/5 border border-white/10 p-8 rounded-2xl text-center">
                   <div className="relative w-32 h-32 mx-auto mb-6">
-                    <div className="w-full h-full rounded-full bg-studio-gold/10 flex items-center justify-center overflow-hidden border-2 border-studio-gold/30 relative">
-                      {avatarUrl ? (
-                        <Image
-                          src={avatarUrl}
-                          alt="Avatar"
-                          fill
-                          className="object-cover"
-                          onError={() => setAvatarUrl(null)}
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center w-full h-full">
-                          <User size={64} className="text-studio-gold opacity-50" />
-                        </div>
-                      )}
+                    <div className="w-full h-full rounded-full border-2 border-white/10 overflow-hidden relative">
+                      <img
+                        src={avatarUrl?.startsWith('http') ? avatarUrl : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${avatarUrl}`}
+                        alt="Preview Avatar"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <button onClick={() => avatarInputRef.current?.click()} className="absolute bottom-0 right-0 w-10 h-10 bg-studio-gold text-studio-black rounded-full flex items-center justify-center border-4 border-[#121212] hover:scale-110 transition-transform"><Camera size={18} /></button>
                     <input type="file" ref={avatarInputRef} hidden accept="image/*" onChange={handleAvatarUpload} />
