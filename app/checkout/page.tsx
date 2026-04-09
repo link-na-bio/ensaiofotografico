@@ -84,7 +84,7 @@ function CheckoutContent() {
     };
 
     const pkgNome = pedido.pacote?.toLowerCase() || '';
-    const isLegacy = !pkgNome.includes('dinamico_') && !pkgNome.includes('sazonal');
+    const isLegacy = !pkgNome.includes('dinamico_') && !pkgNome.includes('sazonal') && !pkgNome.includes('extras');
 
     if (isLegacy) {
       // Regra Antiga (Usa QR Code estático e Preço Estático Fixo para não haver divergência)

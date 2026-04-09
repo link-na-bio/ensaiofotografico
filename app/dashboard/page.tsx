@@ -86,6 +86,8 @@ export default function Dashboard() {
   // NOVOS ESTADOS PARA GALERIA
   const [selectedEnsaioForGallery, setSelectedEnsaioForGallery] = useState<string | null>(null);
   const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
+  const [fotosExtras, setFotosExtras] = useState<{ name: string, url: string }[]>([]);
+  const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
   const [isFetchingGallery, setIsFetchingGallery] = useState(false);
   const [selectedPhotoForModal, setSelectedPhotoForModal] = useState<string | null>(null);
 
@@ -605,10 +607,12 @@ export default function Dashboard() {
   const handleViewGallery = async (orderId: string) => {
     setIsFetchingGallery(true);
     setSelectedEnsaioForGallery(orderId);
+    setFotosExtras([]);
+    setSelectedExtras([]);
     try {
       const { data: pedido, error: dbError } = await supabase
         .from('pedidos')
-        .select('fotos_selecionadas')
+        .select('fotos_selecionadas, status')
         .eq('id', orderId)
         .single();
 
@@ -622,25 +626,53 @@ export default function Dashboard() {
       const validFiles = files ? files.filter(f => f.name !== '.emptyFolderPlaceholder') : [];
       if (validFiles.length === 0) { alert("Nenhuma foto encontrada no servidor."); return; }
 
-      // Se tiver fotos selecionadas (modelo antigo), filtra. Se não, mostra todas (modelo novo/direto).
-      let arquivosFinais = validFiles;
-      if (selecionadas.length > 0) {
-        arquivosFinais = validFiles.filter(f => selecionadas.some((sel: string) => f.name.includes(sel) || sel.includes(f.name)));
-        if (arquivosFinais.length === 0) {
-          alert("Erro de leitura: As fotos selecionadas não batem com os arquivos armazenados. Contacte o suporte.");
-          setIsFetchingGallery(false);
-          return;
-        }
-      }
+      // Separa em FINAL (selecionadas) e EXTRAS (não selecionadas)
+      const arquivosFinais = validFiles.filter(f => selecionadas.some((sel: string) => f.name.includes(sel) || sel.includes(f.name)));
+      const arquivosExtras = validFiles.filter(f => !selecionadas.some((sel: string) => f.name.includes(sel) || sel.includes(f.name)));
 
-
-      const urlPromises = arquivosFinais.map(async (file) => {
+      const urlPromisesFinais = arquivosFinais.map(async (file) => {
         const { data, error } = await supabase.storage.from('previa_ensaios').createSignedUrl(`${path}${file.name}`, 3600);
         if (error) throw error; return data.signedUrl;
       });
 
-      setGalleryPhotos(await Promise.all(urlPromises));
+      const urlPromisesExtras = arquivosExtras.map(async (file) => {
+        const { data, error } = await supabase.storage.from('previa_ensaios').createSignedUrl(`${path}${file.name}`, 3600);
+        if (error) throw error; return { name: file.name, url: data.signedUrl };
+      });
+
+      setGalleryPhotos(await Promise.all(urlPromisesFinais));
+      setFotosExtras(await Promise.all(urlPromisesExtras));
     } catch (error: any) { alert("Erro ao carregar galeria: " + error.message); } finally { setIsFetchingGallery(false); }
+  };
+
+  const toggleExtraSelection = (fileName: string) => {
+    if (selectedExtras.includes(fileName)) {
+      setSelectedExtras(prev => prev.filter(name => name !== fileName));
+    } else {
+      setSelectedExtras(prev => [...prev, fileName]);
+    }
+  };
+
+  const comprarFotosExtras = async () => {
+    if (selectedExtras.length === 0) return;
+    setIsUploading(true);
+    try {
+      const { data: newOrder, error } = await supabase.from('pedidos').insert({
+        user_id: userId,
+        user_email: userEmail,
+        pacote: 'fotos_extras',
+        estilos: selectedExtras,
+        status: 'Aguardando Pagamento',
+        observacoes: `Upsell gerado a partir do pedido #${selectedEnsaioForGallery?.slice(0, 8)}`
+      }).select().single();
+
+      if (error) throw error;
+      router.push(`/checkout?orderId=${newOrder.id}`);
+    } catch (error: any) {
+      alert("Erro ao gerar pedido extra: " + error.message);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleDownloadSinglePhoto = async (url: string, filename: string) => {
@@ -729,6 +761,8 @@ export default function Dashboard() {
   const handleCloseGallery = () => {
     setSelectedEnsaioForGallery(null);
     setGalleryPhotos([]);
+    setFotosExtras([]);
+    setSelectedExtras([]);
   };
 
   if (!isMounted) return null;
@@ -1179,8 +1213,73 @@ export default function Dashboard() {
                             </div>
                           ))}
                         </div>
+
+                        {fotosExtras.length > 0 && (
+                          <>
+                            <h3 className="text-xl font-display text-studio-gold mt-12 mb-6 uppercase tracking-[0.2em] font-bold flex items-center gap-3">
+                              <Sparkles size={20} /> Fotos Não Adquiridas (Compre Agora)
+                            </h3>
+                            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 pb-20">
+                              {fotosExtras.map((file, idx) => {
+                                const isSelected = selectedExtras.includes(file.name);
+                                return (
+                                  <div
+                                    key={idx}
+                                    onClick={() => toggleExtraSelection(file.name)}
+                                    className={`group relative aspect-[4/5] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 border-4 ${isSelected ? 'border-studio-gold ring-4 ring-studio-gold/20' : 'border-white/5 hover:border-studio-gold/30'}`}
+                                  >
+                                    <img
+                                      src={file.url}
+                                      alt={`Extra ${idx + 1}`}
+                                      className={`w-full h-full object-cover transition-all duration-500 ${isSelected ? 'brightness-50 scale-105' : 'group-hover:scale-110'}`}
+                                      loading="lazy"
+                                    />
+                                    {/* Marca d'água nas extras */}
+                                    <div className="absolute inset-0 z-10 pointer-events-none opacity-30 mix-blend-screen overflow-hidden" style={{ backgroundImage: `url("/FOTO PROTEGIDA - NÃO TIRE PRINT.png")`, backgroundRepeat: 'repeat', backgroundSize: '120px' }}></div>
+
+                                    {isSelected && (
+                                      <div className="absolute top-4 right-4 z-20">
+                                        <CheckCircle2 size={32} className="text-studio-gold drop-shadow-[0_0_15px_rgba(212,175,55,0.8)]" />
+                                      </div>
+                                    )}
+
+                                    <div className="absolute bottom-3 left-3 z-20">
+                                      <span className="px-2 py-1 bg-black/60 backdrop-blur-md rounded text-[9px] font-bold text-white uppercase tracking-tighter border border-white/10">
+                                        R$ {parsePrice(dynamicPrices?.preco_amostra, 19.90).toFixed(2).replace('.', ',')}
+                                      </span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </>
+                        )}
                       )}
                     </div>
+
+                    {/* BARRA FLUTUANTE DE UPSELL EXTRA */}
+                    {selectedExtras.length > 0 && (
+                      <div className="absolute bottom-0 left-0 w-full bg-[#121212]/95 backdrop-blur-md border-t border-studio-gold/30 p-4 px-8 flex justify-between items-center z-50">
+                        <div>
+                          <p className="text-white font-bold text-lg">{selectedExtras.length} Foto(s) Extras(s)</p>
+                          <p className="text-gray-400 text-xs">Adicione mais fotos em alta resolução ao seu ensaio.</p>
+                        </div>
+
+                        <div className="flex items-center gap-6">
+                          <div className="text-right">
+                            <p className="text-xs text-studio-gold uppercase tracking-widest font-bold">Total Extra</p>
+                            <p className="text-2xl font-display text-white">R$ {(selectedExtras.length * parsePrice(dynamicPrices?.preco_amostra, 19.90)).toFixed(2).replace('.', ',')}</p>
+                          </div>
+                          <button
+                            onClick={comprarFotosExtras}
+                            disabled={isUploading}
+                            className="bg-studio-gold text-black px-8 py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-studio-gold-light transition flex items-center gap-2"
+                          >
+                            {isUploading ? <Loader2 size={18} className="animate-spin" /> : 'Pagar e Liberar'}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
