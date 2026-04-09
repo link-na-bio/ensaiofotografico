@@ -92,28 +92,49 @@ function CheckoutContent() {
       setInfoCalculada({ ...baseInfo, isLegacy: true });
     } else {
       // Regra Nova (À La Carte Dinâmico)
-      const qtdFotos = pedido.estilos?.length || 1;
+      const estilos = pedido.estilos || [];
+      const hasSobMedida = estilos.includes('ESTILO_SOBMEDIDA');
+      
+      // Filtra estilos normais (excluindo o Sob Medida)
+      const estilosNormais = estilos.filter((s: string) => s !== 'ESTILO_SOBMEDIDA');
+      const qtdNormais = estilosNormais.length;
+
       const pBase = parsePrice(dynamicPrices?.preco_amostra, 19.90);
       const pEssencial = parsePrice(dynamicPrices?.preco_essencial, 67.90) / 5;
       const pPremium = parsePrice(dynamicPrices?.preco_premium, 97.90) / 10;
       const pElite = parsePrice(dynamicPrices?.preco_elite, 147.90) / 20;
 
-      let precoUnitario = pBase;
+      let precoUnitarioNormais = pBase;
       let nomePlano = 'Amostra / Avulso';
       let icon = Sparkles;
 
-      if (qtdFotos >= 20) { precoUnitario = pElite; nomePlano = 'Pack Elite'; icon = Zap; }
-      else if (qtdFotos >= 10) { precoUnitario = pPremium; nomePlano = 'Pack Premium'; icon = Star; }
-      else if (qtdFotos >= 5) { precoUnitario = pEssencial; nomePlano = 'Pack Essencial'; icon = User; }
+      if (qtdNormais >= 20) { precoUnitarioNormais = pElite; nomePlano = 'Pack Elite'; icon = Zap; }
+      else if (qtdNormais >= 10) { precoUnitarioNormais = pPremium; nomePlano = 'Pack Premium'; icon = Star; }
+      else if (qtdNormais >= 5) { precoUnitarioNormais = pEssencial; nomePlano = 'Pack Essencial'; icon = User; }
 
       if (pkgNome.includes('sazonal')) nomePlano = 'Edição Especial';
 
+      // Cálculo Final
+      const valorNormais = qtdNormais * precoUnitarioNormais;
+      const valorSobMedida = hasSobMedida ? 69.90 : 0;
+      const totalFinal = valorNormais + valorSobMedida;
+
+      // Nome do plano composto se houver ambos
+      let nomeExibicao = nomePlano;
+      if (hasSobMedida) {
+        nomeExibicao = qtdNormais > 0 ? `${nomePlano} + Sob Medida` : 'Direção de Arte Sob Medida';
+        icon = Sparkles;
+      }
+
       setInfoCalculada({
-        nome: nomePlano,
-        preco: qtdFotos * precoUnitario,
-        fotos: qtdFotos,
+        nome: nomeExibicao,
+        preco: totalFinal,
+        fotos: estilos.length,
         icon: icon,
-        isLegacy: false
+        isLegacy: false,
+        hasSobMedida: hasSobMedida,
+        valorSobMedida: valorSobMedida,
+        valorNormais: valorNormais
       });
     }
   }, [pedido, dynamicPrices]);
@@ -273,6 +294,19 @@ function CheckoutContent() {
             </div>
 
             <div className="space-y-6">
+              {infoCalculada.hasSobMedida && infoCalculada.valorNormais > 0 && (
+                <div className="space-y-2 border-b border-white/5 pb-4">
+                  <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+                    <span>{infoCalculada.nome.split(' + ')[0]}</span>
+                    <span>R$ {infoCalculada.valorNormais.toFixed(2).replace('.', ',')}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-studio-gold font-bold">
+                    <span>Direção de Arte Sob Medida 💎</span>
+                    <span>R$ 69,90</span>
+                  </div>
+                </div>
+              )}
+
               <div className="flex justify-between items-center text-sm border-b border-white/10 pb-4">
                 <span className="text-gray-400 uppercase tracking-widest text-xs font-bold">Investimento Total</span>
                 <span className="text-white font-display text-4xl font-black">R$ {infoCalculada.preco.toFixed(2).replace('.', ',')}</span>

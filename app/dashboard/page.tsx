@@ -264,7 +264,18 @@ export default function Dashboard() {
     return pBase;
   };
 
-  const currentTotal = selectedStyles.length * getPrecoUnitario(selectedStyles.length);
+  const calculateCurrentTotal = () => {
+    const hasSobMedida = selectedStyles.includes('ESTILO_SOBMEDIDA');
+    const estilosNormais = selectedStyles.filter(s => s !== 'ESTILO_SOBMEDIDA');
+    const qtdNormais = estilosNormais.length;
+    
+    const valorNormais = qtdNormais * getPrecoUnitario(qtdNormais);
+    const valorSobMedida = hasSobMedida ? 69.90 : 0;
+    
+    return valorNormais + valorSobMedida;
+  };
+
+  const currentTotal = calculateCurrentTotal();
 
   const getDynamicPackageName = (qtd: number) => {
     if (qtd >= 20) return 'dinamico_elite';
@@ -426,7 +437,8 @@ export default function Dashboard() {
       };
 
       // O Pacote Sazonal também é salvo com prefixo especial
-      const finalPackageName = selectedStyles.includes('Páscoa VIP') || selectedStyles.includes('Mãe VIP') ? 'sazonal' : getDynamicPackageName(selectedStyles.length);
+      const isSazonal = selectedStyles.includes('Páscoa VIP') || selectedStyles.includes('Mãe VIP') || selectedStyles.includes('ESTILO_SOBMEDIDA');
+      const finalPackageName = isSazonal ? 'sazonal' : getDynamicPackageName(selectedStyles.length);
 
       const { data: orderData, error: dbError } = await supabase.from('pedidos').insert({ 
         user_id: userId, 
@@ -1336,7 +1348,7 @@ export default function Dashboard() {
                           onClick={() => {
                             // Banner inativo temporariamente
                           }}
-                          className="mb-12 w-full border-2 rounded-2xl p-6 relative overflow-hidden transition-all group cursor-not-allowed border-purple-500/30 bg-gradient-to-r from-purple-900/20 to-studio-black opacity-80"
+                          className="mb-6 w-full border-2 rounded-2xl p-6 relative overflow-hidden transition-all group cursor-not-allowed border-purple-500/30 bg-gradient-to-r from-purple-900/20 to-studio-black opacity-80"
                         >
                           <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[9px] font-black px-4 py-1.5 uppercase tracking-[0.2em] rounded-bl-xl shadow-lg z-20">TEMPO LIMITADO</div>
 
@@ -1366,6 +1378,35 @@ export default function Dashboard() {
                           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-studio-gold/5 blur-[80px] pointer-events-none opacity-50"></div>
                         </div>
                       )}
+
+                      {/* CTA Serviço Sob Medida */}
+                      <div 
+                        onClick={() => toggleStyle('ESTILO_SOBMEDIDA')}
+                        className={`mb-12 w-full border rounded-2xl p-6 transition-all duration-300 group relative overflow-hidden text-left cursor-pointer ${selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'border-studio-gold bg-studio-gold/10 shadow-[0_0_30px_rgba(212,175,55,0.3)]' : 'border-studio-gold/30 hover:border-studio-gold bg-[#121212]/80 backdrop-blur-sm shadow-[0_0_20px_rgba(212,175,55,0.15)] hover:shadow-[0_0_30px_rgba(212,175,55,0.2)]'}`}
+                      >
+                        <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[10px] font-bold px-4 py-1.5 uppercase tracking-widest rounded-bl-xl">PREMIUM</div>
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                          <div className="flex items-center gap-4">
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border transition-all duration-300 ${selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'bg-studio-gold text-studio-black border-studio-gold' : 'bg-studio-gold/10 text-studio-gold border-studio-gold/20 group-hover:scale-110'}`}>
+                              <Sparkles size={20} />
+                            </div>
+                            <div>
+                              <h4 className="text-lg font-bold font-display uppercase tracking-widest text-white group-hover:text-studio-gold transition-colors flex items-center gap-2">
+                                Direção de Arte Sob Medida 
+                                {selectedStyles.includes('ESTILO_SOBMEDIDA') && <CheckCircle2 size={16} className="text-studio-gold animate-in zoom-in" />}
+                                <span className="text-sm">💎</span>
+                              </h4>
+                              <p className="text-xs text-gray-400 mt-1 max-w-md leading-relaxed">Tem uma pose, roupa ou cenário específico em mente? Nossa equipe cria uma arte 100% exclusiva para você.</p>
+                            </div>
+                          </div>
+                          <div className="shrink-0 bg-studio-gold/5 sm:bg-transparent p-4 sm:p-0 rounded-xl w-full sm:w-auto text-center sm:text-right border border-studio-gold/10 sm:border-none flex flex-col items-center sm:items-end gap-1">
+                            <p className="text-2xl font-bold text-studio-gold tracking-wider">R$ 69,90</p>
+                            <div className={`flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full transition-all ${selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'bg-studio-gold text-studio-black' : 'bg-white/5 text-gray-400 group-hover:bg-studio-gold group-hover:text-studio-black'}`}>
+                              {selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'Selecionado' : 'Adicionar'}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
                       <div className="flex justify-between items-end mb-4">
                         <div className="flex items-center gap-4">

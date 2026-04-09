@@ -598,6 +598,28 @@ export default function LandingPage() {
             >
               SOLICITAR MEU ENSAIO <ArrowRight size={18} />
             </Link>
+          
+            {/* CTA Serviço Sob Medida */}
+            <Link href="/signup" className="block w-full mb-6">
+              <div className="border border-studio-gold/30 hover:border-studio-gold bg-[#121212]/80 backdrop-blur-sm rounded-2xl p-6 transition-all duration-300 group relative overflow-hidden text-left shadow-[0_0_20px_rgba(212,175,55,0.15)] hover:shadow-[0_0_30px_rgba(212,175,55,0.2)]">
+                <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[10px] font-bold px-4 py-1.5 uppercase tracking-widest rounded-bl-xl">PREMIUM</div>
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-studio-gold/10 flex items-center justify-center text-studio-gold shrink-0 border border-studio-gold/20 group-hover:scale-110 transition-transform">
+                      <Sparkles size={20} />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-bold font-display uppercase tracking-widest text-white group-hover:text-studio-gold transition-colors">Direção de Arte Sob Medida <span className="text-sm">💎</span></h4>
+                      <p className="text-xs text-gray-400 mt-1 max-w-md leading-relaxed">Tem uma pose, roupa ou cenário específico em mente? Nossa equipe cria uma arte 100% exclusiva para você. Após o pedido, envie suas referências no nosso chat interno!</p>
+                    </div>
+                  </div>
+                  <div className="shrink-0 bg-studio-gold/5 sm:bg-transparent p-4 sm:p-0 rounded-xl w-full sm:w-auto text-center sm:text-right border border-studio-gold/10 sm:border-none">
+                    <p className="text-2xl font-bold text-studio-gold tracking-wider">R$ 69,90</p>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Projeto Exclusivo</p>
+                  </div>
+                </div>
+              </div>
+            </Link>
 
             {/* Card Estilo Especial Sazonal (Dia das Mães) */}
             {EVENTO_SAZONAL.ativo && (
