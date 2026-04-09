@@ -1707,7 +1707,7 @@ export default function Dashboard() {
                       <div className="p-6 bg-white/5 border-t border-white/10 -mx-6 -mb-6 rounded-b-2xl">
                         <div className="flex justify-between items-center font-bold font-display uppercase tracking-widest text-lg mb-6"><span>Total:</span><span className="text-studio-gold">R$ {currentTotal.toFixed(2).replace('.', ',')}</span></div>
                         <button onClick={handleSendToProduction} disabled={selectedStyles.length === 0 || selectedFiles.length < 5 || isUploading} className="w-full py-4 bg-studio-gold text-studio-black font-bold uppercase tracking-widest hover:bg-studio-gold-light transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-xl">
-                          {isUploading ? <><Loader2 size={18} className="animate-spin" /> Processando Imagens...</> : <><Sparkles size={18} /> Confirmar Pedido</>}
+                          {isUploading ? <><Loader2 size={18} className="animate-spin" /> Processando Imagens...</> : <><CheckCircle2 size={18} /> Confirmar Pedido</>}
                         </button>
                       </div>
                     </div>
