@@ -1280,7 +1280,7 @@ export default function Dashboard() {
                           {fotosExtras.length > 0 && (
                             <>
                               <h3 className="text-lg md:text-xl font-display text-studio-gold mt-12 mb-6 uppercase tracking-widest md:tracking-[0.2em] font-bold flex items-center gap-3">
-                                <Sparkles size={20} /> Fotos Não Adquiridas (Compre Agora)
+                                <ShoppingBag size={20} /> Fotos Não Adquiridas (Compre Agora)
                               </h3>
                               <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 pb-32 md:pb-20">
                                 {fotosExtras.map((file, idx) => {
