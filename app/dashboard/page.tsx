@@ -289,10 +289,10 @@ export default function Dashboard() {
     const hasSobMedida = selectedStyles.includes('ESTILO_SOBMEDIDA');
     const estilosNormais = selectedStyles.filter(s => s !== 'ESTILO_SOBMEDIDA');
     const qtdNormais = estilosNormais.length;
-    
+
     const valorNormais = qtdNormais * getPrecoUnitario(qtdNormais);
     const valorSobMedida = hasSobMedida ? 69.90 : 0;
-    
+
     return valorNormais + valorSobMedida;
   };
 
@@ -461,14 +461,14 @@ export default function Dashboard() {
       const isSazonal = selectedStyles.includes('Páscoa VIP') || selectedStyles.includes('Mãe VIP') || selectedStyles.includes('ESTILO_SOBMEDIDA');
       const finalPackageName = isSazonal ? 'sazonal' : getDynamicPackageName(selectedStyles.length);
 
-      const { data: orderData, error: dbError } = await supabase.from('pedidos').insert({ 
-        user_id: userId, 
-        user_email: userEmail, 
-        pacote: finalPackageName, 
-        estilos: selectedStyles, 
-        status: 'Aguardando Produção' 
+      const { data: orderData, error: dbError } = await supabase.from('pedidos').insert({
+        user_id: userId,
+        user_email: userEmail,
+        pacote: finalPackageName,
+        estilos: selectedStyles,
+        status: 'Aguardando Produção'
       }).select().single();
-      
+
       if (dbError) throw dbError;
       const orderId = orderData.id;
 
@@ -478,22 +478,22 @@ export default function Dashboard() {
         // Cria um nome 100% seguro: timestamp + código aleatório + extensão
         const safeFileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
         const filePath = `${userId}/${orderId}/${safeFileName}`;
-        
+
         const { error: storageError } = await supabase.storage.from('fotos_clientes').upload(filePath, file);
         if (storageError) throw storageError;
       }
-      
-      setAlertMessage("Pedido enviado com sucesso!"); 
-      setShowSuccessAlert(true); 
-      changeTab('home'); 
-      setSelectedStyles([]); 
-      setSelectedFiles([]); 
-      fetchPedidos(userId!); 
+
+      setAlertMessage("Pedido enviado com sucesso!");
+      setShowSuccessAlert(true);
+      changeTab('home');
+      setSelectedStyles([]);
+      setSelectedFiles([]);
+      fetchPedidos(userId!);
       setTimeout(() => setShowSuccessAlert(false), 5000);
-    } catch (error: any) { 
-      alert(`Falha no envio: ${error.message}`); 
-    } finally { 
-      setIsUploading(false); 
+    } catch (error: any) {
+      alert(`Falha no envio: ${error.message}`);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -580,7 +580,7 @@ export default function Dashboard() {
 
   const salvarEIrParaPagamento = async () => {
     if (!selectedOrderId || selectedPreviews.length === 0) return;
-    
+
     setIsFetchingPreview(true);
     try {
       const { error } = await supabase
@@ -987,14 +987,14 @@ export default function Dashboard() {
                   <p className="text-white font-bold text-lg">{selectedPreviews.length} Foto(s) Selecionada(s)</p>
                   <p className="text-gray-400 text-xs">O pedido original era de {pedidos.find(p => p.id === selectedOrderId)?.estilos?.length || 1} foto(s).</p>
                 </div>
-                
+
                 <div className="flex items-center gap-6">
                   <div className="text-right">
                     <p className="text-xs text-studio-gold uppercase tracking-widest font-bold">Total a Pagar</p>
                     <p className="text-2xl font-display text-white">R$ {calcularTotalPrevia().total.toFixed(2).replace('.', ',')}</p>
                   </div>
-                  <button 
-                    onClick={salvarEIrParaPagamento} 
+                  <button
+                    onClick={salvarEIrParaPagamento}
                     disabled={isFetchingPreview}
                     className="bg-studio-gold text-black px-8 py-3 rounded-lg font-bold uppercase tracking-widest hover:bg-studio-gold-light transition disabled:opacity-50 flex items-center gap-2"
                   >
@@ -1523,7 +1523,7 @@ export default function Dashboard() {
                       )}
 
                       {/* CTA Serviço Sob Medida */}
-                      <div 
+                      <div
                         onClick={() => toggleStyle('ESTILO_SOBMEDIDA')}
                         className={`mb-12 w-full border rounded-2xl p-6 transition-all duration-300 group relative overflow-hidden text-left cursor-pointer ${selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'border-studio-gold bg-studio-gold/10 shadow-[0_0_30px_rgba(212,175,55,0.3)]' : 'border-studio-gold/30 hover:border-studio-gold bg-[#121212]/80 backdrop-blur-sm shadow-[0_0_20px_rgba(212,175,55,0.15)] hover:shadow-[0_0_30px_rgba(212,175,55,0.2)]'}`}
                       >
@@ -1535,7 +1535,7 @@ export default function Dashboard() {
                             </div>
                             <div>
                               <h4 className="text-lg font-bold font-display uppercase tracking-widest text-white group-hover:text-studio-gold transition-colors flex items-center gap-2">
-                                Direção de Arte Sob Medida 
+                                Direção de Arte Sob Medida
                                 {selectedStyles.includes('ESTILO_SOBMEDIDA') && <CheckCircle2 size={16} className="text-studio-gold animate-in zoom-in" />}
                                 <span className="text-sm">💎</span>
                               </h4>
@@ -1565,7 +1565,7 @@ export default function Dashboard() {
                         <Info size={18} className="text-studio-gold shrink-0 mt-0.5" />
                         <p className="text-xs text-gray-300 leading-relaxed font-light">
                           <strong className="text-studio-gold uppercase tracking-wider text-[10px] block mb-1">Dica: O Seu Combo Personalizado</strong>
-                          Cada estilo selecionado acima equivale a <strong>1 Foto Final de Alta Resolução</strong>. A nossa IA aplicará o seu rosto mantendo a estética, a iluminação e o cenário exatos do estilo escolhido. Quanto mais estilos adicionar, maior será o seu desconto!
+                          Cada estilo selecionado equivale a <strong>1 Foto Final de Alta Resolução</strong>. A nossa IA aplicará o seu rosto mantendo a estética, a iluminação e o cenário exatos do estilo escolhido. Quanto mais estilos adicionar, maior será o seu desconto!
                         </p>
                       </div>
 
