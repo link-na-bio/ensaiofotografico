@@ -662,8 +662,7 @@ export default function Dashboard() {
         user_email: userEmail,
         pacote: 'fotos_extras',
         estilos: selectedExtras,
-        status: 'Aguardando Pagamento',
-        observacoes: `Upsell gerado a partir do pedido #${selectedEnsaioForGallery?.slice(0, 8)}`
+        status: 'Aguardando Pagamento'
       }).select().single();
 
       if (error) throw error;
