@@ -1214,69 +1214,78 @@ export default function Dashboard() {
                           <p className="text-xs uppercase tracking-widest font-bold">Gerando sua galeria...</p>
                         </div>
                       ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                          {galleryPhotos.map((url, idx) => (
-                            <div key={idx} className="group relative aspect-[4/5] rounded-xl overflow-hidden bg-white/5 border border-white/5 shadow-xl cursor-zoom-in">
-                              <img
-                                src={url}
-                                alt={`Foto ${idx + 1}`}
-                                onClick={() => setSelectedPhotoForModal(url)}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                loading="lazy"
-                              />
-                              <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center pointer-events-none md:pointer-events-auto">
-                                <button
-                                  onClick={() => handleDownloadSinglePhoto(url, `VIRTUAL_STUDIO_${selectedEnsaioForGallery.slice(0, 8)}_${idx + 1}.jpg`)}
-                                  className="w-12 h-12 bg-studio-gold text-studio-black rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-[0_0_20px_rgba(212,175,55,0.4)] pointer-events-auto"
-                                  title="Baixar Foto"
-                                >
-                                  <Download size={22} />
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-
-                        {fotosExtras.length > 0 && (
-                          <>
-                            <h3 className="text-xl font-display text-studio-gold mt-12 mb-6 uppercase tracking-[0.2em] font-bold flex items-center gap-3">
-                              <Sparkles size={20} /> Fotos Não Adquiridas (Compre Agora)
-                            </h3>
-                            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 pb-20">
-                              {fotosExtras.map((file, idx) => {
-                                const isSelected = selectedExtras.includes(file.name);
-                                return (
-                                  <div
-                                    key={idx}
-                                    onClick={() => toggleExtraSelection(file.name)}
-                                    className={`group relative aspect-[4/5] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 border-4 ${isSelected ? 'border-studio-gold ring-4 ring-studio-gold/20' : 'border-white/5 hover:border-studio-gold/30'}`}
+                        <>
+                          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                            {galleryPhotos.map((url, idx) => (
+                              <div key={idx} className="group relative aspect-[4/5] rounded-xl overflow-hidden bg-white/5 border border-white/5 shadow-xl cursor-zoom-in">
+                                <img
+                                  src={url}
+                                  alt={`Foto ${idx + 1}`}
+                                  onClick={() => setSelectedPhotoForModal(url)}
+                                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                  loading="lazy"
+                                />
+                                <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:flex items-center justify-center pointer-events-none md:pointer-events-auto">
+                                  <button
+                                    onClick={() => handleDownloadSinglePhoto(url, `VIRTUAL_STUDIO_${selectedEnsaioForGallery.slice(0, 8)}_${idx + 1}.jpg`)}
+                                    className="w-12 h-12 bg-studio-gold text-studio-black rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-[0_0_20px_rgba(212,175,55,0.4)] pointer-events-auto"
+                                    title="Baixar Foto"
                                   >
-                                    <img
-                                      src={file.url}
-                                      alt={`Extra ${idx + 1}`}
-                                      className={`w-full h-full object-cover transition-all duration-500 ${isSelected ? 'brightness-50 scale-105' : 'group-hover:scale-110'}`}
-                                      loading="lazy"
-                                    />
-                                    {/* Marca d'água nas extras */}
-                                    <div className="absolute inset-0 z-10 pointer-events-none opacity-30 mix-blend-screen overflow-hidden" style={{ backgroundImage: `url("/FOTO PROTEGIDA - NÃO TIRE PRINT.png")`, backgroundRepeat: 'repeat', backgroundSize: '120px' }}></div>
+                                    <Download size={22} />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
 
-                                    {isSelected && (
-                                      <div className="absolute top-4 right-4 z-20">
-                                        <CheckCircle2 size={32} className="text-studio-gold drop-shadow-[0_0_15px_rgba(212,175,55,0.8)]" />
+                          {fotosExtras.length > 0 && (
+                            <>
+                              <h3 className="text-xl font-display text-studio-gold mt-12 mb-6 uppercase tracking-[0.2em] font-bold flex items-center gap-3">
+                                <Sparkles size={20} /> Fotos Não Adquiridas (Compre Agora)
+                              </h3>
+                              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 pb-20">
+                                {fotosExtras.map((file, idx) => {
+                                  const isSelected = selectedExtras.includes(file.name);
+                                  return (
+                                    <div
+                                      key={idx}
+                                      onClick={() => toggleExtraSelection(file.name)}
+                                      className={`group relative aspect-[4/5] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 border-4 ${isSelected ? 'border-studio-gold ring-4 ring-studio-gold/20' : 'border-white/5 hover:border-studio-gold/30'}`}
+                                    >
+                                      <img
+                                        src={file.url}
+                                        alt={`Extra ${idx + 1}`}
+                                        className={`w-full h-full object-cover transition-all duration-500 ${isSelected ? 'brightness-50 scale-105' : 'group-hover:scale-110'}`}
+                                        loading="lazy"
+                                      />
+                                      {/* Marca d'água nas extras */}
+                                      <div className="absolute inset-0 z-10 pointer-events-none opacity-30 mix-blend-screen overflow-hidden" style={{ backgroundImage: `url("/FOTO PROTEGIDA - NÃO TIRE PRINT.png")`, backgroundRepeat: 'repeat', backgroundSize: '120px' }}></div>
+
+                                      {isSelected && (
+                                        <div className="absolute top-4 right-4 z-20">
+                                          <CheckCircle2 size={32} className="text-studio-gold drop-shadow-[0_0_15px_rgba(212,175,55,0.8)]" />
+                                        </div>
+                                      )}
+
+                                      <div className="absolute bottom-3 left-3 z-20">
+                                        <span className="px-2 py-1 bg-black/60 backdrop-blur-md rounded text-[9px] font-bold text-white uppercase tracking-tighter border border-white/10">
+                                          R$ {parsePrice(dynamicPrices?.preco_amostra, 19.90).toFixed(2).replace('.', ',')}
+                                        </span>
                                       </div>
-                                    )}
-
-                                    <div className="absolute bottom-3 left-3 z-20">
-                                      <span className="px-2 py-1 bg-black/60 backdrop-blur-md rounded text-[9px] font-bold text-white uppercase tracking-tighter border border-white/10">
-                                        R$ {parsePrice(dynamicPrices?.preco_amostra, 19.90).toFixed(2).replace('.', ',')}
-                                      </span>
                                     </div>
-                                  </div>
-                                );
-                              })}
+                                  );
+                                })}
+                              </div>
+                            </>
+                          )}
+
+                          {fotosExtras.length === 0 && !isFetchingGallery && (
+                            <div className="mt-12 text-center p-8 bg-white/5 border border-dashed border-white/10 rounded-2xl opacity-40">
+                              <CheckCheck size={32} className="mx-auto text-studio-gold mb-3" />
+                              <p className="text-xs uppercase tracking-widest font-bold">Todas as fotos disponíveis foram adquiridas!</p>
                             </div>
-                          </>
-                        )}
+                          )}
+                        </>
                       )}
                     </div>
 
