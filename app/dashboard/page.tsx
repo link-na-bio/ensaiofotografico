@@ -1113,8 +1113,6 @@ export default function Dashboard() {
                     </tbody>
                   </table>
                 </div>
-                  </table>
-                </div>
               </section>
             )}
           </motion.div>
