@@ -1199,14 +1199,14 @@ export default function Dashboard() {
                           </div>
 
                           <h4 className="text-sm font-bold font-display uppercase tracking-widest text-studio-gold mb-2">
-                            {pedido.pacote?.startsWith('FOTOS_EXTRAS|') 
+                            {pedido.pacote?.toLowerCase().startsWith('fotos_extras|') 
                               ? 'Fotos Extras Adquiridas' 
                               : pedido.pacote?.replace('dinamico_', 'Pack ')?.replace('_', ' ')?.toUpperCase() || 'Ensaio'}
                           </h4>
 
                           {!selectedEnsaioForGallery && (
                             <div className="flex flex-wrap gap-2 mb-6">
-                              {(pedido.pacote?.startsWith('FOTOS_EXTRAS|') 
+                              {(pedido.pacote?.toLowerCase().startsWith('fotos_extras|') 
                                 ? [] 
                                 : (pedido.estilos || [])
                               ).map((estilo: string) => (
@@ -1214,7 +1214,7 @@ export default function Dashboard() {
                                   {estilo}
                                 </span>
                               ))}
-                              {pedido.pacote?.startsWith('FOTOS_EXTRAS|') && (
+                              {pedido.pacote?.toLowerCase().startsWith('fotos_extras|') && (
                                 <span className="px-2 py-1 bg-studio-gold/10 border border-studio-gold/20 rounded text-[9px] uppercase tracking-wider text-studio-gold font-bold">
                                   {pedido.fotos_selecionadas?.length || 0} Foto(s) Liberada(s)
                                 </span>
