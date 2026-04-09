@@ -78,7 +78,7 @@ export default function Dashboard() {
   // Estados de Prévia e Galeria
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewFilesMetadata, setPreviewFilesMetadata] = useState<{ name: string, url: string }[]>([]);
-  const [selectedPreviewPhotos, setSelectedPreviewPhotos] = useState<string[]>([]);
+  const [selectedPreviews, setSelectedPreviews] = useState<string[]>([]);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [isFetchingPreview, setIsFetchingPreview] = useState(false);
   const [isDownloading, setIsDownloading] = useState<string | null>(null);
@@ -262,6 +262,25 @@ export default function Dashboard() {
     if (qtd >= 10) return pPremium;
     if (qtd >= 5) return pEssencial;
     return pBase;
+  };
+
+  const calcularTotalPrevia = () => {
+    const qtdSelecionada = selectedPreviews.length;
+    if (qtdSelecionada === 0) return { total: 0 };
+
+    const getPreco = (qtd: number) => {
+      const pBase = parsePrice(dynamicPrices?.preco_amostra, 19.90);
+      const pEssencial = parsePrice(dynamicPrices?.preco_essencial, 67.90) / 5;
+      const pPremium = parsePrice(dynamicPrices?.preco_premium, 97.90) / 10;
+      const pElite = parsePrice(dynamicPrices?.preco_elite, 147.90) / 20;
+
+      if (qtd >= 20) return qtd * pElite;
+      if (qtd >= 10) return qtd * pPremium;
+      if (qtd >= 5) return qtd * pEssencial;
+      return qtd * pBase;
+    };
+
+    return { total: getPreco(qtdSelecionada) };
   };
 
   const calculateCurrentTotal = () => {
@@ -504,7 +523,7 @@ export default function Dashboard() {
 
   const handleOpenPreview = async (orderId: string) => {
     setIsFetchingPreview(true);
-    setSelectedPreviewPhotos([]);
+    setSelectedPreviews([]);
     try {
       const path = `${userId}/${orderId}/`;
       const { data: files, error } = await supabase.storage.from('previa_ensaios').list(path);
@@ -523,7 +542,7 @@ export default function Dashboard() {
 
       const { data: pedido } = await supabase.from('pedidos').select('fotos_selecionadas').eq('id', orderId).single();
       if (pedido?.fotos_selecionadas) {
-        setSelectedPreviewPhotos(pedido.fotos_selecionadas);
+        setSelectedPreviews(pedido.fotos_selecionadas);
       }
 
       setIsPreviewOpen(true);
@@ -550,52 +569,38 @@ export default function Dashboard() {
   };
 
   const togglePhotoSelection = (fileName: string) => {
-    const pedido = pedidos.find(p => p.id === selectedOrderId);
-    const limit = getSelectionLimit(pedido);
-
-    if (selectedPreviewPhotos.includes(fileName)) {
-      setSelectedPreviewPhotos(prev => prev.filter(name => name !== fileName));
-    } else if (selectedPreviewPhotos.length < limit) {
-      setSelectedPreviewPhotos(prev => [...prev, fileName]);
+    if (selectedPreviews.includes(fileName)) {
+      setSelectedPreviews(prev => prev.filter(name => name !== fileName));
     } else {
-      alert(`Você já selecionou o limite de ${limit} fotos para o seu pacote.`);
+      setSelectedPreviews(prev => [...prev, fileName]);
     }
   };
 
-  const handleApproveSelection = async () => {
-    if (!selectedOrderId) return;
-    const pedido = pedidos.find(p => p.id === selectedOrderId);
-    const limit = getSelectionLimit(pedido);
-
-    if (selectedPreviewPhotos.length !== limit) {
-      alert(`Por favor, selecione exatamente ${limit} fotos para prosseguir.`);
-      return;
-    }
-
+  const salvarEIrParaPagamento = async () => {
+    if (!selectedOrderId || selectedPreviews.length === 0) return;
+    
     setIsFetchingPreview(true);
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('pedidos')
         .update({
-          fotos_selecionadas: selectedPreviewPhotos
+          fotos_selecionadas: selectedPreviews,
+          status: 'Aguardando Pagamento'
         })
-        .eq('id', selectedOrderId)
-        .select();
+        .eq('id', selectedOrderId);
 
       if (error) throw error;
-
-      if (!data || data.length === 0) {
-        throw new Error("O banco de dados bloqueou a gravação da sua seleção. (Erro de permissão RLS).");
-      }
 
       setIsPreviewOpen(false);
       router.push(`/checkout?orderId=${selectedOrderId}`);
     } catch (error: any) {
-      alert("Erro Crítico ao salvar seleção: " + error.message);
+      alert("Erro ao salvar seleção: " + error.message);
     } finally {
       setIsFetchingPreview(false);
     }
   };
+
+
 
   const handleViewGallery = async (orderId: string) => {
     setIsFetchingGallery(true);
@@ -856,10 +861,9 @@ export default function Dashboard() {
                 <p className="text-gray-400 text-[10px] uppercase tracking-widest mt-1 font-bold">
                   {(() => {
                     const pedido = pedidos.find(p => p.id === selectedOrderId);
-                    const limit = getSelectionLimit(pedido);
                     let displayPacote = pedido?.pacote || '';
                     if (displayPacote.includes('dinamico_')) displayPacote = displayPacote.replace('dinamico_', 'À La Carte: ');
-                    return `Selecionadas: ${selectedPreviewPhotos.length} de ${limit} (${displayPacote})`;
+                    return `Selecionadas: ${selectedPreviews.length} (${displayPacote})`;
                   })()}
                 </p>
               </div>
@@ -890,7 +894,7 @@ export default function Dashboard() {
               <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   {previewFilesMetadata.map((file, idx) => {
-                    const isSelected = selectedPreviewPhotos.includes(file.name);
+                    const isSelected = selectedPreviews.includes(file.name);
                     return (
                       <div
                         key={idx}
@@ -912,9 +916,9 @@ export default function Dashboard() {
                           <motion.div
                             initial={{ scale: 0.5, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            className="absolute inset-0 z-20 flex items-center justify-center bg-studio-gold/10"
+                            className="absolute top-4 right-4 z-20"
                           >
-                            <CheckCircle2 size={48} className="text-studio-gold drop-shadow-[0_0_15px_rgba(212,175,55,0.8)]" />
+                            <CheckCircle2 size={32} className="text-studio-gold drop-shadow-[0_0_15px_rgba(212,175,55,0.8)]" />
                           </motion.div>
                         )}
 
@@ -930,33 +934,29 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="p-6 border-t border-white/10 bg-studio-black/90 flex justify-center">
-              {(() => {
-                const pedido = pedidos.find(p => p.id === selectedOrderId);
-                const limit = getSelectionLimit(pedido);
-                const isReady = selectedPreviewPhotos.length === limit;
-
-                return (
-                  <button
-                    onClick={handleApproveSelection}
-                    disabled={!isReady || isFetchingPreview}
-                    className={`w-full max-w-lg py-5 font-display font-black uppercase tracking-widest text-sm md:text-base transition-all rounded-xl flex items-center justify-center gap-3 shadow-2xl ${isReady
-                      ? 'bg-studio-gold text-studio-black hover:bg-studio-gold-light shadow-studio-gold/20'
-                      : 'bg-white/5 text-gray-500 cursor-not-allowed border border-white/10'
-                      }`}
+            {/* BARRA FLUTUANTE DE CONFIRMAÇÃO (STICKY BOTTOM BAR) */}
+            {selectedPreviews.length > 0 && (
+              <div className="fixed bottom-0 left-0 w-full md:left-64 md:w-[calc(100%-16rem)] bg-[#121212]/95 backdrop-blur-md border-t border-studio-gold/30 p-4 px-8 flex justify-between items-center z-50">
+                <div>
+                  <p className="text-white font-bold text-lg">{selectedPreviews.length} Foto(s) Selecionada(s)</p>
+                  <p className="text-gray-400 text-xs">O pedido original era de {pedidos.find(p => p.id === selectedOrderId)?.estilos?.length || 1} foto(s).</p>
+                </div>
+                
+                <div className="flex items-center gap-6">
+                  <div className="text-right">
+                    <p className="text-xs text-studio-gold uppercase tracking-widest font-bold">Total a Pagar</p>
+                    <p className="text-2xl font-display text-white">R$ {calcularTotalPrevia().total.toFixed(2).replace('.', ',')}</p>
+                  </div>
+                  <button 
+                    onClick={salvarEIrParaPagamento} 
+                    disabled={isFetchingPreview}
+                    className="bg-studio-gold text-black px-8 py-3 rounded-lg font-bold uppercase tracking-widest hover:bg-studio-gold-light transition disabled:opacity-50 flex items-center gap-2"
                   >
-                    {isFetchingPreview ? (
-                      <Loader2 size={24} className="animate-spin" />
-                    ) : (
-                      <>
-                        <CheckCircle2 size={24} />
-                        {isReady ? 'Aprovar Seleção e Libertar Alta Resolução' : `Selecione mais ${limit - selectedPreviewPhotos.length} fotos`}
-                      </>
-                    )}
+                    {isFetchingPreview ? <Loader2 size={18} className="animate-spin" /> : 'Confirmar e Pagar'}
                   </button>
-                );
-              })()}
-            </div>
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

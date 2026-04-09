@@ -92,7 +92,9 @@ function CheckoutContent() {
       setInfoCalculada({ ...baseInfo, isLegacy: true });
     } else {
       // Regra Nova (À La Carte Dinâmico)
-      const estilos = pedido.estilos || [];
+      const estilos = (pedido.fotos_selecionadas && pedido.fotos_selecionadas.length > 0) 
+        ? pedido.fotos_selecionadas 
+        : (pedido.estilos || []);
       const hasSobMedida = estilos.includes('ESTILO_SOBMEDIDA');
       
       // Filtra estilos normais (excluindo o Sob Medida)
