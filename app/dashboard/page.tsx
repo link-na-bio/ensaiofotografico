@@ -981,23 +981,23 @@ export default function Dashboard() {
 
             {/* BARRA FLUTUANTE DE CONFIRMAÇÃO (STICKY BOTTOM BAR) */}
             {selectedPreviews.length > 0 && (
-              <div className="fixed bottom-0 left-0 w-full md:left-64 md:w-[calc(100%-16rem)] bg-[#121212]/95 backdrop-blur-md border-t border-studio-gold/30 p-4 px-8 flex justify-between items-center z-50">
-                <div>
-                  <p className="text-white font-bold text-lg">{selectedPreviews.length} Foto(s) Selecionada(s)</p>
-                  <p className="text-gray-400 text-xs">O pedido original era de {pedidos.find(p => p.id === selectedOrderId)?.estilos?.length || 1} foto(s).</p>
+              <div className="fixed bottom-0 left-0 w-full md:left-64 md:w-[calc(100%-16rem)] bg-[#121212]/95 backdrop-blur-md border-t border-studio-gold/30 p-4 md:px-8 flex flex-col md:flex-row justify-between items-center gap-4 z-50">
+                <div className="text-center md:text-left">
+                  <p className="text-white font-bold text-sm md:text-lg">{selectedPreviews.length} Foto(s) Selecionada(s)</p>
+                  <p className="text-gray-400 text-[10px] md:text-xs">O pedido original era de {pedidos.find(p => p.id === selectedOrderId)?.estilos?.length || 1} foto(s).</p>
                 </div>
 
-                <div className="flex items-center gap-6">
-                  <div className="text-right">
-                    <p className="text-xs text-studio-gold uppercase tracking-widest font-bold">Total a Pagar</p>
-                    <p className="text-2xl font-display text-white">R$ {calcularTotalPrevia().total.toFixed(2).replace('.', ',')}</p>
+                <div className="flex items-center justify-between w-full md:w-auto gap-4 md:gap-6 border-t border-white/5 md:border-none pt-4 md:pt-0">
+                  <div className="text-left md:text-right">
+                    <p className="text-[9px] md:text-xs text-studio-gold uppercase tracking-widest font-bold">Total a Pagar</p>
+                    <p className="text-xl md:text-2xl font-display text-white">R$ {calcularTotalPrevia().total.toFixed(2).replace('.', ',')}</p>
                   </div>
                   <button
                     onClick={salvarEIrParaPagamento}
                     disabled={isFetchingPreview}
-                    className="bg-studio-gold text-black px-8 py-3 rounded-lg font-bold uppercase tracking-widest hover:bg-studio-gold-light transition disabled:opacity-50 flex items-center gap-2"
+                    className="bg-studio-gold text-black px-6 md:px-8 py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-studio-gold-light transition disabled:opacity-50 flex items-center justify-center gap-2 text-xs md:text-sm shadow-[0_0_20px_rgba(212,175,55,0.3)]"
                   >
-                    {isFetchingPreview ? <Loader2 size={18} className="animate-spin" /> : 'Confirmar e Pagar'}
+                    {isFetchingPreview ? <Loader2 size={16} className="animate-spin" /> : <><Check size={16} /> Confirmar e Pagar</>}
                   </button>
                 </div>
               </div>
