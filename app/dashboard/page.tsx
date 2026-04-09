@@ -1070,11 +1070,23 @@ export default function Dashboard() {
         </nav>
         <div className="mt-auto p-6 border-t border-white/5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-studio-gold/20 flex items-center justify-center overflow-hidden relative border border-studio-gold/30">
-              {avatarUrl ? <Image src={avatarUrl} alt="Avatar" fill className="object-cover" onError={() => setAvatarUrl(null)} /> : <div className="w-full h-full bg-studio-gold text-studio-black flex items-center justify-center font-bold text-lg">{userEmail?.charAt(0).toUpperCase()}</div>}
+            <div className="w-10 h-10 rounded-full bg-studio-gold/20 text-studio-gold border border-studio-gold/50 flex items-center justify-center overflow-hidden relative group">
+              {avatarUrl ? (
+                <Image
+                  src={avatarUrl}
+                  alt="Avatar"
+                  fill
+                  className="object-cover transition-opacity group-hover:opacity-80"
+                  onError={() => setAvatarUrl(null)}
+                />
+              ) : (
+                <div className="flex items-center justify-center w-full h-full font-bold text-lg font-display uppercase tracking-widest">
+                  {userEmail ? userEmail.charAt(0).toUpperCase() : <User size={18} className="text-studio-gold/60" />}
+                </div>
+              )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold truncate font-display tracking-widest">{userEmail ? userEmail.split('@')[0] : 'Utilizador'}</p>
+              <p className="text-sm font-bold truncate font-display tracking-widest text-white">{userEmail ? userEmail.split('@')[0] : 'Utilizador'}</p>
             </div>
             <div className="relative flex gap-2">
               <button onClick={handleLogout} title="Sair da conta"><LogOut className="text-red-500 cursor-pointer hover:text-red-400 transition-colors" size={18} /></button>
@@ -1722,8 +1734,20 @@ export default function Dashboard() {
               <div className="space-y-6">
                 <div className="bg-white/5 border border-white/10 p-8 rounded-2xl text-center">
                   <div className="relative w-32 h-32 mx-auto mb-6">
-                    <div className="w-full h-full rounded-full bg-studio-gold/10 flex items-center justify-center overflow-hidden border-2 border-studio-gold/30">
-                      {avatarUrl ? <Image src={avatarUrl} alt="Avatar" fill className="object-cover" onError={() => setAvatarUrl(null)} /> : <User size={64} className="text-studio-gold opacity-50" />}
+                    <div className="w-full h-full rounded-full bg-studio-gold/10 flex items-center justify-center overflow-hidden border-2 border-studio-gold/30 relative">
+                      {avatarUrl ? (
+                        <Image
+                          src={avatarUrl}
+                          alt="Avatar"
+                          fill
+                          className="object-cover"
+                          onError={() => setAvatarUrl(null)}
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center w-full h-full">
+                          <User size={64} className="text-studio-gold opacity-50" />
+                        </div>
+                      )}
                     </div>
                     <button onClick={() => avatarInputRef.current?.click()} className="absolute bottom-0 right-0 w-10 h-10 bg-studio-gold text-studio-black rounded-full flex items-center justify-center border-4 border-[#121212] hover:scale-110 transition-transform"><Camera size={18} /></button>
                     <input type="file" ref={avatarInputRef} hidden accept="image/*" onChange={handleAvatarUpload} />
