@@ -1198,13 +1198,27 @@ export default function Dashboard() {
                             <span className="text-[8px] text-gray-500 font-bold uppercase tracking-widest">{formatDate(pedido.criado_em)}</span>
                           </div>
 
-                          <h4 className="text-sm font-bold font-display uppercase tracking-widest text-studio-gold mb-2">{pedido.pacote}</h4>
+                          <h4 className="text-sm font-bold font-display uppercase tracking-widest text-studio-gold mb-2">
+                            {pedido.pacote?.startsWith('FOTOS_EXTRAS|') 
+                              ? 'Fotos Extras Adquiridas' 
+                              : pedido.pacote?.replace('dinamico_', 'Pack ')?.replace('_', ' ')?.toUpperCase() || 'Ensaio'}
+                          </h4>
 
                           {!selectedEnsaioForGallery && (
                             <div className="flex flex-wrap gap-2 mb-6">
-                              {pedido.estilos?.map((estilo: string) => (
-                                <span key={estilo} className="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] uppercase tracking-wider text-gray-400">{estilo}</span>
+                              {(pedido.pacote?.startsWith('FOTOS_EXTRAS|') 
+                                ? [] 
+                                : (pedido.estilos || [])
+                              ).map((estilo: string) => (
+                                <span key={estilo} className="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] uppercase tracking-wider text-gray-400">
+                                  {estilo}
+                                </span>
                               ))}
+                              {pedido.pacote?.startsWith('FOTOS_EXTRAS|') && (
+                                <span className="px-2 py-1 bg-studio-gold/10 border border-studio-gold/20 rounded text-[9px] uppercase tracking-wider text-studio-gold font-bold">
+                                  {pedido.fotos_selecionadas?.length || 0} Foto(s) Liberada(s)
+                                </span>
+                              )}
                             </div>
                           )}
 
