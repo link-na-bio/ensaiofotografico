@@ -1257,14 +1257,8 @@ export default function Dashboard() {
                                         className={`w-full h-full object-cover transition-all duration-500 ${isSelected ? 'brightness-50 scale-105' : 'group-hover:scale-110'}`}
                                         loading="lazy"
                                       />
-                                      {/* Marca d'água nas extras - Sutil e sem logo */}
-                                      <div className="absolute inset-0 z-10 pointer-events-none opacity-20 overflow-hidden flex flex-wrap items-center justify-center select-none" style={{ backgroundImage: `linear-gradient(45deg, rgba(212,175,55,0.1) 25%, transparent 25%, transparent 50%, rgba(212,175,55,0.1) 50%, rgba(212,175,55,0.1) 75%, transparent 75%, transparent)`, backgroundSize: '40px 40px' }}>
-                                        <div className="absolute inset-0 flex flex-wrap gap-4 p-4 items-center justify-center rotate-[-30deg] scale-150">
-                                          {Array.from({ length: 12 }).map((_, i) => (
-                                            <span key={i} className="text-[10px] font-black text-studio-gold/20 uppercase tracking-tighter whitespace-nowrap">VIRTUAL STUDIO</span>
-                                          ))}
-                                        </div>
-                                      </div>
+                                      {/* Marca d'água robusta (Igual à prévia) */}
+                                      <div className="absolute inset-0 z-10 pointer-events-none opacity-30 mix-blend-screen overflow-hidden" style={{ backgroundImage: `url("/FOTO PROTEGIDA - NÃO TIRE PRINT.png")`, backgroundRepeat: 'repeat', backgroundSize: '150px' }}></div>
 
                                       {isSelected && (
                                         <div className="absolute top-4 right-4 z-20">
