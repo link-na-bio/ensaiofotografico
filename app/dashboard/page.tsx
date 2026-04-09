@@ -1240,10 +1240,10 @@ export default function Dashboard() {
 
                           {fotosExtras.length > 0 && (
                             <>
-                              <h3 className="text-xl font-display text-studio-gold mt-12 mb-6 uppercase tracking-[0.2em] font-bold flex items-center gap-3">
+                              <h3 className="text-lg md:text-xl font-display text-studio-gold mt-12 mb-6 uppercase tracking-widest md:tracking-[0.2em] font-bold flex items-center gap-3">
                                 <Sparkles size={20} /> Fotos Não Adquiridas (Compre Agora)
                               </h3>
-                              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 pb-20">
+                              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 pb-32 md:pb-20">
                                 {fotosExtras.map((file, idx) => {
                                   const isSelected = selectedExtras.includes(file.name);
                                   return (
@@ -1258,8 +1258,14 @@ export default function Dashboard() {
                                         className={`w-full h-full object-cover transition-all duration-500 ${isSelected ? 'brightness-50 scale-105' : 'group-hover:scale-110'}`}
                                         loading="lazy"
                                       />
-                                      {/* Marca d'água nas extras */}
-                                      <div className="absolute inset-0 z-10 pointer-events-none opacity-30 mix-blend-screen overflow-hidden" style={{ backgroundImage: `url("/FOTO PROTEGIDA - NÃO TIRE PRINT.png")`, backgroundRepeat: 'repeat', backgroundSize: '120px' }}></div>
+                                      {/* Marca d'água nas extras - Sutil e sem logo */}
+                                      <div className="absolute inset-0 z-10 pointer-events-none opacity-20 overflow-hidden flex flex-wrap items-center justify-center select-none" style={{ backgroundImage: `linear-gradient(45deg, rgba(212,175,55,0.1) 25%, transparent 25%, transparent 50%, rgba(212,175,55,0.1) 50%, rgba(212,175,55,0.1) 75%, transparent 75%, transparent)`, backgroundSize: '40px 40px' }}>
+                                        <div className="absolute inset-0 flex flex-wrap gap-4 p-4 items-center justify-center rotate-[-30deg] scale-150">
+                                          {Array.from({ length: 12 }).map((_, i) => (
+                                            <span key={i} className="text-[10px] font-black text-studio-gold/20 uppercase tracking-tighter whitespace-nowrap">VIRTUAL STUDIO</span>
+                                          ))}
+                                        </div>
+                                      </div>
 
                                       {isSelected && (
                                         <div className="absolute top-4 right-4 z-20">
@@ -1291,23 +1297,23 @@ export default function Dashboard() {
 
                     {/* BARRA FLUTUANTE DE UPSELL EXTRA */}
                     {selectedExtras.length > 0 && (
-                      <div className="absolute bottom-0 left-0 w-full bg-[#121212]/95 backdrop-blur-md border-t border-studio-gold/30 p-4 px-8 flex justify-between items-center z-50">
-                        <div>
-                          <p className="text-white font-bold text-lg">{selectedExtras.length} Foto(s) Extras(s)</p>
-                          <p className="text-gray-400 text-xs">Adicione mais fotos em alta resolução ao seu ensaio.</p>
+                      <div className="fixed md:absolute bottom-[80px] md:bottom-0 left-0 w-full bg-[#121212]/95 backdrop-blur-md border-t border-studio-gold/30 p-4 md:px-8 flex flex-col md:flex-row justify-between items-center gap-4 z-50">
+                        <div className="text-center md:text-left">
+                          <p className="text-white font-bold text-sm md:text-lg">{selectedExtras.length} Foto(s) Extra(s)</p>
+                          <p className="text-gray-400 text-[10px] md:text-xs">Clique no botão para liberar as fotos em alta.</p>
                         </div>
 
-                        <div className="flex items-center gap-6">
-                          <div className="text-right">
-                            <p className="text-xs text-studio-gold uppercase tracking-widest font-bold">Total Extra</p>
-                            <p className="text-2xl font-display text-white">R$ {(selectedExtras.length * parsePrice(dynamicPrices?.preco_amostra, 19.90)).toFixed(2).replace('.', ',')}</p>
+                        <div className="flex items-center justify-between w-full md:w-auto gap-4 md:gap-6 border-t border-white/5 md:border-none pt-4 md:pt-0">
+                          <div className="text-left md:text-right">
+                            <p className="text-[9px] md:text-xs text-studio-gold uppercase tracking-widest font-bold">Total Extra</p>
+                            <p className="text-xl md:text-2xl font-display text-white">R$ {(selectedExtras.length * parsePrice(dynamicPrices?.preco_amostra, 19.90)).toFixed(2).replace('.', ',')}</p>
                           </div>
                           <button
                             onClick={comprarFotosExtras}
                             disabled={isUploading}
-                            className="bg-studio-gold text-black px-8 py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-studio-gold-light transition flex items-center gap-2"
+                            className="bg-studio-gold text-black px-6 md:px-8 py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-studio-gold-light transition flex items-center justify-center gap-2 text-xs md:text-sm shadow-[0_0_20px_rgba(212,175,55,0.3)]"
                           >
-                            {isUploading ? <Loader2 size={18} className="animate-spin" /> : 'Pagar e Liberar'}
+                            {isUploading ? <Loader2 size={16} className="animate-spin" /> : <><Check size={16} /> Liberar Agora</>}
                           </button>
                         </div>
                       </div>
