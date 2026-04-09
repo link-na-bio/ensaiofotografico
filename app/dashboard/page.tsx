@@ -1070,11 +1070,20 @@ export default function Dashboard() {
                 <h3 className="text-lg font-bold font-display uppercase tracking-widest mb-6 flex items-center gap-3"><Clock size={18} className="text-studio-gold" /> Pedidos Recentes</h3>
                 <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
                   <table className="w-full text-left text-sm">
-                    <thead className="bg-white/5 border-b border-white/10"><tr><th className="px-3 py-4 text-gray-400 font-medium uppercase tracking-wider text-[10px]">Pacote</th><th className="px-3 py-4 text-gray-400 font-medium uppercase tracking-wider text-[10px]">Data</th><th className="px-3 py-4 text-gray-400 font-medium uppercase tracking-wider text-[10px]">Status</th></tr></thead>
+                    <thead className="bg-white/5 border-b border-white/10">
+                      <tr>
+                        <th className="px-3 py-4 text-gray-400 font-medium uppercase tracking-wider text-[10px]">Pacote</th>
+                        <th className="px-3 py-4 text-gray-400 font-medium uppercase tracking-wider text-[10px]">Data</th>
+                        <th className="px-3 py-4 text-gray-400 font-medium uppercase tracking-wider text-[10px]">Status</th>
+                        <th className="px-3 py-4 text-gray-400 font-medium uppercase tracking-wider text-[10px] text-right">Ação</th>
+                      </tr>
+                    </thead>
                     <tbody className="divide-y divide-white/5">
                       {pedidos.slice(0, 3).map((pedido) => (
                         <tr key={pedido.id} className="hover:bg-white/[0.02] transition-colors">
-                          <td className="px-3 py-4 font-bold uppercase tracking-widest text-xs text-studio-gold">{pedido.pacote}</td>
+                          <td className="px-3 py-4 font-bold uppercase tracking-widest text-xs text-studio-gold">
+                            {pedido.pacote}
+                          </td>
                           <td className="px-3 py-4 text-gray-500 text-xs">{formatDate(pedido.criado_em)}</td>
                           <td className="px-3 py-4">
                             <span className={`px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-normal border whitespace-nowrap ${(pedido.status === 'Ensaio Concluído' || pedido.status === 'Finalizado') ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
@@ -1085,9 +1094,25 @@ export default function Dashboard() {
                               {pedido.status === 'Finalizado' ? 'Ensaio Concluído' : pedido.status}
                             </span>
                           </td>
+                          <td className="px-3 py-4 text-right">
+                            <button
+                              onClick={() => {
+                                if (pedido.status === 'Prévia Disponível') handleOpenPreview(pedido.id);
+                                else if (pedido.status === 'Ensaio Concluído' || pedido.status === 'Finalizado') {
+                                  changeTab('ensaios');
+                                  handleViewGallery(pedido.id);
+                                }
+                              }}
+                              className="text-studio-gold hover:text-white transition-colors p-2"
+                            >
+                              <ChevronRight size={18} />
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
+                  </table>
+                </div>
                   </table>
                 </div>
               </section>
