@@ -602,33 +602,63 @@ export default function Dashboard() {
     }
   };
 
-
-
   const handleViewGallery = async (orderId: string) => {
     setIsFetchingGallery(true);
     setSelectedEnsaioForGallery(orderId);
     setFotosExtras([]);
     setSelectedExtras([]);
     try {
-      const { data: pedido, error: dbError } = await supabase
+      // 1. Buscar todos os pedidos do utilizador para agregar fotos já pagas
+      const { data: todosOsPedidos, error: listError } = await supabase
         .from('pedidos')
-        .select('fotos_selecionadas, status')
-        .eq('id', orderId)
-        .single();
+        .select('*')
+        .eq('user_id', userId);
 
-      if (dbError) throw dbError;
-      const selecionadas = pedido?.fotos_selecionadas || [];
+      if (listError) throw listError;
 
-      const path = `${userId}/${orderId}/`;
+      const currentOrder = todosOsPedidos?.find(p => p.id === orderId);
+      if (!currentOrder) throw new Error("Pedido não encontrado.");
+
+      // 2. Determinar o ID Raiz (para o Storage) e agregar fotos compradas
+      let rootOrderId = orderId;
+      const pkg = currentOrder.pacote || '';
+      if (pkg.includes('fotos_extras|')) {
+        rootOrderId = pkg.split('|')[1];
+      }
+
+      // 3. Coletar todas as fotos compradas (do pedido raiz e de extras já pagos)
+      let fotosCompradasTotal: string[] = [];
+
+      const ordersInSession = todosOsPedidos?.filter(p =>
+        p.id === rootOrderId ||
+        (p.pacote && p.pacote.includes(`|${rootOrderId}`))
+      ) || [];
+
+      ordersInSession.forEach(p => {
+        const isPaid = p.status === 'Ensaio Concluído' || p.status === 'Finalizado';
+        if (p.id === rootOrderId) {
+          // Do pedido raiz, pegamos o que foi selecionado inicialmente
+          fotosCompradasTotal = [...fotosCompradasTotal, ...(p.fotos_selecionadas || [])];
+        } else if (isPaid && p.pacote?.includes('fotos_extras')) {
+          // De pedidos de extras pagos, pegamos os "estilos" (que são os nomes das fotos)
+          fotosCompradasTotal = [...fotosCompradasTotal, ...(p.estilos || [])];
+        }
+      });
+
+      // Remove duplicatas
+      fotosCompradasTotal = Array.from(new Set(fotosCompradasTotal));
+
+      // 4. Buscar arquivos no Storage usando o rootOrderId
+      const path = `${userId}/${rootOrderId}/`;
       const { data: files, error: storageError } = await supabase.storage.from('previa_ensaios').list(path);
       if (storageError) throw storageError;
 
       const validFiles = files ? files.filter(f => f.name !== '.emptyFolderPlaceholder') : [];
       if (validFiles.length === 0) { alert("Nenhuma foto encontrada no servidor."); return; }
 
-      // Separa em FINAL (selecionadas) e EXTRAS (não selecionadas)
-      const arquivosFinais = validFiles.filter(f => selecionadas.some((sel: string) => f.name.includes(sel) || sel.includes(f.name)));
-      const arquivosExtras = validFiles.filter(f => !selecionadas.some((sel: string) => f.name.includes(sel) || sel.includes(f.name)));
+      // 5. Separar em FINAL (compradas) e EXTRAS (não compradas)
+      const arquivosFinais = validFiles.filter(f => fotosCompradasTotal.some((sel: string) => f.name.includes(sel) || sel.includes(f.name)));
+      const arquivosExtras = validFiles.filter(f => !fotosCompradasTotal.some((sel: string) => f.name.includes(sel) || sel.includes(f.name)));
 
       const urlPromisesFinais = arquivosFinais.map(async (file) => {
         const { data, error } = await supabase.storage.from('previa_ensaios').createSignedUrl(`${path}${file.name}`, 3600);
@@ -642,7 +672,11 @@ export default function Dashboard() {
 
       setGalleryPhotos(await Promise.all(urlPromisesFinais));
       setFotosExtras(await Promise.all(urlPromisesExtras));
-    } catch (error: any) { alert("Erro ao carregar galeria: " + error.message); } finally { setIsFetchingGallery(false); }
+    } catch (error: any) {
+      alert("Erro ao carregar galeria: " + error.message);
+    } finally {
+      setIsFetchingGallery(false);
+    }
   };
 
   const toggleExtraSelection = (fileName: string) => {
@@ -657,10 +691,12 @@ export default function Dashboard() {
     if (selectedExtras.length === 0) return;
     setIsUploading(true);
     try {
+      // Vincular o pedido de extras ao pedido pai para facilitar a liberação e localização dos arquivos
+      const parentId = selectedEnsaioForGallery;
       const { data: newOrder, error } = await supabase.from('pedidos').insert({
         user_id: userId,
         user_email: userEmail,
-        pacote: 'fotos_extras',
+        pacote: `fotos_extras|${parentId}`,
         estilos: selectedExtras,
         status: 'Aguardando Pagamento'
       }).select().single();
