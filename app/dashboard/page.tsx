@@ -866,6 +866,18 @@ export default function Dashboard() {
                     return `Selecionadas: ${selectedPreviews.length} (${displayPacote})`;
                   })()}
                 </p>
+                {/* MENSAGEM CHAMATIVA DE DESCONTO */}
+                <div className="mt-2 flex items-center gap-2">
+                  {selectedPreviews.length < 5 ? (
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 bg-studio-gold/10 border border-studio-gold/20 rounded text-[9px] font-black text-studio-gold uppercase tracking-widest animate-pulse">
+                      <Sparkles size={10} /> Selecione {5 - selectedPreviews.length} mais para o DESCONTO de 5 fotos!
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded text-[9px] font-black text-emerald-400 uppercase tracking-widest">
+                      <Zap size={10} /> {selectedPreviews.length >= 20 ? 'Desconto MÁXIMO (ELITE) Ativo!' : selectedPreviews.length >= 10 ? 'Desconto PREMIUM Ativo!' : 'Desconto ESSENCIAL Ativado!'}
+                    </div>
+                  )}
+                </div>
               </div>
               <button onClick={() => setIsPreviewOpen(false)} className="text-white hover:text-studio-gold transition-colors p-2 bg-white/5 rounded-full"><X size={24} /></button>
             </div>
