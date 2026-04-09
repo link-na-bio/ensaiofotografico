@@ -292,8 +292,8 @@ function CheckoutContent() {
           <div className="p-8 space-y-10 relative z-10">
             <div className="bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-studio-gold/20 relative overflow-hidden text-center flex flex-col items-center">
               <div className="absolute top-0 right-0 w-32 h-32 bg-studio-gold/10 rounded-full blur-3xl"></div>
-              <div className="w-24 h-24 rounded-full bg-studio-gold/10 flex items-center justify-center border border-studio-gold/30 mb-4 shadow-[0_0_30px_rgba(212,175,55,0.25)]">
-                <img src="/logo.2.png" alt="Logo" className="w-16 h-16 object-contain" />
+              <div className="mb-6 relative">
+                <img src="/logo.2.png" alt="Logo" className="w-[180px] h-auto object-contain mx-auto drop-shadow-[0_0_20px_rgba(212,175,55,0.2)]" />
               </div>
               <h3 className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">{infoCalculada.isLegacy ? 'Pacote' : 'Combo'} Selecionado</h3>
               <p className="font-display text-3xl uppercase text-white mb-6">{infoCalculada.nome}</p>
