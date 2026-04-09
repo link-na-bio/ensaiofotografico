@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabaseClient';
 import {
   Camera, Home, Library, PlusCircle, User, CloudUpload, Check, CheckCheck,
   Archive, X, Send, Sparkles, Heart, LogOut, Clock, LayoutGrid, CheckCircle2,
-  ChevronRight, ChevronLeft, Info, Eye, Download, Zap, MessageSquare, FileImage, Loader2, FileText, Paperclip, Lock, Bot, Search, MessageCircle, Palette
+  ChevronRight, ChevronLeft, Info, Eye, Download, Zap, MessageSquare, FileImage, Loader2, FileText, Paperclip, Lock, Bot, Search, MessageCircle, Palette, ShoppingBag
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
