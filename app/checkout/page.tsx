@@ -253,10 +253,15 @@ function CheckoutContent() {
       {/* SIDEBAR DO CLIENTE */}
       <aside className="w-64 border-r border-white/5 bg-studio-black flex flex-col sticky top-0 h-screen hidden md:flex shrink-0">
         <div className="p-6">
-          <div className="flex items-center gap-2 mb-8">
-            <div className="relative w-10 h-10 flex items-center justify-center"><Image src="/logo.2.png" alt="Virtual Studio Logo" fill className="object-contain" priority /></div>
-            <div><h1 className="text-white text-sm font-bold">VIRTUAL STUDIO</h1><p className="text-gray-500 text-[10px] uppercase tracking-widest">Painel do Cliente</p></div>
+        <div className="p-8 flex flex-col items-center text-center border-b border-white/5 mb-4">
+          <div className="flex flex-col items-center">
+            <div className="relative w-[150px] h-[150px] -mt-[40px] -mb-[60px] flex items-center justify-center pointer-events-none">
+              <Image src="/logo.2.png" alt="Virtual Studio Logo" fill className="object-contain" priority />
+            </div>
+            <div className="h-[1px] w-2/3 bg-gradient-to-r from-transparent via-studio-gold/50 to-transparent mt-2 mb-1"></div>
+            <p className="text-studio-gold text-[14px] uppercase tracking-widest font-bold">Checkout</p>
           </div>
+        </div>
           <nav className="flex flex-col gap-1">
             <button onClick={() => router.push('/dashboard')} className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-studio-gold transition-colors"><Home size={18} /><span className="text-sm font-medium">Home</span></button>
           </nav>
@@ -287,8 +292,8 @@ function CheckoutContent() {
           <div className="p-8 space-y-10 relative z-10">
             <div className="bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-studio-gold/20 relative overflow-hidden text-center flex flex-col items-center">
               <div className="absolute top-0 right-0 w-32 h-32 bg-studio-gold/10 rounded-full blur-3xl"></div>
-              <div className="w-16 h-16 rounded-full bg-studio-gold/10 flex items-center justify-center border border-studio-gold/30 mb-4 shadow-[0_0_20px_rgba(212,175,55,0.15)]">
-                <img src="/logo.2.png" alt="Logo" className="w-10 h-10 object-contain" />
+              <div className="w-24 h-24 rounded-full bg-studio-gold/10 flex items-center justify-center border border-studio-gold/30 mb-4 shadow-[0_0_30px_rgba(212,175,55,0.25)]">
+                <img src="/logo.2.png" alt="Logo" className="w-16 h-16 object-contain" />
               </div>
               <h3 className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">{infoCalculada.isLegacy ? 'Pacote' : 'Combo'} Selecionado</h3>
               <p className="font-display text-3xl uppercase text-white mb-6">{infoCalculada.nome}</p>
