@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
-import { ChevronLeft, ChevronRight, Check, CheckCheck, Star, ArrowRight, Zap, ChevronDown, ChevronUp, Sparkles, Instagram, Layers, MousePointerClick, Heart, Handshake, Mail, PlusCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, CheckCheck, Star, ArrowRight, Zap, ChevronDown, ChevronUp, Sparkles, Instagram, Layers, MousePointerClick, Heart, Handshake, Mail, PlusCircle, Palette } from 'lucide-react';
 import SalesNotification from '@/components/SalesNotification';
 import Link from 'next/link';
 
@@ -599,31 +599,9 @@ export default function LandingPage() {
               SOLICITAR MEU ENSAIO <ArrowRight size={18} />
             </Link>
           
-            {/* CTA Serviço Sob Medida */}
-            <Link href="/signup" className="block w-full mb-6">
-              <div className="border border-studio-gold/30 hover:border-studio-gold bg-[#121212]/80 backdrop-blur-sm rounded-2xl p-6 transition-all duration-300 group relative overflow-hidden text-left shadow-[0_0_20px_rgba(212,175,55,0.15)] hover:shadow-[0_0_30px_rgba(212,175,55,0.2)]">
-                <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[10px] font-bold px-4 py-1.5 uppercase tracking-widest rounded-bl-xl">PREMIUM</div>
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-studio-gold/10 flex items-center justify-center text-studio-gold shrink-0 border border-studio-gold/20 group-hover:scale-110 transition-transform">
-                      <Sparkles size={20} />
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-bold font-display uppercase tracking-widest text-white group-hover:text-studio-gold transition-colors">Direção de Arte Sob Medida <span className="text-sm">💎</span></h4>
-                      <p className="text-xs text-gray-400 mt-1 max-w-md leading-relaxed">Tem uma pose, roupa ou cenário específico em mente? Nossa equipe cria uma arte 100% exclusiva para você. Após o pedido, envie suas referências no nosso chat interno!</p>
-                    </div>
-                  </div>
-                  <div className="shrink-0 bg-studio-gold/5 sm:bg-transparent p-4 sm:p-0 rounded-xl w-full sm:w-auto text-center sm:text-right border border-studio-gold/10 sm:border-none">
-                    <p className="text-2xl font-bold text-studio-gold tracking-wider">R$ 69,90</p>
-                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Projeto Exclusivo</p>
-                  </div>
-                </div>
-              </div>
-            </Link>
-
             {/* Card Estilo Especial Sazonal (Dia das Mães) */}
             {EVENTO_SAZONAL.ativo && (
-              <Link href="/signup" className="block w-full">
+              <Link href="/signup" className="block w-full mb-6">
                 <div className="border-2 border-purple-500/30 hover:border-purple-500/60 bg-gradient-to-r from-purple-900/40 to-studio-black/80 backdrop-blur-sm rounded-2xl p-6 transition-all duration-300 group relative overflow-hidden text-left shadow-[0_0_30px_rgba(168,85,247,0.15)] cursor-pointer">
                   <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[10px] font-black px-4 py-1.5 uppercase tracking-widest rounded-bl-xl shadow-lg z-20">TEMPO LIMITADO</div>
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
@@ -650,6 +628,30 @@ export default function LandingPage() {
                 </div>
               </Link>
             )}
+
+            {/* CTA Serviço Sob Medida */}
+            <Link href="/signup" className="block w-full">
+              <div className="border border-studio-gold/30 hover:border-studio-gold bg-[#121212]/80 backdrop-blur-sm rounded-2xl p-6 transition-all duration-300 group relative overflow-hidden text-left shadow-[0_0_20px_rgba(212,175,55,0.15)] hover:shadow-[0_0_30px_rgba(212,175,55,0.2)]">
+                <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[10px] font-bold px-4 py-1.5 uppercase tracking-widest rounded-bl-xl">PREMIUM</div>
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-studio-gold/10 flex items-center justify-center text-studio-gold shrink-0 border border-studio-gold/20 group-hover:scale-110 transition-transform">
+                      <Palette size={20} />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-bold font-display uppercase tracking-widest text-white group-hover:text-studio-gold transition-colors">Direção de Arte Sob Medida <span className="text-sm">💎</span></h4>
+                      <p className="text-xs text-gray-400 mt-1 max-w-md leading-relaxed">Tem uma pose, roupa ou cenário específico em mente? Nossa equipe cria uma arte 100% exclusiva para você. Após o pedido, envie suas referências no nosso chat interno!</p>
+                    </div>
+                  </div>
+                  <div className="shrink-0 w-full sm:w-auto mt-4 sm:mt-0 flex flex-col items-center sm:items-end gap-2">
+                    <div className="flex items-center gap-2 text-white text-xs font-bold uppercase tracking-widest bg-white/5 px-6 py-3 rounded-lg border border-white/10 group-hover:bg-studio-gold group-hover:text-studio-black transition-all">
+                      <PlusCircle size={16} /> Adicionar
+                    </div>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">Projeto Exclusivo</p>
+                  </div>
+                </div>
+              </div>
+            </Link>
 
             <p className="mt-8 text-gray-500 text-sm italic font-light tracking-widest uppercase">Comece agora sua jornada definitiva de imagem</p>
           </motion.div>

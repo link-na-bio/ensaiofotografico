@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabaseClient';
 import {
   Camera, Home, Library, PlusCircle, User, CloudUpload, Check, CheckCheck,
   Archive, X, Send, Sparkles, Heart, LogOut, Clock, LayoutGrid, CheckCircle2,
-  ChevronRight, ChevronLeft, Info, Eye, Download, Zap, MessageSquare, FileImage, Loader2, FileText, Paperclip, Lock, Bot, Search, MessageCircle
+  ChevronRight, ChevronLeft, Info, Eye, Download, Zap, MessageSquare, FileImage, Loader2, FileText, Paperclip, Lock, Bot, Search, MessageCircle, Palette
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -1388,7 +1388,7 @@ export default function Dashboard() {
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
                           <div className="flex items-center gap-4">
                             <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border transition-all duration-300 ${selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'bg-studio-gold text-studio-black border-studio-gold' : 'bg-studio-gold/10 text-studio-gold border-studio-gold/20 group-hover:scale-110'}`}>
-                              <Sparkles size={20} />
+                              <Palette size={20} />
                             </div>
                             <div>
                               <h4 className="text-lg font-bold font-display uppercase tracking-widest text-white group-hover:text-studio-gold transition-colors flex items-center gap-2">
