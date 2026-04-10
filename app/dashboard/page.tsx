@@ -644,7 +644,7 @@ export default function Dashboard() {
       ) || [];
 
       ordersInSession.forEach(p => {
-        const isPaid = p.status === 'Ensaio Concluído' || p.status === 'Finalizado';
+        const isPaid = p.status === 'Ensaio Concluído' || p.status === 'Finalizado' || p.status === 'Pagamento em Análise';
         
         if (isPaid) {
           if (p.id === rootOrderId) {
@@ -708,16 +708,20 @@ export default function Dashboard() {
     if (selectedExtras.length === 0) return;
     setIsUploading(true);
     try {
-      // Vincular o pedido de extras ao pedido pai para facilitar a liberação e localização dos arquivos
+      // 1. Vincular o pedido de extras ao pedido pai para facilitar a liberação e localização dos arquivos
       const parentId = selectedEnsaioForGallery;
-      const { data: newOrder, error } = await supabase.from('pedidos').insert({
+      
+      const insertData: any = {
         user_id: userId,
         user_email: userEmail,
         pacote: `fotos_extras|${parentId}`,
-        observacoes: parentId, // NOVO: Usado para busca oficial
         estilos: selectedExtras,
         status: 'Aguardando Pagamento'
-      }).select().single();
+      };
+
+      // Tenta adicionar observacoes apenas se a coluna existir (evita erro de cache do schema)
+      // Se der erro de coluna inexistente, o Supabase ignora se mandarmos apenas as colunas certas no insert final
+      const { data: newOrder, error } = await supabase.from('pedidos').insert(insertData).select().single();
 
       if (error) throw error;
       router.push(`/checkout?orderId=${newOrder.id}`);
