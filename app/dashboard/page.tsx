@@ -695,9 +695,9 @@ export default function Dashboard() {
       const validFiles = files ? files.filter(f => f.name !== '.emptyFolderPlaceholder') : [];
       if (validFiles.length === 0) { alert("Nenhuma foto encontrada no servidor."); return; }
 
-      // 5. Separar em FINAL (compradas) e EXTRAS (não compradas)
-      const arquivosFinais = validFiles.filter(f => fotosCompradasTotal.some((sel: string) => f.name.includes(sel) || sel.includes(f.name)));
-      const arquivosExtras = validFiles.filter(f => !fotosCompradasTotal.some((sel: string) => f.name.includes(sel) || sel.includes(f.name)));
+      // 5. Separar em FINAL (compradas + bônus) e EXTRAS (não compradas)
+      const arquivosFinais = validFiles.filter(f => f.name.toLowerCase().includes('bonus_') || fotosCompradasTotal.some((sel: string) => f.name.includes(sel) || sel.includes(f.name)));
+      const arquivosExtras = validFiles.filter(f => !f.name.toLowerCase().includes('bonus_') && !fotosCompradasTotal.some((sel: string) => f.name.includes(sel) || sel.includes(f.name)));
 
       const urlPromisesFinais = arquivosFinais.map(async (file) => {
         const { data, error } = await supabase.storage.from('previa_ensaios').createSignedUrl(`${path}${file.name}`, 3600);
@@ -809,7 +809,7 @@ export default function Dashboard() {
 
       let arquivosFinais = validFiles;
       if (selecionadas.length > 0) {
-        arquivosFinais = validFiles.filter(f => selecionadas.some((sel: string) => f.name.includes(sel) || sel.includes(f.name)));
+        arquivosFinais = validFiles.filter(f => f.name.toLowerCase().includes('bonus_') || selecionadas.some((sel: string) => f.name.includes(sel) || sel.includes(f.name)));
         if (arquivosFinais.length === 0) {
           alert("Erro: As fotos selecionadas não puderam ser descarregadas. Contacte o suporte.");
           setIsDownloading(null);

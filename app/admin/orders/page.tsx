@@ -45,7 +45,7 @@ export default function AdminOrders() {
   const [downloadModal, setDownloadModal] = useState<{ isOpen: boolean; files: any[]; orderId: string }>({ isOpen: false, files: [], orderId: '' });
   const [comprovanteModal, setComprovanteModal] = useState<{ isOpen: boolean; url: string; orderId: string }>({ isOpen: false, url: '', orderId: '' });
 
-  const [uploadingOrder, setUploadingOrder] = useState<{ id: string; userId: string } | null>(null);
+  const [uploadingOrder, setUploadingOrder] = useState<{ id: string; userId: string; isBonus?: boolean } | null>(null);
   const [isZipping, setIsZipping] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -173,7 +173,12 @@ export default function AdminOrders() {
   };
 
   const triggerUploadPreview = (orderId: string, userId: string) => {
-    setUploadingOrder({ id: orderId, userId });
+    setUploadingOrder({ id: orderId, userId, isBonus: false });
+    fileInputRef.current?.click();
+  };
+
+  const triggerUploadBonus = (orderId: string, userId: string) => {
+    setUploadingOrder({ id: orderId, userId, isBonus: true });
     fileInputRef.current?.click();
   };
 
@@ -187,16 +192,21 @@ export default function AdminOrders() {
 
       for (const file of Array.from(files)) {
         const fileExt = file.name.split('.').pop();
-        const safeFileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const prefix = uploadingOrder.isBonus ? 'bonus_' : '';
+        const safeFileName = `${prefix}${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
         const filePath = `${uploadingOrder.userId}/${uploadingOrder.id}/${safeFileName}`;
 
         const { error: uploadError } = await supabase.storage.from('previa_ensaios').upload(filePath, file, { upsert: true });
         if (uploadError) throw uploadError;
       }
 
-      await supabase.from('pedidos').update({ status: 'Prévia Disponível' }).eq('id', uploadingOrder.id);
+      if (!uploadingOrder.isBonus) {
+        await supabase.from('pedidos').update({ status: 'Prévia Disponível' }).eq('id', uploadingOrder.id);
+        alert('Prévias enviadas com sucesso e status atualizado!');
+      } else {
+        alert('Fotos Bônus enviadas com sucesso!');
+      }
 
-      alert('Prévias enviadas com sucesso e status atualizado!');
       await fetchOrders();
     } catch (error: any) {
       alert('Erro no upload: ' + error.message);
@@ -478,12 +488,20 @@ export default function AdminOrders() {
                                   {activeAction[`download-${order.id}`] ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
                                 </button>
                                 <button
+                                  onClick={() => triggerUploadBonus(order.id, order.user_id)}
+                                  disabled={activeAction[`upload-${order.id}`]}
+                                  className="size-9 flex items-center justify-center rounded border border-white/10 text-emerald-400 hover:border-emerald-500 hover:text-emerald-500 transition-all disabled:opacity-50"
+                                  title="Upload foto bônus 🎁"
+                                >
+                                  {activeAction[`upload-${order.id}`] && uploadingOrder?.isBonus ? <Loader2 size={18} className="animate-spin" /> : <span>🎁</span>}
+                                </button>
+                                <button
                                   onClick={() => triggerUploadPreview(order.id, order.user_id)}
                                   disabled={activeAction[`upload-${order.id}`]}
                                   className="size-9 flex items-center justify-center rounded border border-white/10 text-slate-400 hover:border-studio-gold hover:text-studio-gold transition-all disabled:opacity-50"
                                   title="Upload prévia para o cliente"
                                 >
-                                  {activeAction[`upload-${order.id}`] ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />}
+                                  {activeAction[`upload-${order.id}`] && !uploadingOrder?.isBonus ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />}
                                 </button>
                               </>
                             )}
