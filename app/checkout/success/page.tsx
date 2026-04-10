@@ -89,7 +89,11 @@ function SuccessContent() {
             <div className="relative z-10 space-y-4 text-center md:text-left w-full">
               <div>
                 <p className="text-studio-gold text-[10px] font-bold uppercase tracking-widest mb-1">Resumo da Aquisição</p>
-                <h3 className="text-2xl font-bold text-slate-100 font-display uppercase">{pedido?.pacote ? pedido.pacote.replace('dinamico_', 'Pack ') : 'Seu Ensaio'}</h3>
+                <h3 className="text-2xl font-bold text-slate-100 font-display uppercase">
+                  {pedido?.pacote?.toLowerCase().includes('fotos_extras') 
+                    ? 'Fotos Extras Adquiridas' 
+                    : pedido?.pacote?.replace('dinamico_', 'Pack ')?.replace('sazonal', 'Pack Sazonal')?.replace('_', ' ')?.toUpperCase() || 'Seu Ensaio'}
+                </h3>
               </div>
               <ul className="text-gray-400 text-xs space-y-3 uppercase tracking-widest">
                 <li className="flex items-center gap-3 justify-center md:justify-start">

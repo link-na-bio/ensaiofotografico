@@ -637,23 +637,29 @@ export default function Dashboard() {
       let fotosCompradasTotal: string[] = [];
       let pendingUpsell: any = null;
 
-      const ordersInSession = todosOsPedidos?.filter(p =>
-        p.id === rootOrderId ||
-        (p.pacote && p.pacote.includes(`|${rootOrderId}`)) ||
-        p.observacoes === rootOrderId
-      ) || [];
+      const ordersInSession = todosOsPedidos?.filter(p => {
+        const pId = p.id?.toLowerCase();
+        const rId = rootOrderId?.toLowerCase();
+        const pkg = p.pacote?.toLowerCase() || '';
+        const obs = p.observacoes?.toLowerCase() || '';
+        
+        return pId === rId || pkg.includes(`|${rId}`) || obs === rId;
+      }) || [];
 
       ordersInSession.forEach(p => {
-        const isPaid = p.status === 'Ensaio Concluído' || p.status === 'Finalizado' || p.status === 'Pagamento em Análise';
+        const s = p.status;
+        // Lógica de Liberação: Finalizado, Concluído, Em Análise (para extras) ou Prévia Disponível (para o original)
+        const isReleased = s === 'Ensaio Concluído' || s === 'Finalizado' || s === 'Pagamento em Análise' || s === 'Prévia Disponível';
         
-        if (isPaid) {
+        if (isReleased) {
           if (p.id === rootOrderId) {
+            // Do pedido raiz, pegamos o que foi selecionado inicialmente
             fotosCompradasTotal = [...fotosCompradasTotal, ...(p.fotos_selecionadas || [])];
           } else if (p.pacote?.toLowerCase().includes('fotos_extras')) {
             // De pedidos de extras pagos, pegamos os "estilos" (que são os nomes das fotos)
             fotosCompradasTotal = [...fotosCompradasTotal, ...(p.estilos || [])];
           }
-        } else if (p.status === 'Aguardando Pagamento' && p.pacote?.toLowerCase().includes('fotos_extras')) {
+        } else if (s === 'Aguardando Pagamento' && p.pacote?.toLowerCase().includes('fotos_extras')) {
           // Detecta se existe algum upsell pendente para mostrar o banner
           pendingUpsell = p;
         }
