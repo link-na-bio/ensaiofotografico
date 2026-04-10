@@ -485,7 +485,8 @@ export default function Dashboard() {
       const shortId = orderData.id.split('-')[0].toUpperCase();
       const qtdFotos = orderData.estilos?.length || orderData.fotos_selecionadas?.length || selectedStyles.length;
 
-      const mensagemDiscord = `@everyone 🚨 **NOVO PEDIDO VIP NA ÁREA!** 🚨\n\n🆔 **ID do Pedido:** #${shortId}\n👤 **Cliente:** ${userEmail}\n📦 **Pacote:** ${finalPackageName || 'Estilos Selecionados'}\n📸 **Quantidade:** ${qtdFotos} foto(s)\n💳 **Status:** ${orderData.status || 'Aguardando Produção'}\n\n⚡ Acesse o painel para acompanhar!`;
+      const estilosFormatados = selectedStyles.join(', ');
+      const mensagemDiscord = `@everyone 🚨 **NOVO PEDIDO VIP NA ÁREA!** 🚨\n\n🆔 **ID do Pedido:** #${shortId}\n👤 **Cliente:** ${userEmail}\n📦 **Pacote:** ${finalPackageName || 'Estilos Selecionados'}\n🎨 **Estilos Escolhidos:** ${estilosFormatados}\n📸 **Quantidade:** ${qtdFotos} foto(s)\n💳 **Status:** ${orderData.status || 'Aguardando Produção'}\n\n⚡ Acesse o painel para acompanhar!`;
       try {
         await fetch(discordWebhookUrl, {
           method: 'POST',
@@ -750,7 +751,8 @@ export default function Dashboard() {
       const shortId = newOrder.id.split('-')[0].toUpperCase();
       const qtdFotos = newOrder.estilos?.length || newOrder.fotos_selecionadas?.length || selectedExtras.length;
 
-      const mensagemDiscord = `@everyone 🚨 **NOVA COMPRA DE EXTRAS!** 🚨\n\n🆔 **ID do Pedido:** #${shortId}\n👤 **Cliente:** ${userEmail}\n📦 **Pacote:** Fotos Extras\n📸 **Quantidade:** ${qtdFotos} foto(s)\n💳 **Status:** Aguardando Pagamento\n\n⚡ Acesse o painel para acompanhar!`;
+      const extrasFormatados = selectedExtras.map(e => e.split('.')[0]).join(', ');
+      const mensagemDiscord = `@everyone 🚨 **NOVA COMPRA DE EXTRAS!** 🚨\n\n🆔 **ID do Pedido:** #${shortId}\n👤 **Cliente:** ${userEmail}\n📦 **Pacote:** Fotos Extras\n🎨 **Fotos Escolhidas:** ${extrasFormatados}\n📸 **Quantidade:** ${qtdFotos} foto(s)\n💳 **Status:** Aguardando Pagamento\n\n⚡ Acesse o painel para acompanhar!`;
       try {
         await fetch(discordWebhookUrl, {
           method: 'POST',
