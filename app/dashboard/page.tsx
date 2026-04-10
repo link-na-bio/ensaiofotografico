@@ -482,7 +482,7 @@ export default function Dashboard() {
       const orderId = orderData.id;
 
       const discordWebhookUrl = 'https://discord.com/api/webhooks/1492131248091435170/l4cqtcHnLulXpEDka8bsSon81D2_8OY5e5vP3kxlbI6UcIb5KOSIHmhwivBqPsDmuHdU';
-      const mensagemDiscord = `🚨 **NOVO PEDIDO NO SISTEMA!** 🚨\n👤 **Cliente:** ${userEmail}\n📦 **Pacote:** ${finalPackageName || 'Estilos Selecionados'}\n💳 **Status:** Aguardando Produção`;
+      const mensagemDiscord = `@everyone 🚨 **NOVO PEDIDO NO SISTEMA!** 🚨\n👤 **Cliente:** ${userEmail}\n📦 **Pacote:** ${finalPackageName || 'Estilos Selecionados'}\n💳 **Status:** Aguardando Produção`;
       try {
         await fetch(discordWebhookUrl, {
           method: 'POST',
@@ -744,7 +744,7 @@ export default function Dashboard() {
       if (error) throw error;
 
       const discordWebhookUrl = 'https://discord.com/api/webhooks/1492131248091435170/l4cqtcHnLulXpEDka8bsSon81D2_8OY5e5vP3kxlbI6UcIb5KOSIHmhwivBqPsDmuHdU';
-      const mensagemDiscord = `🚨 **NOVO PEDIDO DE EXTRAS!** 🚨\n👤 **Cliente:** ${userEmail}\n📦 **Pacote:** Fotos Extras\n💳 **Status:** Aguardando Pagamento`;
+      const mensagemDiscord = `@everyone 🚨 **NOVO PEDIDO DE EXTRAS!** 🚨\n👤 **Cliente:** ${userEmail}\n📦 **Pacote:** Fotos Extras\n💳 **Status:** Aguardando Pagamento`;
       try {
         await fetch(discordWebhookUrl, {
           method: 'POST',
