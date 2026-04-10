@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabaseClient';
 import {
   Camera, Home, Library, PlusCircle, User, CloudUpload, Check, CheckCheck,
   Archive, X, Send, Sparkles, Heart, LogOut, Clock, LayoutGrid, CheckCircle2,
-  ChevronRight, ChevronLeft, Info, Eye, Download, Zap, MessageSquare, FileImage, Loader2, FileText, Paperclip, Lock, Bot, Search, MessageCircle, Palette, ShoppingBag
+  ChevronRight, ChevronLeft, Info, Eye, Download, Zap, MessageSquare, FileImage, Loader2, FileText, Paperclip, Lock, Bot, Search, MessageCircle, Palette, ShoppingBag, QrCode, ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -90,6 +90,7 @@ export default function Dashboard() {
   const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
   const [isFetchingGallery, setIsFetchingGallery] = useState(false);
   const [selectedPhotoForModal, setSelectedPhotoForModal] = useState<string | null>(null);
+  const [pendingSubOrder, setPendingSubOrder] = useState<any>(null);
 
   // Estados do Chat
   const [messages, setMessages] = useState<any[]>([]);
@@ -105,6 +106,14 @@ export default function Dashboard() {
       localStorage.setItem(`client_last_message_seen_${userId}`, new Date().toISOString());
     }
   }, [activeTab, userId, messages]);
+
+  useEffect(() => {
+    if (!userId || pedidos.length === 0) return;
+    setHasUnreadMessages(pedidos.some(p => p.unread_messages));
+  }, [userId, pedidos]);
+
+  // FILTRO DE OURO: Oculta sub-pedidos de extras da tela principal
+  const pedidosParaExibir = pedidos.filter(p => !p.pacote?.toLowerCase().includes('fotos_extras'));
 
   useEffect(() => {
     if (!userId || pedidos.length === 0) return;
@@ -607,6 +616,8 @@ export default function Dashboard() {
     setSelectedEnsaioForGallery(orderId);
     setFotosExtras([]);
     setSelectedExtras([]);
+    setPendingSubOrder(null); // Reset pending order
+    
     try {
       // 1. Buscar todos os pedidos do utilizador para agregar fotos já pagas
       const { data: todosOsPedidos, error: listError } = await supabase
@@ -619,31 +630,37 @@ export default function Dashboard() {
       const currentOrder = todosOsPedidos?.find(p => p.id === orderId);
       if (!currentOrder) throw new Error("Pedido não encontrado.");
 
-      // 2. Determinar o ID Raiz (para o Storage) e agregar fotos compradas
-      let rootOrderId = orderId;
-      const pkg = currentOrder.pacote || '';
-      if (pkg.includes('fotos_extras|')) {
-        rootOrderId = pkg.split('|')[1];
-      }
+      // 2. Determinar o ID Raiz (para o Storage)
+      const rootOrderId = orderId;
 
       // 3. Coletar todas as fotos compradas (do pedido raiz e de extras já pagos)
       let fotosCompradasTotal: string[] = [];
+      let pendingUpsell: any = null;
 
       const ordersInSession = todosOsPedidos?.filter(p =>
         p.id === rootOrderId ||
-        (p.pacote && p.pacote.includes(`|${rootOrderId}`))
+        (p.pacote && p.pacote.includes(`|${rootOrderId}`)) ||
+        p.observacoes === rootOrderId
       ) || [];
 
       ordersInSession.forEach(p => {
         const isPaid = p.status === 'Ensaio Concluído' || p.status === 'Finalizado';
-        if (p.id === rootOrderId) {
-          // Do pedido raiz, pegamos o que foi selecionado inicialmente
-          fotosCompradasTotal = [...fotosCompradasTotal, ...(p.fotos_selecionadas || [])];
-        } else if (isPaid && p.pacote?.includes('fotos_extras')) {
-          // De pedidos de extras pagos, pegamos os "estilos" (que são os nomes das fotos)
-          fotosCompradasTotal = [...fotosCompradasTotal, ...(p.estilos || [])];
+        
+        if (isPaid) {
+          if (p.id === rootOrderId) {
+            fotosCompradasTotal = [...fotosCompradasTotal, ...(p.fotos_selecionadas || [])];
+          } else if (p.pacote?.toLowerCase().includes('fotos_extras')) {
+            // De pedidos de extras pagos, pegamos os "estilos" (que são os nomes das fotos)
+            fotosCompradasTotal = [...fotosCompradasTotal, ...(p.estilos || [])];
+          }
+        } else if (p.status === 'Aguardando Pagamento' && p.pacote?.toLowerCase().includes('fotos_extras')) {
+          // Detecta se existe algum upsell pendente para mostrar o banner
+          pendingUpsell = p;
         }
       });
+
+      // Se existir um pendente, salvamos no estado
+      if (pendingUpsell) setPendingSubOrder(pendingUpsell);
 
       // Remove duplicatas
       fotosCompradasTotal = Array.from(new Set(fotosCompradasTotal));
@@ -697,6 +714,7 @@ export default function Dashboard() {
         user_id: userId,
         user_email: userEmail,
         pacote: `fotos_extras|${parentId}`,
+        observacoes: parentId, // NOVO: Usado para busca oficial
         estilos: selectedExtras,
         status: 'Aguardando Pagamento'
       }).select().single();
@@ -1099,10 +1117,10 @@ export default function Dashboard() {
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="home" className="px-8">
             <header className="mb-10"><h2 className="text-3xl font-bold font-display uppercase tracking-wider">Bem-vindo(a) ao Virtual Studio, <span className="text-studio-gold">{userEmail?.split('@')[0]}</span></h2><p className="text-gray-500 mt-2">A sua jornada para a imagem profissional perfeita começa aqui.</p></header>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-              <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:border-studio-gold/30 transition-colors group"><div className="flex justify-between items-start mb-4"><Clock className="text-gray-500 group-hover:text-studio-gold transition-colors" size={20} /><span className="text-2xl font-bold font-display text-white">{pedidos.filter(p => p.status === 'Aguardando Produção').length.toString().padStart(2, '0')}</span></div><p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Aguardando</p></div>
-              <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:border-studio-gold/30 transition-colors group"><div className="flex justify-between items-start mb-4"><Bot className="text-gray-500 group-hover:text-studio-gold transition-colors" size={20} /><span className="text-2xl font-bold font-display text-white">{pedidos.filter(p => p.status === 'Em Produção').length.toString().padStart(2, '0')}</span></div><p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Em Produção</p></div>
-              <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:border-studio-gold/30 transition-colors group"><div className="flex justify-between items-start mb-4"><Eye className="text-gray-500 group-hover:text-studio-gold transition-colors" size={20} /><span className="text-2xl font-bold font-display text-white">{pedidos.filter(p => p.status === 'Prévia Disponível').length.toString().padStart(2, '0')}</span></div><p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Prévia Disponível</p></div>
-              <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:border-studio-gold/30 transition-colors group"><div className="flex justify-between items-start mb-4"><CheckCircle2 className="text-gray-500 group-hover:text-studio-gold transition-colors" size={20} /><span className="text-2xl font-bold font-display text-white">{pedidos.filter(p => p.status === 'Ensaio Concluído' || p.status === 'Finalizado').length.toString().padStart(2, '0')}</span></div><p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Concluídos</p></div>
+              <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:border-studio-gold/30 transition-colors group"><div className="flex justify-between items-start mb-4"><Clock className="text-gray-500 group-hover:text-studio-gold transition-colors" size={20} /><span className="text-2xl font-bold font-display text-white">{pedidosParaExibir.filter(p => p.status === 'Aguardando Produção').length.toString().padStart(2, '0')}</span></div><p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Aguardando</p></div>
+              <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:border-studio-gold/30 transition-colors group"><div className="flex justify-between items-start mb-4"><Bot className="text-gray-500 group-hover:text-studio-gold transition-colors" size={20} /><span className="text-2xl font-bold font-display text-white">{pedidosParaExibir.filter(p => p.status === 'Em Produção').length.toString().padStart(2, '0')}</span></div><p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Em Produção</p></div>
+              <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:border-studio-gold/30 transition-colors group"><div className="flex justify-between items-start mb-4"><Eye className="text-gray-500 group-hover:text-studio-gold transition-colors" size={20} /><span className="text-2xl font-bold font-display text-white">{pedidosParaExibir.filter(p => p.status === 'Prévia Disponível').length.toString().padStart(2, '0')}</span></div><p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Prévia Disponível</p></div>
+              <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:border-studio-gold/30 transition-colors group"><div className="flex justify-between items-start mb-4"><CheckCircle2 className="text-gray-500 group-hover:text-studio-gold transition-colors" size={20} /><span className="text-2xl font-bold font-display text-white">{pedidosParaExibir.filter(p => p.status === 'Ensaio Concluído' || p.status === 'Finalizado').length.toString().padStart(2, '0')}</span></div><p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Concluídos</p></div>
             </div>
             {pedidos.length > 0 && (
               <section className="mb-12">
@@ -1118,7 +1136,7 @@ export default function Dashboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
-                      {pedidos.slice(0, 3).map((pedido) => (
+                      {pedidosParaExibir.slice(0, 3).map((pedido) => (
                         <tr key={pedido.id} className="hover:bg-white/[0.02] transition-colors">
                           <td className="px-3 py-4 font-bold uppercase tracking-widest text-xs text-studio-gold">
                             {pedido.pacote}
@@ -1184,7 +1202,7 @@ export default function Dashboard() {
                 {/* LISTA DE ENSAIOS */}
                 <div className={selectedEnsaioForGallery ? "w-full lg:w-80 shrink-0" : "w-full"}>
                   <div className={selectedEnsaioForGallery ? "flex flex-col gap-4" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"}>
-                    {pedidos.map((pedido) => (
+                    {pedidosParaExibir.map((pedido) => (
                       <div key={pedido.id} className={`relative bg-white/5 border rounded-2xl overflow-hidden flex flex-col transition-all ${selectedEnsaioForGallery === pedido.id ? 'border-studio-gold shadow-[0_0_15px_rgba(212,175,55,0.15)] bg-studio-gold/5' : (pedido.status === 'Ensaio Concluído' ? 'border-emerald-500/30' : 'border-white/10 hover:border-studio-gold/30')}`}>
                         <div className="p-6 flex-1 flex flex-col relative z-10">
                           <div className="flex justify-between items-start mb-4">
@@ -1268,6 +1286,31 @@ export default function Dashboard() {
                         </div>
                       ) : (
                         <>
+                          {/* Banner de Pagamento Pendente (Lógica de Ouro) */}
+                          {pendingSubOrder && (
+                            <motion.div 
+                              initial={{ opacity: 0, y: -10 }} 
+                              animate={{ opacity: 1, y: 0 }}
+                              className="bg-studio-gold/10 border border-studio-gold shadow-[0_0_20px_rgba(212,175,55,0.1)] rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between mb-8 gap-6 group"
+                            >
+                              <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-full bg-studio-gold text-studio-black flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(212,175,55,0.4)]">
+                                  <QrCode size={24} />
+                                </div>
+                                <div className="text-center md:text-left">
+                                  <h4 className="text-studio-gold font-bold font-display uppercase tracking-widest">Você tem fotos extras aguardando pagamento!</h4>
+                                  <p className="text-xs text-gray-300 font-light mt-1">Conclua o seu PIX para liberar o download imediato destas fotos.</p>
+                                </div>
+                              </div>
+                              <button 
+                                onClick={() => router.push(`/checkout?orderId=${pendingSubOrder.id}`)} 
+                                className="w-full md:w-auto bg-studio-gold text-black px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-studio-gold-light transition shadow-xl shrink-0 flex items-center justify-center gap-2 group-hover:scale-105 transition-transform"
+                              >
+                                Pagar Agora <ArrowRight size={16} />
+                              </button>
+                            </motion.div>
+                          )}
+
                           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                             {galleryPhotos.map((url, idx) => (
                               <div key={idx} className="group relative aspect-[4/5] rounded-xl overflow-hidden bg-white/5 border border-white/5 shadow-xl cursor-zoom-in">
@@ -1388,10 +1431,10 @@ export default function Dashboard() {
                   </h2>
                 </div>
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
-                  {pedidos.length === 0 ? (
+                  {pedidosParaExibir.length === 0 ? (
                     <div className="p-8 text-center text-xs text-gray-500">Nenhum pedido encontrado.</div>
                   ) : (
-                    pedidos.map(pedido => (
+                    pedidosParaExibir.map(pedido => (
                       <button
                         key={pedido.id}
                         onClick={() => changeChatOrder(pedido.id)}
