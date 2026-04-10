@@ -169,7 +169,10 @@ function CheckoutContent() {
       if (error) throw error;
 
       const discordWebhookUrl = 'https://discord.com/api/webhooks/1492131248091435170/l4cqtcHnLulXpEDka8bsSon81D2_8OY5e5vP3kxlbI6UcIb5KOSIHmhwivBqPsDmuHdU';
-      const mensagemDiscord = `@everyone 💸 **NOVO PIX RECEBIDO!** 💸\n👤 **Cliente:** ${userEmail}\n💰 Verifique o comprovante no Painel Admin e libere as fotos em alta resolução!`;
+      const shortId = orderId.split('-')[0].toUpperCase();
+      const valorFormatado = infoCalculada.preco.toFixed(2).replace('.', ',');
+
+      const mensagemDiscord = `@everyone 💸 **PIX RECEBIDO COM SUCESSO!** 💸\n\n🆔 **ID do Pedido:** #${shortId}\n👤 **Cliente:** ${userEmail}\n💰 **Valor do PIX:** R$ ${valorFormatado}\n\n🚀 Verifique o comprovante no Painel Admin e inicie a curadoria das fotos!`;
       try {
         await fetch(discordWebhookUrl, {
           method: 'POST',

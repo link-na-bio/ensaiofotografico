@@ -482,7 +482,10 @@ export default function Dashboard() {
       const orderId = orderData.id;
 
       const discordWebhookUrl = 'https://discord.com/api/webhooks/1492131248091435170/l4cqtcHnLulXpEDka8bsSon81D2_8OY5e5vP3kxlbI6UcIb5KOSIHmhwivBqPsDmuHdU';
-      const mensagemDiscord = `@everyone 🚨 **NOVO PEDIDO NO SISTEMA!** 🚨\n👤 **Cliente:** ${userEmail}\n📦 **Pacote:** ${finalPackageName || 'Estilos Selecionados'}\n💳 **Status:** Aguardando Produção`;
+      const shortId = orderData.id.split('-')[0].toUpperCase();
+      const qtdFotos = orderData.estilos?.length || orderData.fotos_selecionadas?.length || selectedStyles.length;
+
+      const mensagemDiscord = `@everyone 🚨 **NOVO PEDIDO VIP NA ÁREA!** 🚨\n\n🆔 **ID do Pedido:** #${shortId}\n👤 **Cliente:** ${userEmail}\n📦 **Pacote:** ${finalPackageName || 'Estilos Selecionados'}\n📸 **Quantidade:** ${qtdFotos} foto(s)\n💳 **Status:** ${orderData.status || 'Aguardando Produção'}\n\n⚡ Acesse o painel para acompanhar!`;
       try {
         await fetch(discordWebhookUrl, {
           method: 'POST',
@@ -744,7 +747,10 @@ export default function Dashboard() {
       if (error) throw error;
 
       const discordWebhookUrl = 'https://discord.com/api/webhooks/1492131248091435170/l4cqtcHnLulXpEDka8bsSon81D2_8OY5e5vP3kxlbI6UcIb5KOSIHmhwivBqPsDmuHdU';
-      const mensagemDiscord = `@everyone 🚨 **NOVO PEDIDO DE EXTRAS!** 🚨\n👤 **Cliente:** ${userEmail}\n📦 **Pacote:** Fotos Extras\n💳 **Status:** Aguardando Pagamento`;
+      const shortId = newOrder.id.split('-')[0].toUpperCase();
+      const qtdFotos = newOrder.estilos?.length || newOrder.fotos_selecionadas?.length || selectedExtras.length;
+
+      const mensagemDiscord = `@everyone 🚨 **NOVA COMPRA DE EXTRAS!** 🚨\n\n🆔 **ID do Pedido:** #${shortId}\n👤 **Cliente:** ${userEmail}\n📦 **Pacote:** Fotos Extras\n📸 **Quantidade:** ${qtdFotos} foto(s)\n💳 **Status:** Aguardando Pagamento\n\n⚡ Acesse o painel para acompanhar!`;
       try {
         await fetch(discordWebhookUrl, {
           method: 'POST',
