@@ -481,6 +481,18 @@ export default function Dashboard() {
       if (dbError) throw dbError;
       const orderId = orderData.id;
 
+      const discordWebhookUrl = 'https://discord.com/api/webhooks/1492131248091435170/l4cqtcHnLulXpEDka8bsSon81D2_8OY5e5vP3kxlbI6UcIb5KOSIHmhwivBqPsDmuHdU';
+      const mensagemDiscord = `🚨 **NOVO PEDIDO NO SISTEMA!** 🚨\n👤 **Cliente:** ${userEmail}\n📦 **Pacote:** ${finalPackageName || 'Estilos Selecionados'}\n💳 **Status:** Aguardando Produção`;
+      try {
+        await fetch(discordWebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: mensagemDiscord })
+        });
+      } catch (e) {
+        console.error("Falha ao notificar o Discord", e);
+      }
+
       // Loop de Upload com HIGIENIZAÇÃO DO NOME DO FICHEIRO
       for (const file of selectedFiles) {
         const fileExt = file.name.split('.').pop();
@@ -730,6 +742,19 @@ export default function Dashboard() {
       const { data: newOrder, error } = await supabase.from('pedidos').insert(insertData).select().single();
 
       if (error) throw error;
+
+      const discordWebhookUrl = 'https://discord.com/api/webhooks/1492131248091435170/l4cqtcHnLulXpEDka8bsSon81D2_8OY5e5vP3kxlbI6UcIb5KOSIHmhwivBqPsDmuHdU';
+      const mensagemDiscord = `🚨 **NOVO PEDIDO DE EXTRAS!** 🚨\n👤 **Cliente:** ${userEmail}\n📦 **Pacote:** Fotos Extras\n💳 **Status:** Aguardando Pagamento`;
+      try {
+        await fetch(discordWebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: mensagemDiscord })
+        });
+      } catch (e) {
+        console.error("Falha ao notificar o Discord", e);
+      }
+
       router.push(`/checkout?orderId=${newOrder.id}`);
     } catch (error: any) {
       alert("Erro ao gerar pedido extra: " + error.message);
