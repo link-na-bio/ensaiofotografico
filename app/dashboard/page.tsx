@@ -40,6 +40,7 @@ export default function Dashboard() {
 
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [reaproveitarFotos, setReaproveitarFotos] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
@@ -450,8 +451,8 @@ export default function Dashboard() {
       return;
     }
 
-    // A validação agora foca-se em ter pelo menos 1 estilo e 5 fotos.
-    if (selectedStyles.length === 0 || selectedFiles.length < 5) {
+    // A validação agora foca-se em ter pelo menos 1 estilo e 5 fotos (ou se optar por reaproveitar as fotos).
+    if (selectedStyles.length === 0 || (!reaproveitarFotos && selectedFiles.length < 5)) {
       alert("Por favor, escolha pelo menos 1 estilo e envie no mínimo 5 fotos.");
       return;
     }
@@ -475,7 +476,8 @@ export default function Dashboard() {
         user_email: userEmail,
         pacote: finalPackageName,
         estilos: selectedStyles,
-        status: 'Aguardando Produção'
+        status: 'Aguardando Produção',
+        ...(reaproveitarFotos ? { observacoes: "♻️ CLIENTE RECORRENTE: Utilizar selfies/modelo do pedido anterior." } : {})
       }).select().single();
 
       if (dbError) throw dbError;
@@ -498,14 +500,16 @@ export default function Dashboard() {
       }
 
       // Loop de Upload com HIGIENIZAÇÃO DO NOME DO FICHEIRO
-      for (const file of selectedFiles) {
-        const fileExt = file.name.split('.').pop();
-        // Cria um nome 100% seguro: timestamp + código aleatório + extensão
-        const safeFileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
-        const filePath = `${userId}/${orderId}/${safeFileName}`;
+      if (!reaproveitarFotos) {
+        for (const file of selectedFiles) {
+          const fileExt = file.name.split('.').pop();
+          // Cria um nome 100% seguro: timestamp + código aleatório + extensão
+          const safeFileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+          const filePath = `${userId}/${orderId}/${safeFileName}`;
 
-        const { error: storageError } = await supabase.storage.from('fotos_clientes').upload(filePath, file);
-        if (storageError) throw storageError;
+          const { error: storageError } = await supabase.storage.from('fotos_clientes').upload(filePath, file);
+          if (storageError) throw storageError;
+        }
       }
 
       setAlertMessage("Pedido enviado com sucesso!");
@@ -1776,13 +1780,32 @@ export default function Dashboard() {
                     <section>
                       <div className="flex items-center gap-4 mb-6"><span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">2</span><h3 className="text-xl font-bold font-display uppercase tracking-widest">Suas Fotos de Referência</h3></div>
 
-                      <input type="file" multiple accept="image/jpeg, image/png, image/webp" hidden ref={fileInputRef} onChange={handleFileChange} />
-                      <div onDragOver={(e) => e.preventDefault()} onDrop={handleDrop} onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-white/10 p-12 flex flex-col items-center justify-center text-center bg-white/5 hover:border-studio-gold/30 transition-all cursor-pointer group rounded-2xl">
-                        <div className="w-16 h-16 rounded-full bg-studio-gold/5 text-studio-gold flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-studio-gold/10 transition-all"><CloudUpload size={32} /></div>
-                        <h4 className="text-lg font-bold font-display uppercase tracking-widest">Arraste aqui as suas fotos</h4>
-                        <p className="text-gray-500 text-xs mt-2 max-w-xs">Precisamos de 5 a 10 fotos nítidas do seu rosto para o treinamento perfeito.</p>
-                      </div>
-                      {selectedFiles.length > 0 && (
+                      {pedidos.length > 0 && (
+                        <div
+                          onClick={() => setReaproveitarFotos(!reaproveitarFotos)}
+                          className={`mb-6 p-4 rounded-xl border cursor-pointer transition-all flex items-center gap-4 ${reaproveitarFotos ? 'bg-studio-gold/10 border-studio-gold shadow-[0_0_15px_rgba(212,175,55,0.15)]' : 'bg-white/5 border-white/10 hover:border-studio-gold/30'}`}
+                        >
+                          <div className={`w-6 h-6 rounded flex items-center justify-center border ${reaproveitarFotos ? 'bg-studio-gold border-studio-gold text-studio-black' : 'border-white/20'}`}>
+                            {reaproveitarFotos && <Check size={16} strokeWidth={3} />}
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">♻️ Quero reaproveitar as fotos/modelo do meu último ensaio</p>
+                            <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-widest font-bold">Processamento em 1 clique. Mais rápido e sem necessidade de upload.</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {!reaproveitarFotos && (
+                        <>
+                          <input type="file" multiple accept="image/jpeg, image/png, image/webp" hidden ref={fileInputRef} onChange={handleFileChange} />
+                          <div onDragOver={(e) => e.preventDefault()} onDrop={handleDrop} onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-white/10 p-12 flex flex-col items-center justify-center text-center bg-white/5 hover:border-studio-gold/30 transition-all cursor-pointer group rounded-2xl">
+                            <div className="w-16 h-16 rounded-full bg-studio-gold/5 text-studio-gold flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-studio-gold/10 transition-all"><CloudUpload size={32} /></div>
+                            <h4 className="text-lg font-bold font-display uppercase tracking-widest">Arraste aqui as suas fotos</h4>
+                            <p className="text-gray-500 text-xs mt-2 max-w-xs">Precisamos de 5 a 10 fotos nítidas do seu rosto para o treinamento perfeito.</p>
+                          </div>
+                        </>
+                      )}
+                      {!reaproveitarFotos && selectedFiles.length > 0 && (
                         <div className="grid grid-cols-3 md:grid-cols-5 gap-3 mt-8">
                           {selectedFiles.map((file, index) => (
                             <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-white/10 group">
@@ -1802,11 +1825,11 @@ export default function Dashboard() {
                         <div className="flex justify-between items-center text-xs"><span className="text-gray-500 uppercase tracking-widest">Pacote</span><span className="font-bold text-white uppercase">{getDisplayPackageName(selectedStyles.length)}</span></div>
                         <div className="flex justify-between items-center text-xs"><span className="text-gray-500 uppercase tracking-widest">Fotos/Estilos Comprados</span><span className="font-bold text-studio-gold">{selectedStyles.length} Unidades</span></div>
                         <div className="flex justify-between items-center text-xs"><span className="text-gray-500 uppercase tracking-widest">Valor Unitário</span><span className="font-bold text-white uppercase">R$ {getPrecoUnitario(selectedStyles.length).toFixed(2).replace('.', ',')} / foto</span></div>
-                        <div className="flex justify-between items-center text-xs"><span className="text-gray-500 uppercase tracking-widest">Fotos Env.</span><span className={`font-bold ${selectedFiles.length >= 5 ? 'text-emerald-400' : 'text-red-500'}`}>{selectedFiles.length}/10 (Mín. 5)</span></div>
+                        <div className="flex justify-between items-center text-xs"><span className="text-gray-500 uppercase tracking-widest">Fotos Env.</span><span className={`font-bold ${reaproveitarFotos || selectedFiles.length >= 5 ? 'text-emerald-400' : 'text-red-500'}`}>{reaproveitarFotos ? 'Reaproveitadas' : `${selectedFiles.length}/10 (Mín. 5)`}</span></div>
                       </div>
                       <div className="p-6 bg-white/5 border-t border-white/10 -mx-6 -mb-6 rounded-b-2xl">
                         <div className="flex justify-between items-center font-bold font-display uppercase tracking-widest text-lg mb-6"><span>Total:</span><span className="text-studio-gold">R$ {currentTotal.toFixed(2).replace('.', ',')}</span></div>
-                        <button onClick={handleSendToProduction} disabled={selectedStyles.length === 0 || selectedFiles.length < 5 || isUploading} className="w-full py-4 bg-studio-gold text-studio-black font-bold uppercase tracking-widest hover:bg-studio-gold-light transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-xl">
+                        <button onClick={handleSendToProduction} disabled={selectedStyles.length === 0 || (!reaproveitarFotos && selectedFiles.length < 5) || isUploading} className="w-full py-4 bg-studio-gold text-studio-black font-bold uppercase tracking-widest hover:bg-studio-gold-light transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-xl">
                           {isUploading ? <><Loader2 size={18} className="animate-spin" /> Processando Imagens...</> : <><CheckCircle2 size={18} /> Confirmar Pedido</>}
                         </button>
                       </div>
