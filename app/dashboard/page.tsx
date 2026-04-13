@@ -36,7 +36,7 @@ export default function Dashboard() {
 
   // Filtro de Gênero e Categoria
   const [genderFilter, setGenderFilter] = useState<'Feminino' | 'Masculino'>('Feminino');
-  const [categoryFilter, setCategoryFilter] = useState<string>('Todos');
+  const [categoryFilter, setCategoryFilter] = useState<string>('Estúdio');
 
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
