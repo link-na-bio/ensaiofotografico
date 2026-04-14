@@ -1358,6 +1358,16 @@ export default function Dashboard() {
                             </motion.div>
                           )}
 
+                          {/* Banner de Escassez (Urgência) */}
+                          {fotosExtras.length > 0 && (
+                            <div className="bg-red-500/10 border border-red-500/50 rounded-xl p-4 flex items-center gap-4 mb-8">
+                              <Clock className="text-red-500 animate-pulse shrink-0" size={24} />
+                              <p className="text-red-400 text-xs md:text-sm font-medium leading-relaxed">
+                                <span className="font-bold uppercase tracking-widest">⚠️ Atenção:</span> Suas prévias não adquiridas serão excluídas permanentemente em 15 dias para liberar espaço em nossos servidores. Garanta suas fotos favoritas antes que desapareçam!
+                              </p>
+                            </div>
+                          )}
+
                           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                             {galleryPhotos.map((url, idx) => (
                               <div key={idx} className="group relative aspect-[4/5] rounded-xl overflow-hidden bg-white/5 border border-white/5 shadow-xl cursor-zoom-in">
