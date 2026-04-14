@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import imageCompression from 'browser-image-compression';
 import { Search, Plus, Trash2, X, UploadCloud, Loader2, Sparkles, Copy, CheckCheck, Eye, EyeOff } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
 import { supabase } from '@/lib/supabaseClient';
@@ -118,7 +119,16 @@ export default function AdminStyles() {
       if (selectedFile) {
         const fileExt = selectedFile.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage.from('estilos_imagens').upload(fileName, selectedFile);
+
+        const compressionOptions = {
+          maxSizeMB: 0.2,
+          maxWidthOrHeight: 1200,
+          initialQuality: 0.8,
+          useWebWorker: true,
+        };
+        const compressedFile = await imageCompression(selectedFile, compressionOptions);
+
+        const { error: uploadError } = await supabase.storage.from('estilos_imagens').upload(fileName, compressedFile);
 
         if (uploadError) throw uploadError;
 
