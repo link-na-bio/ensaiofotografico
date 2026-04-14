@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "clean": "next clean"
+    "clean": "next clean",
+    "sync-gallery": "node sync_gallery.mjs"
   },
   "dependencies": {
     "@google/genai": "^1.17.0",

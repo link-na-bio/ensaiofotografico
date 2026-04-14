@@ -45,25 +45,28 @@ async function main() {
     if (estilo.img_url) {
       console.log(`Processing [${i+1}/${estilos.length}] ${estilo.titulo}...`);
       try {
-        const response = await fetch(estilo.img_url);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        
-        const arrayBuffer = await response.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        
-        // Sanitize file name
         const uniqueId = estilo.id || `estilo_${i}`;
         const safeTitle = (estilo.titulo || 'img').toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
         const fileName = `${safeTitle}-${uniqueId}.webp`;
         const localPath = path.join(publicGaleriaDir, fileName);
-
-        await sharp(buffer)
-          .resize({ width: 1200, withoutEnlargement: true })
-          .webp({ quality: 80 })
-          .toFile(localPath);
-
         localUrl = `/images/galeria/${fileName}`;
-        console.log(` -> Saved to ${localUrl}`);
+
+        if (fs.existsSync(localPath)) {
+          console.log(` -> Already exists, skipping download.`);
+        } else {
+          const response = await fetch(estilo.img_url);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          
+          const arrayBuffer = await response.arrayBuffer();
+          const buffer = Buffer.from(arrayBuffer);
+
+          await sharp(buffer)
+            .resize({ width: 1200, withoutEnlargement: true })
+            .webp({ quality: 80 })
+            .toFile(localPath);
+
+          console.log(` -> Saved to ${localUrl}`);
+        }
       } catch (err) {
         console.error(` -> Failed to process image ${estilo.img_url}:`, err.message);
         localUrl = estilo.img_url; // fallback to original if fail
