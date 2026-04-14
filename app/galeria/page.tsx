@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, Camera, Star, ArrowRight, Loader2, Instagram, Mail } from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient';
+import { galleryData } from './data';
 import SalesNotification from '@/components/SalesNotification';
 
 export default function GalleryPage() {
@@ -15,22 +15,11 @@ export default function GalleryPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStyles = async () => {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .from('estilos')
-        .select('*')
-        .order('criado_em', { ascending: false });
-
-      if (!error && data) {
-        setStyles(data);
-        const uniqueCategories = Array.from(new Set(data.map((s: any) => s.categoria))).filter(Boolean) as string[];
-        setCategories(['Todos', ...uniqueCategories]);
-      }
-      setIsLoading(false);
-    };
-
-    fetchStyles();
+    // Utilize static data instead of fetching from Supabase
+    setStyles(galleryData);
+    const uniqueCategories = Array.from(new Set(galleryData.map((s: any) => s.categoria))).filter(Boolean) as string[];
+    setCategories(['Todos', ...uniqueCategories]);
+    setIsLoading(false);
   }, []);
 
   const filteredItems = activeCategory === 'Todos'
