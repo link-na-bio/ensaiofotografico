@@ -1649,6 +1649,24 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   <div className="lg:col-span-2 space-y-12 pb-20">
                     <section>
+                      <div className="flex justify-between items-end mb-4">
+                        <div className="flex items-center gap-4">
+                          <span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">1</span>
+                          <h3 className="text-xl font-bold font-display uppercase tracking-widest">Monte o seu Ensaio (Escolha os Estilos)</h3>
+                        </div>
+                        <span className="text-gray-500 text-xs font-bold tracking-widest uppercase">Selecionados: <span className="text-studio-gold">{selectedStyles.length} fotos</span></span>
+                      </div>
+
+                      {renderDiscountTip()}
+
+                      <div className="mb-6 p-4 bg-studio-gold/5 border border-studio-gold/20 rounded-xl flex items-start gap-3">
+                        <Info size={18} className="text-studio-gold shrink-0 mt-0.5" />
+                        <p className="text-xs text-gray-300 leading-relaxed font-light">
+                          <strong className="text-studio-gold uppercase tracking-wider text-[10px] block mb-1">Dica: O Seu Combo Personalizado</strong>
+                          Cada estilo selecionado equivale a <strong>1 Foto Final de Alta Resolução</strong>. A nossa IA aplicará o seu rosto mantendo a estética, a iluminação e o cenário exatos do estilo escolhido. Quanto mais estilos adicionar, maior será o seu desconto!
+                        </p>
+                      </div>
+
                       {/* BANNER SAZONAL / TEMÁTICO COMO ADD-TO-CART RÁPIDO */}
                       {EVENTO_SAZONAL.ativo && (
                         <div
@@ -1663,7 +1681,7 @@ export default function Dashboard() {
                               return show;
                             });
                           }}
-                          className="mb-6 w-full border-2 rounded-2xl p-6 relative overflow-hidden transition-all group cursor-pointer border-rose-500/30 hover:border-rose-500/80 bg-gradient-to-r from-rose-900/40 to-studio-black hover:shadow-[0_0_30px_rgba(244,63,94,0.3)] opacity-100"
+                          className="mb-8 w-full border-2 rounded-2xl p-6 relative overflow-hidden transition-all group cursor-pointer border-rose-500/30 hover:border-rose-500/80 bg-gradient-to-r from-rose-900/40 to-studio-black hover:shadow-[0_0_30px_rgba(244,63,94,0.3)] opacity-100"
                         >
                           <div className="absolute top-0 right-0 bg-rose-500 text-white text-[9px] font-black px-4 py-1.5 uppercase tracking-[0.2em] rounded-bl-xl shadow-lg z-20 animate-pulse">NOVIDADE</div>
 
@@ -1717,7 +1735,6 @@ export default function Dashboard() {
                                     const isSelected = selectedStyles.includes(style.titulo);
                                     return (
                                       <div key={style.id} onClick={() => toggleStyle(style.titulo)} className={`min-w-[240px] md:min-w-[280px] h-[360px] snap-start relative rounded-2xl overflow-hidden cursor-pointer border-2 transition-all group/card ${isSelected ? 'border-rose-500 scale-[0.98] shadow-[0_0_20px_rgba(244,63,94,0.3)]' : 'border-white/10 hover:border-rose-500/50'}`}>
-                                        {/* Uso do Image otimizado para os WEBP estáticos locais da galeria */}
                                         <Image src={style.img_url} alt={style.titulo} fill className="object-cover transition-transform duration-700 group-hover/card:scale-110" unoptimized />
 
                                         <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex flex-col justify-end p-5 transition-all ${isSelected ? 'bg-rose-500/10' : 'opacity-90'}`}>
@@ -1741,52 +1758,7 @@ export default function Dashboard() {
                         )}
                       </AnimatePresence>
 
-                      {/* CTA Serviço Sob Medida */}
-                      <div
-                        onClick={() => toggleStyle('ESTILO_SOBMEDIDA')}
-                        className={`mb-12 w-full border rounded-2xl p-6 transition-all duration-300 group relative overflow-hidden text-left cursor-pointer ${selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'border-studio-gold bg-studio-gold/10 shadow-[0_0_30px_rgba(212,175,55,0.3)]' : 'border-studio-gold/30 hover:border-studio-gold bg-[#121212]/80 backdrop-blur-sm shadow-[0_0_20px_rgba(212,175,55,0.15)] hover:shadow-[0_0_30px_rgba(212,175,55,0.2)]'}`}
-                      >
-                        <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[10px] font-bold px-4 py-1.5 uppercase tracking-widest rounded-bl-xl">PREMIUM</div>
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                          <div className="flex items-center gap-4">
-                            <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border transition-all duration-300 ${selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'bg-studio-gold text-studio-black border-studio-gold' : 'bg-studio-gold/10 text-studio-gold border-studio-gold/20 group-hover:scale-110'}`}>
-                              <Palette size={20} />
-                            </div>
-                            <div>
-                              <h4 className="text-lg font-bold font-display uppercase tracking-widest text-white group-hover:text-studio-gold transition-colors flex items-center gap-2">
-                                Direção de Arte Sob Medida
-                                {selectedStyles.includes('ESTILO_SOBMEDIDA') && <CheckCircle2 size={16} className="text-studio-gold animate-in zoom-in" />}
-                                <span className="text-sm">💎</span>
-                              </h4>
-                              <p className="text-xs text-gray-400 mt-1 max-w-md leading-relaxed">Tem uma pose, roupa ou cenário específico em mente? Nossa equipe cria uma arte 100% exclusiva para você.</p>
-                            </div>
-                          </div>
-                          <div className="shrink-0 bg-studio-gold/5 sm:bg-transparent p-4 sm:p-0 rounded-xl w-full sm:w-auto text-center sm:text-right border border-studio-gold/10 sm:border-none flex flex-col items-center sm:items-end gap-1">
-                            <p className="text-2xl font-bold text-studio-gold tracking-wider">R$ 69,90</p>
-                            <div className={`flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full transition-all ${selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'bg-studio-gold text-studio-black' : 'bg-white/5 text-gray-400 group-hover:bg-studio-gold group-hover:text-studio-black'}`}>
-                              {selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'Selecionado' : 'Adicionar'}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-between items-end mb-4">
-                        <div className="flex items-center gap-4">
-                          <span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">1</span>
-                          <h3 className="text-xl font-bold font-display uppercase tracking-widest">Monte o seu Ensaio (Escolha os Estilos)</h3>
-                        </div>
-                        <span className="text-gray-500 text-xs font-bold tracking-widest uppercase">Selecionados: <span className="text-studio-gold">{selectedStyles.length} fotos</span></span>
-                      </div>
-
-                      {renderDiscountTip()}
-
-                      <div className="mb-6 p-4 bg-studio-gold/5 border border-studio-gold/20 rounded-xl flex items-start gap-3">
-                        <Info size={18} className="text-studio-gold shrink-0 mt-0.5" />
-                        <p className="text-xs text-gray-300 leading-relaxed font-light">
-                          <strong className="text-studio-gold uppercase tracking-wider text-[10px] block mb-1">Dica: O Seu Combo Personalizado</strong>
-                          Cada estilo selecionado equivale a <strong>1 Foto Final de Alta Resolução</strong>. A nossa IA aplicará o seu rosto mantendo a estética, a iluminação e o cenário exatos do estilo escolhido. Quanto mais estilos adicionar, maior será o seu desconto!
-                        </p>
-                      </div>
+                      <div className="my-10 border-t border-white/5 opacity-50"></div>
 
                       <div className="flex flex-col sm:flex-row gap-4 mb-6">
                         <div className="flex bg-[#121212] border border-white/10 rounded-lg p-1 w-fit shrink-0">
@@ -1851,7 +1823,12 @@ export default function Dashboard() {
                           </div>
                         </div>
                       )}
+
+
+
+                      {/* CTA Serviço Sob Medida (Mobile) */}
                     </section>
+
 
                     <section>
                       <div className="flex items-center gap-4 mb-6"><span className="w-8 h-8 rounded-full bg-studio-gold text-studio-black flex items-center justify-center font-bold">2</span><h3 className="text-xl font-bold font-display uppercase tracking-widest">Suas Fotos de Referência</h3></div>
@@ -1892,6 +1869,35 @@ export default function Dashboard() {
                         </div>
                       )}
                     </section>
+
+                    {/* CTA Serviço Sob Medida (Mobile) */}
+                    <div
+                      onClick={() => toggleStyle('ESTILO_SOBMEDIDA')}
+                      className={`mb-12 w-full border rounded-2xl p-6 transition-all duration-300 group relative overflow-hidden text-left cursor-pointer lg:hidden ${selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'border-studio-gold bg-studio-gold/10 shadow-[0_0_30px_rgba(212,175,55,0.3)]' : 'border-studio-gold/30 hover:border-studio-gold bg-[#121212]/80 backdrop-blur-sm shadow-[0_0_20px_rgba(212,175,55,0.15)] hover:shadow-[0_0_30px_rgba(212,175,55,0.2)]'}`}
+                    >
+                      <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[10px] font-bold px-4 py-1.5 uppercase tracking-widest rounded-bl-xl">PREMIUM</div>
+                      <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                        <div className="flex items-center gap-4">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border transition-all duration-300 ${selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'bg-studio-gold text-studio-black border-studio-gold' : 'bg-studio-gold/10 text-studio-gold border-studio-gold/20 group-hover:scale-110'}`}>
+                            <Palette size={20} />
+                          </div>
+                          <div>
+                            <h4 className="text-lg font-bold font-display uppercase tracking-widest text-white group-hover:text-studio-gold transition-colors flex items-center gap-2">
+                              Direção de Arte Sob Medida
+                              {selectedStyles.includes('ESTILO_SOBMEDIDA') && <CheckCircle2 size={16} className="text-studio-gold animate-in zoom-in" />}
+                              <span className="text-sm">💎</span>
+                            </h4>
+                            <p className="text-xs text-gray-400 mt-1 max-w-md leading-relaxed">Tem uma pose, roupa ou cenário específico em mente? Nossa equipe cria uma arte 100% exclusiva para você.</p>
+                          </div>
+                        </div>
+                        <div className="shrink-0 bg-studio-gold/5 sm:bg-transparent p-4 sm:p-0 rounded-xl w-full sm:w-auto text-center sm:text-right border border-studio-gold/10 sm:border-none flex flex-col items-center sm:items-end gap-1">
+                          <p className="text-2xl font-bold text-studio-gold tracking-wider">R$ 69,90</p>
+                          <div className={`flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full transition-all ${selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'bg-studio-gold text-studio-black' : 'bg-white/5 text-gray-400 group-hover:bg-studio-gold group-hover:text-studio-black'}`}>
+                            {selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'Selecionado' : 'Adicionar'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="space-y-6">
@@ -1910,6 +1916,33 @@ export default function Dashboard() {
                         </button>
                       </div>
                     </div>
+
+                    {/* CTA Serviço Sob Medida (Desktop) */}
+                    <div
+                      onClick={() => toggleStyle('ESTILO_SOBMEDIDA')}
+                      className={`w-full border rounded-2xl p-6 transition-all duration-300 group relative overflow-hidden text-left cursor-pointer hidden lg:block ${selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'border-studio-gold bg-studio-gold/10 shadow-[0_0_30px_rgba(212,175,55,0.3)]' : 'border-studio-gold/30 hover:border-studio-gold bg-[#121212]/80 backdrop-blur-sm shadow-[0_0_20px_rgba(212,175,55,0.15)] hover:shadow-[0_0_30px_rgba(212,175,55,0.2)]'}`}
+                    >
+                      <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[10px] font-bold px-4 py-1.5 uppercase tracking-widest rounded-bl-xl z-10">PREMIUM</div>
+                      <div className="flex flex-col items-center justify-between gap-4 relative z-0">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border transition-all duration-300 ${selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'bg-studio-gold text-studio-black border-studio-gold' : 'bg-studio-gold/10 text-studio-gold border-studio-gold/20 group-hover:scale-110'}`}>
+                          <Palette size={20} />
+                        </div>
+                        <div className="text-center">
+                          <h4 className="text-sm font-bold font-display uppercase tracking-widest text-white group-hover:text-studio-gold transition-colors flex flex-col items-center justify-center gap-2">
+                            Direção de Arte Sob Medida
+                            {selectedStyles.includes('ESTILO_SOBMEDIDA') && <CheckCircle2 size={16} className="text-studio-gold animate-in zoom-in" />}
+                          </h4>
+                          <p className="text-[10px] text-gray-400 mt-2 leading-relaxed">Tem uma pose, roupa ou cenário específico em mente? Nossa equipe cria uma arte 100% exclusiva para você.</p>
+                        </div>
+                        <div className="shrink-0 bg-studio-gold/5 p-4 rounded-xl w-full text-center border border-studio-gold/10 flex flex-col items-center gap-1 mt-2">
+                          <p className="text-xl font-bold text-studio-gold tracking-wider">R$ 69,90</p>
+                          <div className={`flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full transition-all ${selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'bg-studio-gold text-studio-black' : 'bg-white/5 text-gray-400 group-hover:bg-studio-gold group-hover:text-studio-black'}`}>
+                            {selectedStyles.includes('ESTILO_SOBMEDIDA') ? 'Selecionado' : 'Adicionar este extra'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
               </>
