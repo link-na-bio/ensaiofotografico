@@ -648,7 +648,7 @@ export default function Dashboard() {
     setFotosExtras([]);
     setSelectedExtras([]);
     setPendingSubOrder(null); // Reset pending order
-    
+
     try {
       // 1. Buscar todos os pedidos do utilizador para agregar fotos já pagas
       const { data: todosOsPedidos, error: listError } = await supabase
@@ -673,7 +673,7 @@ export default function Dashboard() {
         const rId = rootOrderId?.toLowerCase();
         const pkg = p.pacote?.toLowerCase() || '';
         const obs = p.observacoes?.toLowerCase() || '';
-        
+
         return pId === rId || pkg.includes(`|${rId}`) || obs === rId;
       }) || [];
 
@@ -681,7 +681,7 @@ export default function Dashboard() {
         const s = p.status;
         // Lógica de Liberação: Finalizado, Concluído, Em Análise (para extras) ou Prévia Disponível (para o original)
         const isReleased = s === 'Ensaio Concluído' || s === 'Finalizado' || s === 'Pagamento em Análise' || s === 'Prévia Disponível';
-        
+
         if (isReleased) {
           if (p.id === rootOrderId) {
             // Do pedido raiz, pegamos o que foi selecionado inicialmente
@@ -747,7 +747,7 @@ export default function Dashboard() {
     try {
       // 1. Vincular o pedido de extras ao pedido pai para facilitar a liberação e localização dos arquivos
       const parentId = selectedEnsaioForGallery;
-      
+
       const insertData: any = {
         user_id: userId,
         user_email: userEmail,
@@ -1275,15 +1275,15 @@ export default function Dashboard() {
                           </div>
 
                           <h4 className="text-sm font-bold font-display uppercase tracking-widest text-studio-gold mb-2">
-                            {pedido.pacote?.toLowerCase().startsWith('fotos_extras|') 
-                              ? 'Fotos Extras Adquiridas' 
+                            {pedido.pacote?.toLowerCase().startsWith('fotos_extras|')
+                              ? 'Fotos Extras Adquiridas'
                               : pedido.pacote?.replace('dinamico_', 'Pack ')?.replace('_', ' ')?.toUpperCase() || 'Ensaio'}
                           </h4>
 
                           {!selectedEnsaioForGallery && (
                             <div className="flex flex-wrap gap-2 mb-6">
-                              {(pedido.pacote?.toLowerCase().startsWith('fotos_extras|') 
-                                ? [] 
+                              {(pedido.pacote?.toLowerCase().startsWith('fotos_extras|')
+                                ? []
                                 : (pedido.estilos || [])
                               ).map((estilo: string) => (
                                 <span key={estilo} className="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] uppercase tracking-wider text-gray-400">
@@ -1346,8 +1346,8 @@ export default function Dashboard() {
                         <>
                           {/* Banner de Pagamento Pendente (Lógica de Ouro) */}
                           {pendingSubOrder && (
-                            <motion.div 
-                              initial={{ opacity: 0, y: -10 }} 
+                            <motion.div
+                              initial={{ opacity: 0, y: -10 }}
                               animate={{ opacity: 1, y: 0 }}
                               className="bg-studio-gold/10 border border-studio-gold shadow-[0_0_20px_rgba(212,175,55,0.1)] rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between mb-8 gap-6 group"
                             >
@@ -1360,8 +1360,8 @@ export default function Dashboard() {
                                   <p className="text-xs text-gray-300 font-light mt-1">Conclua o seu PIX para liberar o download imediato destas fotos.</p>
                                 </div>
                               </div>
-                              <button 
-                                onClick={() => router.push(`/checkout?orderId=${pendingSubOrder.id}`)} 
+                              <button
+                                onClick={() => router.push(`/checkout?orderId=${pendingSubOrder.id}`)}
                                 className="w-full md:w-auto bg-studio-gold text-black px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-studio-gold-light transition shadow-xl shrink-0 flex items-center justify-center gap-2 group-hover:scale-105 transition-transform"
                               >
                                 Pagar Agora <ArrowRight size={16} />
@@ -1694,10 +1694,10 @@ export default function Dashboard() {
                       {/* ESTEIRA DE ALTA CONVERSÃO - DIA DAS MÃES */}
                       <AnimatePresence>
                         {showMaesCollection && (
-                          <motion.div 
-                            initial={{ height: 0, opacity: 0 }} 
-                            animate={{ height: 'auto', opacity: 1 }} 
-                            exit={{ height: 0, opacity: 0 }} 
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden"
                           >
                             <div ref={maesScrollRef} className="mb-12">
@@ -1705,7 +1705,7 @@ export default function Dashboard() {
                                 <Heart className="text-rose-500" size={28} />
                                 <div>
                                   <h3 className="text-2xl font-bold font-display uppercase tracking-widest text-white">Especial Dia das Mães</h3>
-                                  <p className="text-gray-400 text-xs mt-1">Carregamento instantâneo. Selecione os seus estilos favoritos.</p>
+                                  <p className="text-gray-400 text-xs mt-1"></p>
                                 </div>
                               </div>
 
@@ -1719,11 +1719,11 @@ export default function Dashboard() {
                                       <div key={style.id} onClick={() => toggleStyle(style.titulo)} className={`min-w-[240px] md:min-w-[280px] h-[360px] snap-start relative rounded-2xl overflow-hidden cursor-pointer border-2 transition-all group/card ${isSelected ? 'border-rose-500 scale-[0.98] shadow-[0_0_20px_rgba(244,63,94,0.3)]' : 'border-white/10 hover:border-rose-500/50'}`}>
                                         {/* Uso do Image otimizado para os WEBP estáticos locais da galeria */}
                                         <Image src={style.img_url} alt={style.titulo} fill className="object-cover transition-transform duration-700 group-hover/card:scale-110" unoptimized />
-                                        
+
                                         <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex flex-col justify-end p-5 transition-all ${isSelected ? 'bg-rose-500/10' : 'opacity-90'}`}>
                                           <div className="translate-y-4 group-hover/card:translate-y-0 transition-transform duration-300">
                                             <p className="text-sm font-bold uppercase tracking-widest text-white mb-2">{style.titulo}</p>
-                                            
+
                                             <div className={`w-full py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all backdrop-blur-md border ${isSelected ? 'bg-rose-500 text-white border-rose-500' : 'bg-black/50 text-white border-white/20 group-hover/card:bg-rose-500/80 group-hover/card:border-rose-500'}`}>
                                               {isSelected ? <><CheckCircle2 size={16} /> Selecionado</> : <><PlusCircle size={16} /> Selecionar Estilo</>}
                                             </div>
