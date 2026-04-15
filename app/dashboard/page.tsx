@@ -1688,7 +1688,7 @@ export default function Dashboard() {
                           <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10 w-full">
                             <div className="flex items-center gap-5 flex-1">
                               <div className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center shrink-0 border-2 transition-all duration-500 bg-rose-500/20 text-rose-400 border-rose-500/40 group-hover:scale-110 group-hover:bg-rose-500 group-hover:text-white">
-                                <Heart size={28} className="group-hover:animate-ping" />
+                                <Heart size={28} className="animate-heart-glow text-rose-500" />
                               </div>
                               <div className="text-left">
                                 <h4 className="text-lg md:text-xl font-black font-display uppercase tracking-widest text-white">{EVENTO_SAZONAL.titulo}</h4>
@@ -1720,7 +1720,7 @@ export default function Dashboard() {
                           >
                             <div ref={maesScrollRef} className="mb-12">
                               <div className="flex items-center gap-3 mb-6">
-                                <Heart className="text-rose-500" size={28} />
+                                <Heart className="text-rose-500 animate-heart-glow" size={28} />
                                 <div>
                                   <h3 className="text-2xl font-bold font-display uppercase tracking-widest text-white">Especial Dia das Mães</h3>
                                   <p className="text-gray-400 text-xs mt-1"></p>
