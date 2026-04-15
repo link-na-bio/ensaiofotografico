@@ -10,6 +10,7 @@ import {
   ChevronRight, ChevronLeft, Info, Eye, Download, Zap, MessageSquare, FileImage, Loader2, FileText, Paperclip, Lock, Bot, Search, MessageCircle, Palette, ShoppingBag, QrCode, ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { galleryData } from '@/app/galeria/data';
 
 declare global { interface Window { JSZip: any; } }
 
@@ -48,11 +49,20 @@ export default function Dashboard() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const stylesScrollRef = useRef<HTMLDivElement>(null);
+  const maesScrollRef = useRef<HTMLDivElement>(null);
+  const maesEsteiraScrollRef = useRef<HTMLDivElement>(null);
 
   const scrollStyles = (direction: 'left' | 'right') => {
     if (stylesScrollRef.current) {
       const scrollAmount = 300;
       stylesScrollRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  const scrollMaesEsteira = (direction: 'left' | 'right') => {
+    if (maesEsteiraScrollRef.current) {
+      const scrollAmount = 300;
+      maesEsteiraScrollRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
     }
   };
 
@@ -1642,16 +1652,16 @@ export default function Dashboard() {
                       {EVENTO_SAZONAL.ativo && (
                         <div
                           onClick={() => {
-                            // Banner inativo temporariamente
+                            maesScrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                           }}
-                          className="mb-6 w-full border-2 rounded-2xl p-6 relative overflow-hidden transition-all group cursor-not-allowed border-purple-500/30 bg-gradient-to-r from-purple-900/20 to-studio-black opacity-80"
+                          className="mb-6 w-full border-2 rounded-2xl p-6 relative overflow-hidden transition-all group cursor-pointer border-rose-500/30 hover:border-rose-500/80 bg-gradient-to-r from-rose-900/40 to-studio-black hover:shadow-[0_0_30px_rgba(244,63,94,0.3)] opacity-100"
                         >
-                          <div className="absolute top-0 right-0 bg-studio-gold text-studio-black text-[9px] font-black px-4 py-1.5 uppercase tracking-[0.2em] rounded-bl-xl shadow-lg z-20">TEMPO LIMITADO</div>
+                          <div className="absolute top-0 right-0 bg-rose-500 text-white text-[9px] font-black px-4 py-1.5 uppercase tracking-[0.2em] rounded-bl-xl shadow-lg z-20 animate-pulse">NOVIDADE</div>
 
                           <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10 w-full">
                             <div className="flex items-center gap-5 flex-1">
-                              <div className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center shrink-0 border-2 transition-all duration-500 bg-purple-500/10 text-purple-400 border-purple-500/20">
-                                <Heart size={28} />
+                              <div className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center shrink-0 border-2 transition-all duration-500 bg-rose-500/20 text-rose-400 border-rose-500/40 group-hover:scale-110 group-hover:bg-rose-500 group-hover:text-white">
+                                <Heart size={28} className="group-hover:animate-ping" />
                               </div>
                               <div className="text-left">
                                 <h4 className="text-lg md:text-xl font-black font-display uppercase tracking-widest text-white">{EVENTO_SAZONAL.titulo}</h4>
@@ -1663,17 +1673,53 @@ export default function Dashboard() {
                             </div>
 
                             <div className="flex flex-col items-center md:items-end shrink-0">
-                              <div className="flex flex-col items-center gap-1 opacity-60">
-                                <div className="flex items-center gap-2 text-white text-sm font-bold uppercase tracking-widest bg-white/5 px-4 py-2 rounded-lg border border-white/10">
-                                  <PlusCircle size={16} /> Adicionar
-                                </div>
-                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Em breve</span>
+                              <div className="flex items-center gap-2 text-white text-sm font-bold uppercase tracking-widest bg-rose-500 hover:bg-rose-600 px-6 py-3 rounded-xl shadow-lg transition-colors">
+                                <PlusCircle size={18} /> Ver Coleção
                               </div>
                             </div>
                           </div>
                           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-studio-gold/5 blur-[80px] pointer-events-none opacity-50"></div>
                         </div>
                       )}
+
+                      {/* ESTEIRA DE ALTA CONVERSÃO - DIA DAS MÃES */}
+                      <div ref={maesScrollRef} className="mb-12">
+                        <div className="flex items-center gap-3 mb-6">
+                          <Heart className="text-rose-500" size={28} />
+                          <div>
+                            <h3 className="text-2xl font-bold font-display uppercase tracking-widest text-white">Especial Dia das Mães</h3>
+                            <p className="text-gray-400 text-xs mt-1">Carregamento instantâneo. Selecione os seus estilos favoritos.</p>
+                          </div>
+                        </div>
+
+                        <div className="relative group/esteira">
+                          <button type="button" onClick={() => scrollMaesEsteira('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -ml-4 z-10 w-12 h-12 bg-[#121212] border border-white/10 rounded-full flex items-center justify-center text-white hover:text-rose-500 hover:border-rose-500 transition-all shadow-xl opacity-0 group-hover/esteira:opacity-100 hidden md:flex"><ChevronLeft size={24} className="pr-[2px] pt-[1px]" /></button>
+
+                          <div ref={maesEsteiraScrollRef} className="flex overflow-x-auto snap-x gap-6 pb-6 no-scrollbar scroll-smooth">
+                            {galleryData.filter(s => s.categoria === 'Especial Dia das Mães').map((style) => {
+                              const isSelected = selectedStyles.includes(style.titulo);
+                              return (
+                                <div key={style.id} onClick={() => toggleStyle(style.titulo)} className={`min-w-[240px] md:min-w-[280px] h-[360px] snap-start relative rounded-2xl overflow-hidden cursor-pointer border-2 transition-all group/card ${isSelected ? 'border-rose-500 scale-[0.98] shadow-[0_0_20px_rgba(244,63,94,0.3)]' : 'border-white/10 hover:border-rose-500/50'}`}>
+                                  {/* Uso do Image otimizado para os WEBP estáticos locais da galeria */}
+                                  <Image src={style.img_url} alt={style.titulo} fill className="object-cover transition-transform duration-700 group-hover/card:scale-110" unoptimized />
+                                  
+                                  <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex flex-col justify-end p-5 transition-all ${isSelected ? 'bg-rose-500/10' : 'opacity-90'}`}>
+                                    <div className="translate-y-4 group-hover/card:translate-y-0 transition-transform duration-300">
+                                      <p className="text-sm font-bold uppercase tracking-widest text-white mb-2">{style.titulo}</p>
+                                      
+                                      <div className={`w-full py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all backdrop-blur-md border ${isSelected ? 'bg-rose-500 text-white border-rose-500' : 'bg-black/50 text-white border-white/20 group-hover/card:bg-rose-500/80 group-hover/card:border-rose-500'}`}>
+                                        {isSelected ? <><CheckCircle2 size={16} /> Selecionado</> : <><PlusCircle size={16} /> Selecionar Estilo</>}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          <button type="button" onClick={() => scrollMaesEsteira('right')} className="absolute right-0 top-1/2 -translate-y-1/2 -mr-4 z-10 w-12 h-12 bg-[#121212] border border-white/10 rounded-full flex items-center justify-center text-white hover:text-rose-500 hover:border-rose-500 transition-all shadow-xl opacity-0 group-hover/esteira:opacity-100 hidden md:flex"><ChevronRight size={24} className="pl-[2px] pt-[1px]" /></button>
+                        </div>
+                      </div>
 
                       {/* CTA Serviço Sob Medida */}
                       <div
