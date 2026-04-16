@@ -395,9 +395,9 @@ export default function LandingPage() {
             <CuratorCard
               name="Shai Paes"
               instaHandle="@shaipaes"
-              styleName="Editorial Paris Luxury"
-              beforeImg="/images/galeria/est-dio-14-50-98e266fb-3d88-4853-bbe8-553589bba81e.webp"
-              afterImg="/curadoria.png"
+              styleName="Editorial Lifestyle"
+              beforeImg="/antes.png"
+              afterImg="/depois.png"
               instaLink="https://www.instagram.com/shaipaes/"
             />
 
@@ -619,7 +619,7 @@ export default function LandingPage() {
             >
               SOLICITAR MEU ENSAIO <ArrowRight size={18} />
             </Link>
-          
+
             {/* Card Estilo Especial Sazonal (Dia das Mães) */}
             {EVENTO_SAZONAL.ativo && (
               <Link href="/signup" className="block w-full mb-6">
@@ -634,7 +634,7 @@ export default function LandingPage() {
                         <h4 className="text-lg font-bold font-display uppercase tracking-widest text-white group-hover:text-studio-gold transition-colors">{EVENTO_SAZONAL.titulo}</h4>
                         <p className="text-xs text-gray-400 mt-1 max-w-sm leading-relaxed">{EVENTO_SAZONAL.descricao}</p>
                         <div className="flex items-center gap-2 mt-2">
-                           <span className="px-2 py-0.5 bg-studio-gold/10 border border-studio-gold/20 rounded text-[9px] font-bold text-studio-gold uppercase tracking-wider">1 Estilo Temático</span>
+                          <span className="px-2 py-0.5 bg-studio-gold/10 border border-studio-gold/20 rounded text-[9px] font-bold text-studio-gold uppercase tracking-wider">1 Estilo Temático</span>
                         </div>
                       </div>
                     </div>
