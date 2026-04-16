@@ -2100,5 +2100,3 @@ export const galleryData = [
     "ativo": true
   }
 ];
-
-// Trigger deploy
