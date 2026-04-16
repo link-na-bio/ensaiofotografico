@@ -200,7 +200,7 @@ export default function LandingPage() {
                     src="/humanoide.png"
                     alt="Comparison"
                     fill
-                    className="object-cover grayscale hover:grayscale-0 transition duration-700"
+                    className="object-cover transition duration-700"
                     referrerPolicy="no-referrer"
                   />
                 </div>
