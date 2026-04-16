@@ -35,8 +35,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<'home' | 'ensaios' | 'novo' | 'perfil' | 'mensagens'>('home');
   const [chatOrderId, setChatOrderId] = useState<string | null>(null);
 
-  // Filtro de Gênero e Categoria
-  const [genderFilter, setGenderFilter] = useState<'Feminino' | 'Masculino'>('Feminino');
+  // Filtro de Categoria
   const [categoryFilter, setCategoryFilter] = useState<string>('Estúdio');
 
   const [showMaesCollection, setShowMaesCollection] = useState(false);
@@ -925,7 +924,6 @@ export default function Dashboard() {
   const availableCategories = ['Todos', ...Array.from(new Set(dbStyles.map(s => s.categoria).filter(Boolean)))];
 
   const displayStyles = dbStyles.filter(s =>
-    (s.genero === genderFilter || s.genero === 'Ambos') &&
     (categoryFilter === 'Todos' || s.categoria === categoryFilter)
   );
 
@@ -1761,12 +1759,7 @@ export default function Dashboard() {
                       <div className="my-10 border-t border-white/5 opacity-50"></div>
 
                       <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                        <div className="flex bg-[#121212] border border-white/10 rounded-lg p-1 w-fit shrink-0">
-                          <button onClick={() => setGenderFilter('Feminino')} className={`px-6 py-2 rounded-md text-[10px] font-bold uppercase tracking-widest transition-colors ${genderFilter === 'Feminino' ? 'bg-studio-gold text-black' : 'text-gray-400 hover:text-white'}`}>Feminino</button>
-                          <button onClick={() => setGenderFilter('Masculino')} className={`px-6 py-2 rounded-md text-[10px] font-bold uppercase tracking-widest transition-colors ${genderFilter === 'Masculino' ? 'bg-studio-gold text-black' : 'text-gray-400 hover:text-white'}`}>Masculino</button>
-                        </div>
-
-                        <div className="relative w-full sm:max-w-[240px]">
+                        <div className="relative w-full sm:max-w-[320px]">
                           <select
                             value={categoryFilter}
                             onChange={(e) => setCategoryFilter(e.target.value)}

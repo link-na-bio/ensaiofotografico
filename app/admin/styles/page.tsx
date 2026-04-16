@@ -109,7 +109,6 @@ export default function AdminStyles() {
     const categoriaInput = formData.get('categoria_input') as string;
     const categoria = showNewCategoryInput ? categoriaInput.trim() : categoriaSelect;
     const descricao = formData.get('descricao') as string;
-    const genero = formData.get('genero') as string;
     const dica_roupa = formData.get('dica_roupa') as string;
     const prompt = formData.get('prompt') as string; // NOVO CAMPO DE PROMPT
 
@@ -144,12 +143,12 @@ export default function AdminStyles() {
 
       if (isAddingNew) {
         // Inserindo o novo campo 'prompt' no banco de dados
-        const { error } = await supabase.from('estilos').insert([{ titulo, categoria, descricao, genero, dica_roupa, prompt, img_url: finalImgUrl }]);
+        const { error } = await supabase.from('estilos').insert([{ titulo, categoria, descricao, dica_roupa, prompt, img_url: finalImgUrl }]);
         if (error) throw error;
         alert('Estilo adicionado com sucesso!');
       } else if (editingStyle) {
         // Atualizando o campo 'prompt' no banco de dados
-        const { error } = await supabase.from('estilos').update({ titulo, categoria, descricao, genero, dica_roupa, prompt, img_url: finalImgUrl }).eq('id', editingStyle.id);
+        const { error } = await supabase.from('estilos').update({ titulo, categoria, descricao, dica_roupa, prompt, img_url: finalImgUrl }).eq('id', editingStyle.id);
         if (error) throw error;
         alert('Estilo atualizado!');
       }
@@ -300,7 +299,6 @@ export default function AdminStyles() {
                             <span className="bg-rose-500 text-white text-[8px] font-bold uppercase tracking-widest px-2 py-1">Inativo</span>
                           )}
                           <span className="bg-studio-gold text-studio-black text-[8px] font-bold uppercase tracking-widest px-2 py-1">{style.categoria?.toLowerCase()?.includes('executivo') ? 'Executivo/Corporativo' : style.categoria}</span>
-                          <span className="hidden sm:inline-block bg-black/60 backdrop-blur-md border border-white/10 text-white text-[8px] font-bold uppercase tracking-widest px-2 py-1">{style.genero}</span>
                         </div>
                       </div>
                       <div className="p-4 flex flex-col flex-1">
@@ -463,17 +461,7 @@ export default function AdminStyles() {
                           )}
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Gênero</label>
-                          <select
-                            name="genero"
-                            required
-                            className="w-full px-4 py-3 bg-[#121212] border border-white/10 focus:border-studio-gold outline-none text-xs font-bold uppercase tracking-widest text-white transition-colors appearance-none cursor-pointer"
-                            defaultValue={editingStyle?.genero || 'Ambos'}
-                          >
-                            <option value="Ambos">Ambos</option>
-                            <option value="Masculino">Masculino</option>
-                            <option value="Feminino">Feminino</option>
-                          </select>
+                          {/* Gênero removido conforme solicitado */}
                         </div>
                       </div>
 
