@@ -36,7 +36,7 @@ export default function Dashboard() {
   const [chatOrderId, setChatOrderId] = useState<string | null>(null);
 
   // Filtro de Categoria
-  const [categoryFilter, setCategoryFilter] = useState<string>('Estúdio');
+  const [categoryFilter, setCategoryFilter] = useState<string>('EXECUTIVO');
 
   const [showMaesCollection, setShowMaesCollection] = useState(false);
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
