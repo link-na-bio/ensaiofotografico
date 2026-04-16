@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
-import { ChevronLeft, ChevronRight, Check, CheckCheck, Star, ArrowRight, Zap, ChevronDown, ChevronUp, Sparkles, Instagram, Layers, MousePointerClick, Heart, Handshake, Mail, PlusCircle, Palette } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, CheckCheck, Star, ArrowRight, Zap, ChevronDown, ChevronUp, Sparkles, Instagram, Layers, MousePointerClick, Heart, Handshake, Mail, PlusCircle, Palette, Users, X, UploadCloud } from 'lucide-react';
+import CuratorCard from '@/components/CuratorCard';
 import SalesNotification from '@/components/SalesNotification';
 import Link from 'next/link';
 
@@ -372,28 +373,48 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* AI Artist Section */}
-      <section className="py-24 bg-studio-black">
+      {/* Vitrine de Curadoria Premium */}
+      <section className="py-32 bg-[#171510] border-t border-white/5 relative overflow-hidden" id="curadoria">
+        {/* Decorative elements */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-studio-gold/5 blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-studio-gold/5 blur-[150px] pointer-events-none"></div>
+
         <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row gap-16 items-center">
-            <div className="md:w-1/2 order-2 md:order-1">
-              <h2 className="text-3xl font-bold mb-2">CURADORIA HUMANA</h2>
-              <p className="text-studio-gold uppercase tracking-widest text-sm mb-8">Tecnologia com Alma de Artista</p>
-              <p className="text-gray-300 mb-6 font-light leading-relaxed">
-                Diferente de aplicativos genéricos, no VIRTUAL STUDIO cada pixel é revisado por um profissional. Nós não apenas geramos imagens; nós criamos uma narrativa visual que respeita suas características únicas e eleva sua marca pessoal.
-              </p>
-            </div>
-            <div className="w-full md:w-1/2 order-1 md:order-2">
-              <div className="relative aspect-[16/10] md:aspect-video gold-border-gradient p-2 md:p-4">
-                <Image
-                  src="/curadoria.png"
-                  alt="AI Artist Working"
-                  fill
-                  className="object-cover"
-                  referrerPolicy="no-referrer"
-                />
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tighter">
+              CURADORIA <span className="text-studio-gold italic">HUMANA</span>
+            </h2>
+            <div className="w-24 h-1 bg-studio-gold mx-auto mb-6"></div>
+            <p className="text-white text-lg md:text-xl font-light max-w-2xl mx-auto leading-relaxed">
+              Curadoria de Estilo: O olhar de quem entende de imagem.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto justify-items-center">
+            {/* Destaque Shai Paes */}
+            <CuratorCard
+              name="Shai Paes"
+              instaHandle="@shaipaes"
+              styleName="Editorial Paris Luxury"
+              beforeImg="/images/galeria/est-dio-14-50-98e266fb-3d88-4853-bbe8-553589bba81e.webp"
+              afterImg="/curadoria.png"
+              instaLink="https://www.instagram.com/shaipaes/"
+            />
+
+            {/* Placeholder para próximo influenciador (Marco) */}
+            <div className="w-full flex flex-col items-center justify-center p-12 border border-white/5 bg-white/[0.02] rounded-xl group hover:border-studio-gold/20 transition-all border-dashed">
+              <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Users size={32} className="text-slate-600 group-hover:text-studio-gold transition-colors" />
               </div>
+              <h3 className="text-lg font-display text-slate-500 group-hover:text-slate-300 transition-colors uppercase tracking-widest mb-2 font-bold">Próxima Curadoria</h3>
+              <p className="text-[10px] text-slate-600 uppercase tracking-widest font-bold">Em breve no catálogo VIP</p>
             </div>
+          </div>
+
+          <div className="mt-20 text-center max-w-3xl mx-auto">
+            <p className="text-gray-400 font-light leading-relaxed">
+              No VIRTUAL STUDIO, a tecnologia é apenas a ferramenta. Quem define a alma do seu ensaio são <span className="text-white font-bold">artistas e especialistas em imagem</span>. Cada detalhe é revisado para garantir que sua autoridade seja transmitida com perfeição absoluta.
+            </p>
           </div>
         </div>
       </section>

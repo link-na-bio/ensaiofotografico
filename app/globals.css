@@ -3,6 +3,7 @@
 @theme {
   --font-sans: var(--font-sans);
   --font-display: var(--font-display);
+  --font-serif: var(--font-serif);
   
   --color-studio-black: #171510;
   --color-studio-gold: #c39d5d;
