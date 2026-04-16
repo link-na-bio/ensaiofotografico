@@ -77,6 +77,9 @@ async function main() {
       ...estilo,
       img_url: localUrl
     });
+
+    // Add a small delay between downloads to prevent rate limiting
+    await new Promise(resolve => setTimeout(resolve, 300));
   }
 
   console.log("Writing app/galeria/data.ts...");
