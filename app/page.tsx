@@ -397,7 +397,7 @@ export default function LandingPage() {
               name="Shai Paes"
               instaHandle="@shaipaes"
               styleName="Editorial Lifestyle"
-              beforeImg="/antes.png"
+              beforeImg="/antes01.png"
               afterImg="/depois.png"
               instaLink="https://www.instagram.com/shaipaes/"
             />
