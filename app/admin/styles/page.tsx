@@ -7,7 +7,40 @@ import { Search, Plus, Trash2, X, UploadCloud, Loader2, Sparkles, Copy, CheckChe
 import AdminSidebar from '@/components/AdminSidebar';
 import { supabase } from '@/lib/supabaseClient';
 
+// Componente de Imagem Híbrido para o Admin
+// Tenta carregar a versão local .webp otimizada, fallback para URL do Supabase se falhar
+function AdminStyleImage({ style }: { style: any }) {
+  const [src, setSrc] = useState<string>('');
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    // Reconstrói o caminho local esperado com base no script de migração
+    const uniqueId = style.id;
+    const safeTitle = (style.titulo || 'img').toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+    const localUrl = `/images/galeria/${safeTitle}-${uniqueId}.webp`;
+    setSrc(localUrl);
+  }, [style]);
+
+  const handleError = () => {
+    if (!hasError) {
+      setHasError(true);
+      setSrc(style.img_url); // Fallback para a URL original do Supabase
+    }
+  };
+
+  return (
+    <img
+      src={src}
+      alt={style.titulo}
+      onError={handleError}
+      loading="lazy"
+      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
+    />
+  );
+}
+
 export default function AdminStyles() {
+
   const [styles, setStyles] = useState<any[]>([]);
   const [filteredStyles, setFilteredStyles] = useState<any[]>([]);
 
@@ -283,12 +316,7 @@ export default function AdminStyles() {
                     <div key={style.id} className={`group bg-studio-black border border-white/10 rounded-none overflow-hidden hover:border-studio-gold hover:shadow-[0_0_30px_rgba(212,175,55,0.1)] transition-all flex flex-col ${style.ativo === false ? 'opacity-50 grayscale hover:grayscale-0' : ''}`}>
                       <div className="aspect-[4/5] overflow-hidden relative">
                         {style.img_url ? (
-                          <Image
-                            src={style.img_url}
-                            alt={style.titulo}
-                            fill
-                            className="object-contain group-hover:scale-105 transition-transform duration-700"
-                          />
+                          <AdminStyleImage style={style} />
                         ) : (
                           <div className="w-full h-full bg-white/5 flex items-center justify-center">
                             <span className="text-slate-500 text-[9px] uppercase tracking-widest font-bold">Sem imagem</span>
