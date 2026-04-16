@@ -39,6 +39,7 @@ export default function CuratorCard({
           fill
           className={`object-cover transition-opacity duration-1000 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
           sizes="(max-width: 768px) 100vw, 50vw"
+          unoptimized
         />
         
         {/* Before Image (Base Photo) */}
@@ -48,6 +49,7 @@ export default function CuratorCard({
           fill
           className={`object-cover transition-opacity duration-1000 ${isHovered ? 'opacity-0' : 'opacity-100'}`}
           sizes="(max-width: 768px) 100vw, 50vw"
+          unoptimized
         />
 
         {/* Overlays */}

@@ -10,7 +10,7 @@ import { supabase } from '@/lib/supabaseClient';
 // Componente de Imagem Híbrido para o Admin
 // Tenta carregar a versão local .webp otimizada, fallback para URL do Supabase se falhar
 function AdminStyleImage({ style }: { style: any }) {
-  const [src, setSrc] = useState<string>('');
+  const [src, setSrc] = useState<string | null>(null);
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
@@ -19,6 +19,7 @@ function AdminStyleImage({ style }: { style: any }) {
     const safeTitle = (style.titulo || 'img').toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
     const localUrl = `/images/galeria/${safeTitle}-${uniqueId}.webp`;
     setSrc(localUrl);
+    setHasError(false);
   }, [style]);
 
   const handleError = () => {
@@ -28,13 +29,16 @@ function AdminStyleImage({ style }: { style: any }) {
     }
   };
 
+  if (!src) return <div className="w-full h-full bg-studio-black animate-pulse" />;
+
   return (
-    <img
+    <Image
       src={src}
       alt={style.titulo}
+      fill
       onError={handleError}
-      loading="lazy"
-      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
+      className="object-contain group-hover:scale-105 transition-transform duration-700"
+      unoptimized
     />
   );
 }

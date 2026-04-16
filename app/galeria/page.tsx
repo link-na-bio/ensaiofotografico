@@ -105,14 +105,15 @@ export default function GalleryPage() {
                 >
                   <div className="absolute inset-0 bg-studio-black" onContextMenu={(e) => e.preventDefault()}>
                     {item.img_url ? (
-                      <Image
-                        src={item.img_url}
-                        alt={item.titulo}
-                        fill
-                        className="object-contain transition-all duration-700 group-hover:scale-110 group-hover:blur-[2px] opacity-80 group-hover:opacity-100 select-none pointer-events-none"
-                        referrerPolicy="no-referrer"
-                        draggable={false}
-                      />
+                        <Image
+                          src={item.img_url}
+                          alt={item.titulo}
+                          fill
+                          className="object-contain transition-all duration-700 group-hover:scale-110 group-hover:blur-[2px] opacity-80 group-hover:opacity-100 select-none pointer-events-none"
+                          referrerPolicy="no-referrer"
+                          draggable={false}
+                          unoptimized
+                        />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-white/5">
                         <span className="uppercase tracking-widest font-bold text-xs text-gray-500">Sem Imagem</span>

@@ -24,6 +24,31 @@ const EVENTO_SAZONAL = {
   nomeDoEstilo: 'Mãe VIP' // O nome do estilo que acabou de criar no painel
 };
 
+// Componente para renderização de imagem de estilo com fallback local
+const DashboardStyleImage = ({ style, unoptimized = true }: { style: any, unoptimized?: boolean }) => {
+  const [src, setSrc] = useState<string | null>(null);
+  
+  useEffect(() => {
+    // Tenta primeiro o caminho local (webp otimizado)
+    const safeTitle = (style.titulo || 'img').toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+    const localPath = `/images/galeria/${safeTitle}-${style.id}.webp`;
+    setSrc(localPath);
+  }, [style]);
+
+  if (!src) return <div className="w-full h-full bg-studio-black animate-pulse" />;
+
+  return (
+    <Image 
+      src={src} 
+      alt={style.titulo} 
+      fill 
+      className="object-contain"
+      unoptimized={unoptimized}
+      onError={() => setSrc(style.img_url)} // Fallback para o Supabase se local falhar
+    />
+  );
+};
+
 export default function Dashboard() {
   const router = useRouter();
 
@@ -1784,7 +1809,7 @@ export default function Dashboard() {
                           ) : (
                             displayStyles.map((style) => (
                               <div key={style.id} onClick={() => toggleStyle(style.titulo)} className={`min-w-[180px] h-[240px] snap-start relative rounded-xl overflow-hidden cursor-pointer border-2 transition-all ${selectedStyles.includes(style.titulo) ? 'border-studio-gold scale-[0.98]' : 'border-white/5 hover:border-studio-gold/40'}`}>
-                                <Image src={style.img_url} alt={style.titulo} fill className="object-contain" unoptimized />
+                                <DashboardStyleImage style={style} unoptimized={true} />
                                 <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent flex flex-col justify-end p-4 transition-all ${selectedStyles.includes(style.titulo) ? 'bg-studio-gold/20' : 'opacity-80'}`}>
                                   <p className="text-[10px] font-bold uppercase tracking-widest text-white">{style.titulo}</p>
                                   {selectedStyles.includes(style.titulo) && <div className="absolute top-2 right-2 bg-studio-gold text-studio-black rounded-full p-1"><Check size={10} strokeWidth={4} /></div>}
