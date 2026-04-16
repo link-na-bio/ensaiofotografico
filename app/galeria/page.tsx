@@ -9,7 +9,7 @@ import { galleryData } from './data';
 import SalesNotification from '@/components/SalesNotification';
 
 export default function GalleryPage() {
-  const [activeCategory, setActiveCategory] = useState('Todos');
+  const [activeCategory, setActiveCategory] = useState('Estúdio');
   const [styles, setStyles] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>(['Todos']);
   const [isLoading, setIsLoading] = useState(true);
