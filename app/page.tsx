@@ -30,8 +30,8 @@ const faqs = [
     answer: "Diferente de filtros comuns de redes sociais, nossa tecnologia de IA generativa simula luzes e sombras físicas reais. A curadoria humana final garante que o resultado seja 100% convincente e profissional."
   },
   {
-    question: "Existe política de reembolso?",
-    answer: "Devido ao altíssimo custo de processamento computacional das nossas IAs de elite, não oferecemos reembolsos após o início da geração. No entanto, garantimos a satisfação através de nossa curadoria de excelência."
+    question: "Existe garantia de satisfação ou reembolso?",
+    answer: "No Virtual Studio, nós trabalhamos com um modelo de Risco Zero para você. Você não precisa pagar \"no escuro\"! O nosso sistema irá gerar as prévias do seu ensaio (com marca d'água) para você avaliar. Você só realiza o pagamento pelos estilos que aprovar e decidir baixar em altíssima resolução. Ou seja, a sua satisfação é 100% garantida antes mesmo de você abrir a carteira."
   },
   {
     question: "Meus dados e fotos estão protegidos?",
