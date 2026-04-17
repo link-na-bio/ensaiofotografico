@@ -98,10 +98,10 @@ export default function AdminFinance() {
           else if (rawPkg.includes('fotos_extras')) { displayName = 'Fotos Extras'; }
           else { pkgKey = rawPkg; }
 
-          // Se a coluna valor existir no pedido (do banco de dados), use-a.
-          // Caso contrário (pedidos muito antigos), faça o fallback.
+          // Se a coluna valor existir no pedido e for maior que zero, use-a.
+          // Caso contrário (pedidos antigos ou erro de gravação), faça o fallback.
           const fallbackVal = dynamicPrices[pkgKey as keyof typeof dynamicPrices] || 0;
-          const val = (order.valor !== null && order.valor !== undefined) ? Number(order.valor) : fallbackVal;
+          const val = (order.valor && Number(order.valor) > 0) ? Number(order.valor) : fallbackVal;
 
           // Agregações
           totalRevenue += val;
