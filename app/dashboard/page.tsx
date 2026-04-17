@@ -512,6 +512,7 @@ export default function Dashboard() {
         pacote: finalPackageName,
         estilos: selectedStyles,
         status: 'Aguardando Produção',
+        valor: currentTotal,
         ...(reaproveitarFotos ? { observacoes: "♻️ CLIENTE RECORRENTE: Utilizar selfies/modelo do pedido anterior." } : {})
       }).select().single();
 
@@ -771,13 +772,17 @@ export default function Dashboard() {
     try {
       // 1. Vincular o pedido de extras ao pedido pai para facilitar a liberação e localização dos arquivos
       const parentId = selectedEnsaioForGallery;
+      
+      const qtdExtras = selectedExtras.length;
+      const valorExtras = qtdExtras * getPrecoUnitario(qtdExtras);
 
       const insertData: any = {
         user_id: userId,
         user_email: userEmail,
         pacote: `fotos_extras|${parentId}`,
         estilos: selectedExtras,
-        status: 'Aguardando Pagamento'
+        status: 'Aguardando Pagamento',
+        valor: valorExtras
       };
 
       // Tenta adicionar observacoes apenas se a coluna existir (evita erro de cache do schema)

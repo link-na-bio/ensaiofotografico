@@ -60,7 +60,7 @@ export default function AdminFinance() {
 
       const { data, error } = await supabase
         .from('pedidos')
-        .select('id, user_email, pacote, status, criado_em')
+        .select('id, user_email, pacote, status, criado_em, valor')
         .order('criado_em', { ascending: false });
 
       if (error) throw error;
@@ -94,10 +94,14 @@ export default function AdminFinance() {
           if (rawPkg.includes('essencial')) { pkgKey = 'essencial'; displayName = 'Essencial'; }
           else if (rawPkg.includes('premium')) { pkgKey = 'premium'; displayName = 'Premium'; }
           else if (rawPkg.includes('elite')) { pkgKey = 'elite'; displayName = 'Elite'; }
-          else if (rawPkg.includes('amostra')) { pkgKey = 'amostra'; displayName = 'Amostra VIP'; }
+          else if (rawPkg.includes('amostra') || rawPkg.includes('avulso')) { pkgKey = 'amostra'; displayName = 'Avulso'; }
+          else if (rawPkg.includes('fotos_extras')) { displayName = 'Fotos Extras'; }
           else { pkgKey = rawPkg; }
 
-          const val = dynamicPrices[pkgKey as keyof typeof dynamicPrices] || 0;
+          // Se a coluna valor existir no pedido (do banco de dados), use-a.
+          // Caso contrário (pedidos muito antigos), faça o fallback.
+          const fallbackVal = dynamicPrices[pkgKey as keyof typeof dynamicPrices] || 0;
+          const val = (order.valor !== null && order.valor !== undefined) ? Number(order.valor) : fallbackVal;
 
           // Agregações
           totalRevenue += val;
