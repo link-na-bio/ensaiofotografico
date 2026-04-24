@@ -114,7 +114,7 @@ export default function Dashboard() {
   // Estados de Prévia e Galeria
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewFilesMetadata, setPreviewFilesMetadata] = useState<{ name: string, url: string }[]>([]);
-  const [selectedPreviews, setSelectedPreviews] = useState<string[]>([]);
+  const [selectedPreviews, setSelectedPreviews] = useState<{ url: string, nota: string }[]>([]);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [isFetchingPreview, setIsFetchingPreview] = useState(false);
   const [isDownloading, setIsDownloading] = useState<string | null>(null);
@@ -609,7 +609,8 @@ export default function Dashboard() {
 
       const { data: pedido } = await supabase.from('pedidos').select('fotos_selecionadas').eq('id', orderId).single();
       if (pedido?.fotos_selecionadas) {
-        setSelectedPreviews(pedido.fotos_selecionadas);
+        const formatted = pedido.fotos_selecionadas.map((p: any) => typeof p === 'string' ? { url: p, nota: '' } : p);
+        setSelectedPreviews(formatted);
       }
 
       setIsPreviewOpen(true);
@@ -636,11 +637,15 @@ export default function Dashboard() {
   };
 
   const togglePhotoSelection = (fileName: string) => {
-    if (selectedPreviews.includes(fileName)) {
-      setSelectedPreviews(prev => prev.filter(name => name !== fileName));
+    if (selectedPreviews.some(p => p.url === fileName)) {
+      setSelectedPreviews(prev => prev.filter(p => p.url !== fileName));
     } else {
-      setSelectedPreviews(prev => [...prev, fileName]);
+      setSelectedPreviews(prev => [...prev, { url: fileName, nota: '' }]);
     }
+  };
+
+  const updatePhotoNote = (fileName: string, nota: string) => {
+    setSelectedPreviews(prev => prev.map(p => p.url === fileName ? { ...p, nota } : p));
   };
 
   const salvarEIrParaPagamento = async () => {
@@ -710,7 +715,8 @@ export default function Dashboard() {
         if (isReleased) {
           if (p.id === rootOrderId) {
             // Do pedido raiz, pegamos o que foi selecionado inicialmente
-            fotosCompradasTotal = [...fotosCompradasTotal, ...(p.fotos_selecionadas || [])];
+            const sels = (p.fotos_selecionadas || []).map((s: any) => typeof s === 'string' ? s : s.url);
+            fotosCompradasTotal = [...fotosCompradasTotal, ...sels];
           } else if (p.pacote?.toLowerCase().includes('fotos_extras')) {
             // De pedidos de extras pagos, pegamos os "estilos" (que são os nomes das fotos)
             fotosCompradasTotal = [...fotosCompradasTotal, ...(p.estilos || [])];
@@ -853,7 +859,10 @@ export default function Dashboard() {
 
       let arquivosFinais = validFiles;
       if (selecionadas.length > 0) {
-        arquivosFinais = validFiles.filter(f => f.name.toLowerCase().includes('bonus_') || selecionadas.some((sel: string) => f.name.includes(sel) || sel.includes(f.name)));
+        arquivosFinais = validFiles.filter(f => f.name.toLowerCase().includes('bonus_') || selecionadas.some((sel: any) => {
+           const url = typeof sel === 'string' ? sel : sel.url;
+           return f.name.includes(url) || url.includes(f.name);
+        }));
         if (arquivosFinais.length === 0) {
           alert("Erro: As fotos selecionadas não puderam ser descarregadas. Contacte o suporte.");
           setIsDownloading(null);
@@ -1079,39 +1088,52 @@ export default function Dashboard() {
               <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   {previewFilesMetadata.map((file, idx) => {
-                    const isSelected = selectedPreviews.includes(file.name);
+                    const selectedObj = selectedPreviews.find(p => p.url === file.name);
+                    const isSelected = !!selectedObj;
                     return (
-                      <div
-                        key={idx}
-                        onClick={() => togglePhotoSelection(file.name)}
-                        className={`group relative aspect-[3/4] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 border-4 ${isSelected ? 'border-studio-gold ring-4 ring-studio-gold/20' : 'border-white/5 hover:border-studio-gold/30'}`}
-                      >
-                        <img
-                          src={file.url}
-                          alt={`Foto ${idx + 1}`}
-                          className={`w-full h-full object-cover transition-all duration-500 ${isSelected ? 'brightness-50 scale-105' : 'group-hover:scale-110'}`}
-                          loading="lazy"
-                        />
+                      <div key={idx} className="flex flex-col gap-2">
+                        <div
+                          onClick={() => togglePhotoSelection(file.name)}
+                          className={`group relative aspect-[3/4] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 border-4 ${isSelected ? 'border-studio-gold ring-4 ring-studio-gold/20' : 'border-white/5 hover:border-studio-gold/30'}`}
+                        >
+                          <img
+                            src={file.url}
+                            alt={`Foto ${idx + 1}`}
+                            className={`w-full h-full object-cover transition-all duration-500 ${isSelected ? 'brightness-50 scale-105' : 'group-hover:scale-110'}`}
+                            loading="lazy"
+                          />
 
-                        {/* Marca d'água robusta */}
-                        <div className="absolute inset-0 z-10 pointer-events-none opacity-30 mix-blend-screen overflow-hidden" style={{ backgroundImage: `url("/FOTO PROTEGIDA - NÃO TIRE PRINT.png")`, backgroundRepeat: 'repeat', backgroundSize: '150px' }}></div>
+                          {/* Marca d'água robusta */}
+                          <div className="absolute inset-0 z-10 pointer-events-none opacity-30 mix-blend-screen overflow-hidden" style={{ backgroundImage: `url("/FOTO PROTEGIDA - NÃO TIRE PRINT.png")`, backgroundRepeat: 'repeat', backgroundSize: '150px' }}></div>
 
-                        {/* Overlay de Seleção */}
+                          {/* Overlay de Seleção */}
+                          {isSelected && (
+                            <motion.div
+                              initial={{ scale: 0.5, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              className="absolute top-4 right-4 z-20"
+                            >
+                              <CheckCircle2 size={32} className="text-studio-gold drop-shadow-[0_0_15px_rgba(212,175,55,0.8)]" />
+                            </motion.div>
+                          )}
+
+                          <div className="absolute bottom-3 left-3 z-20">
+                            <span className="px-2 py-1 bg-black/60 backdrop-blur-md rounded text-[9px] font-bold text-white uppercase tracking-tighter border border-white/10">
+                              #{file.name.slice(-8)}
+                            </span>
+                          </div>
+                        </div>
+
                         {isSelected && (
-                          <motion.div
-                            initial={{ scale: 0.5, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            className="absolute top-4 right-4 z-20"
-                          >
-                            <CheckCircle2 size={32} className="text-studio-gold drop-shadow-[0_0_15px_rgba(212,175,55,0.8)]" />
+                          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="w-full">
+                            <textarea
+                              value={selectedObj?.nota || ''}
+                              onChange={(e) => updatePhotoNote(file.name, e.target.value)}
+                              placeholder="Algum pedido especial para esta foto? (Opcional)"
+                              className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl p-3 text-xs text-white placeholder-gray-500 outline-none focus:border-studio-gold resize-none h-16 custom-scrollbar"
+                            />
                           </motion.div>
                         )}
-
-                        <div className="absolute bottom-3 left-3 z-20">
-                          <span className="px-2 py-1 bg-black/60 backdrop-blur-md rounded text-[9px] font-bold text-white uppercase tracking-tighter border border-white/10">
-                            #{file.name.slice(-8)}
-                          </span>
-                        </div>
                       </div>
                     );
                   })}

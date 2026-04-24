@@ -45,6 +45,7 @@ export default function AdminOrders() {
   // Modais
   const [downloadModal, setDownloadModal] = useState<{ isOpen: boolean; files: any[]; orderId: string }>({ isOpen: false, files: [], orderId: '' });
   const [comprovanteModal, setComprovanteModal] = useState<{ isOpen: boolean; url: string; orderId: string }>({ isOpen: false, url: '', orderId: '' });
+  const [approvedPreviewsModal, setApprovedPreviewsModal] = useState<{ isOpen: boolean; files: any[]; orderId: string }>({ isOpen: false, files: [], orderId: '' });
 
   const [uploadingOrder, setUploadingOrder] = useState<{ id: string; userId: string; isBonus?: boolean } | null>(null);
   const [isZipping, setIsZipping] = useState(false);
@@ -168,6 +169,59 @@ export default function AdminOrders() {
 
     } catch (error: any) {
       alert('Erro ao buscar fotos: ' + error.message);
+    } finally {
+      setActiveAction(prev => ({ ...prev, [actionKey]: false }));
+    }
+  };
+
+  const handleViewApprovedPreviews = async (userId: string, orderId: string) => {
+    const actionKey = `view-previews-${orderId}`;
+    try {
+      setActiveAction(prev => ({ ...prev, [actionKey]: true }));
+      
+      const { data: pedido, error: dbError } = await supabase
+        .from('pedidos')
+        .select('fotos_selecionadas')
+        .eq('id', orderId)
+        .single();
+        
+      if (dbError) throw dbError;
+      
+      const selecionadas = pedido?.fotos_selecionadas || [];
+      if (selecionadas.length === 0) {
+        alert('Este pedido ainda não possui prévias aprovadas.');
+        return;
+      }
+
+      const selectedObjects = selecionadas.map((sel: any) => typeof sel === 'string' ? { url: sel, nota: '' } : sel);
+
+      const folderPath = `${userId}/${orderId}`;
+      const { data: files, error } = await supabase.storage.from('previa_ensaios').list(folderPath);
+
+      if (error) throw error;
+      const validFiles = files ? files.filter(f => f.name !== '.emptyFolderPlaceholder') : [];
+      
+      const finalFiles = validFiles.filter(f => selectedObjects.some((sel: any) => f.name.includes(sel.url) || sel.url.includes(f.name)));
+
+      if (finalFiles.length === 0) {
+        alert('As prévias selecionadas não foram encontradas no bucket.');
+        return;
+      }
+
+      const paths = finalFiles.map(file => `${folderPath}/${file.name}`);
+      const { data: signedData, error: signedError } = await supabase.storage.from('previa_ensaios').createSignedUrls(paths, 3600);
+
+      if (signedError) throw signedError;
+
+      const filesWithUrls = finalFiles.map((file, idx) => {
+        const obj = selectedObjects.find((sel: any) => file.name.includes(sel.url) || sel.url.includes(file.name));
+        return { name: file.name, url: signedData[idx].signedUrl, nota: obj?.nota || '' };
+      });
+      
+      setApprovedPreviewsModal({ isOpen: true, files: filesWithUrls, orderId });
+
+    } catch (error: any) {
+      alert('Erro ao buscar prévias: ' + error.message);
     } finally {
       setActiveAction(prev => ({ ...prev, [actionKey]: false }));
     }
@@ -350,6 +404,41 @@ export default function AdminOrders() {
         </div>
       )}
 
+      {/* Modal de Prévias Aprovadas */}
+      {approvedPreviewsModal.isOpen && (
+        <div className="fixed inset-0 z-[50] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#121212] border border-studio-gold/30 w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-[0_0_30px_rgba(212,175,55,0.15)] rounded-2xl flex flex-col">
+            <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between bg-white/5">
+              <h3 className="font-bold font-display uppercase tracking-widest text-studio-gold flex items-center gap-2">
+                <CheckCircle2 size={18} /> Prévias Aprovadas para Produção
+              </h3>
+              <button onClick={() => setApprovedPreviewsModal({ isOpen: false, files: [], orderId: '' })} className="text-slate-400 hover:text-white transition-colors"><X size={20} /></button>
+            </div>
+            <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                {approvedPreviewsModal.files.map((file, idx) => (
+                  <div key={idx} className="flex flex-col gap-3">
+                    <div className="aspect-[3/4] rounded-xl overflow-hidden border border-white/10 relative group">
+                      <img src={file.url} alt={`Prévia ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <a href={file.url} target="_blank" rel="noopener noreferrer" className="absolute top-2 right-2 size-8 bg-black/60 rounded flex items-center justify-center text-white hover:bg-studio-gold hover:text-black transition-colors" title="Ver Original">
+                        <ExternalLink size={14} />
+                      </a>
+                    </div>
+                    {file.nota && (
+                      <div className="bg-gray-800 rounded-lg p-3 relative border border-gray-700">
+                        <div className="absolute -top-2 left-4 w-4 h-4 bg-gray-800 rotate-45 border-l border-t border-gray-700"></div>
+                        <p className="text-xs italic text-gray-300 relative z-10 font-medium">"{file.nota}"</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {/* Modal de Download de Fotos */}
       {downloadModal.isOpen && (
         <div className="fixed inset-0 z-[40] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -507,6 +596,16 @@ export default function AdminOrders() {
                                 >
                                   {activeAction[`download-${order.id}`] ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
                                 </button>
+                                {order.fotos_selecionadas && order.fotos_selecionadas.length > 0 && (
+                                  <button
+                                    onClick={() => handleViewApprovedPreviews(order.user_id, order.id)}
+                                    disabled={activeAction[`view-previews-${order.id}`]}
+                                    className="size-9 flex items-center justify-center rounded border border-studio-gold/30 bg-studio-gold/10 text-studio-gold hover:border-studio-gold hover:bg-studio-gold hover:text-black transition-all disabled:opacity-50"
+                                    title="Prévias Aprovadas para Produção"
+                                  >
+                                    {activeAction[`view-previews-${order.id}`] ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
+                                  </button>
+                                )}
                                 <button
                                   onClick={() => triggerUploadBonus(order.id, order.user_id)}
                                   disabled={activeAction[`upload-${order.id}`]}
