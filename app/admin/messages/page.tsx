@@ -221,8 +221,22 @@ export default function AdminMessages() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const formatMessageTime = (dateString: string) => {
+    const msgDate = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    const isToday = msgDate.toDateString() === today.toDateString();
+    const isYesterday = msgDate.toDateString() === yesterday.toDateString();
+    
+    const time = msgDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+    if (isToday) return `Hoje, ${time}`;
+    if (isYesterday) return `Ontem, ${time}`;
+    
+    const date = msgDate.toLocaleDateString('pt-BR');
+    return `${date}, ${time}`;
   };
 
   return (
@@ -348,7 +362,7 @@ export default function AdminMessages() {
 
                           </div>
                           <div className="flex items-center gap-1 mt-1 px-1">
-                            <span className="text-[9px] text-gray-500 uppercase font-bold tracking-wider">{formatDate(msg.criado_em)}</span>
+                            <span className="text-[9px] text-gray-500 uppercase font-bold tracking-wider">{formatMessageTime(msg.criado_em)}</span>
                             {isAdmin && <CheckCheck size={12} className="text-studio-gold" />}
                           </div>
                         </div>
