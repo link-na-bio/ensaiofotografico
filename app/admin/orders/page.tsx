@@ -49,7 +49,7 @@ export default function AdminOrders() {
   const [approvedPreviewsModal, setApprovedPreviewsModal] = useState<{ isOpen: boolean; files: any[]; orderId: string }>({ isOpen: false, files: [], orderId: '' });
   
   const [manualOrderModal, setManualOrderModal] = useState(false);
-  const [manualOrderData, setManualOrderData] = useState({ cliente: '', pacote: 'DINAMICO_AVULSO', valor: '', estilos: '' });
+  const [manualOrderData, setManualOrderData] = useState({ cliente: '', pacote: 'dinamico_avulso', valor: '', estilos: '' });
   const [isSubmittingManual, setIsSubmittingManual] = useState(false);
 
   const [uploadingOrder, setUploadingOrder] = useState<{ id: string; userId: string; isBonus?: boolean } | null>(null);
@@ -138,7 +138,7 @@ export default function AdminOrders() {
       if (error) throw error;
 
       setManualOrderModal(false);
-      setManualOrderData({ cliente: '', pacote: 'DINAMICO_AVULSO', valor: '', estilos: '' });
+      setManualOrderData({ cliente: '', pacote: 'dinamico_avulso', valor: '', estilos: '' });
       alert('Pedido manual criado com sucesso!');
       fetchOrders();
     } catch (error: any) {
@@ -700,10 +700,12 @@ export default function AdminOrders() {
                   onChange={(e) => setManualOrderData({...manualOrderData, pacote: e.target.value})}
                   className="w-full bg-studio-black border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-studio-gold"
                 >
-                  <option value="DINAMICO_AVULSO">DINAMICO_AVULSO</option>
-                  <option value="AMOSTRA VIP">AMOSTRA VIP</option>
-                  <option value="PREMIUM">PREMIUM</option>
-                  <option value="FOTOS_EXTRAS">FOTOS_EXTRAS</option>
+                  <option value="dinamico_avulso">Avulso (1 Estilo)</option>
+                  <option value="dinamico_essencial">Pack Essencial (5 Estilos)</option>
+                  <option value="dinamico_premium">Pack Premium (10 Estilos)</option>
+                  <option value="dinamico_elite">Pack Elite (20+ Estilos)</option>
+                  <option value="sazonal">Direção de Arte Sob Medida</option>
+                  <option value="fotos_extras">Fotos Extras</option>
                 </select>
               </div>
 
