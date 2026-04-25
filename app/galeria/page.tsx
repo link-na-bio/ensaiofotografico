@@ -59,23 +59,21 @@ export default function GalleryPage() {
           </p>
         </motion.div>
 
-        {/* Filtros estilo Chips */}
-        <div className="flex overflow-x-auto pb-4 mb-12 no-scrollbar justify-start md:justify-center">
-          <div className="flex gap-3 px-6">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`whitespace-nowrap px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all duration-300 border ${
-                  activeCategory === cat
-                    ? 'bg-studio-gold border-studio-gold text-studio-black shadow-[0_0_20px_rgba(212,175,55,0.3)]'
-                    : 'bg-transparent border-studio-gold/30 text-studio-gold hover:border-studio-gold hover:bg-studio-gold/5'
-                }`}
-              >
-                {cat === 'Todos' ? '✨ Ver Todos' : cat}
-              </button>
-            ))}
-          </div>
+        {/* Filtros em Grid/Wrap */}
+        <div className="flex flex-wrap justify-center gap-3 mb-16 max-w-4xl mx-auto px-6">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`whitespace-nowrap px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all duration-300 border ${
+                activeCategory === cat
+                  ? 'bg-studio-gold border-studio-gold text-studio-black shadow-[0_0_20px_rgba(212,175,55,0.3)]'
+                  : 'bg-transparent border-studio-gold/30 text-studio-gold hover:border-studio-gold hover:bg-studio-gold/5'
+              }`}
+            >
+              {cat === 'Todos' ? '✨ Ver Todos' : cat}
+            </button>
+          ))}
         </div>
       </section>
 
