@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, Check, CheckCheck, Star, ArrowRight, Zap, Ch
 import CuratorCard from '@/components/CuratorCard';
 import SalesNotification from '@/components/SalesNotification';
 import Link from 'next/link';
+import { galleryData } from '@/app/galeria/data';
 
 const faqs = [
   {
@@ -228,41 +229,79 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Style Gallery */}
-      <section className="py-24 bg-studio-black" id="galeria">
+      {/* Estilos em Destaque */}
+      <section className="py-24 bg-studio-black overflow-hidden" id="galeria">
         <div className="container mx-auto px-6 text-center mb-16">
-          <h2 className="text-5xl font-bold mb-4">MUSEU DE ESTILOS</h2>
-          <p className="text-studio-gold tracking-widest uppercase text-sm">Escolha sua identidade visual</p>
+          <h2 className="text-5xl font-bold mb-4 font-display italic">ESTILOS EM <span className="text-studio-gold">DESTAQUE</span></h2>
+          <p className="text-studio-gold tracking-widest uppercase text-sm font-light">Nosso Acervo Exclusivo</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 px-4">
-          {[
-            { title: 'Casual', img: '/lifestyle.png', offset: false },
-            { title: 'Estúdio', img: '/editorial-de-moda.png', offset: true },
-            { title: 'Lifestyle Urbano', img: '/lifestyleurbano.png', offset: false },
-            { title: 'Executivo/Corporativo', img: '/corporativo.png', offset: true }
-          ].map((style, i) => (
-            <div key={i} className={`relative group h-[500px] overflow-hidden ${style.offset ? 'md:mt-12' : ''}`}>
-              <div className="absolute inset-0 bg-studio-black scale-[1.08] translate-y-3 origin-center">
+        
+        {/* Carrossel Infinito (Marquee) */}
+        <div className="relative w-full flex overflow-hidden group mb-12">
+          {/* Fades nas bordas */}
+          <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-studio-black to-transparent z-10 pointer-events-none"></div>
+          <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-studio-black to-transparent z-10 pointer-events-none"></div>
+          
+          <div className="flex animate-marquee group-hover:pause gap-4 px-4 min-w-max">
+            {galleryData.slice(0, 15).map((style, i) => (
+              <div key={i} className="relative w-64 h-80 rounded-xl overflow-hidden gold-border-gradient shrink-0 cursor-pointer group/card">
                 <Image
-                  src={style.img}
-                  alt={style.title}
+                  src={style.img_url}
+                  alt={style.titulo}
                   fill
-                  className="object-contain transition duration-700 group-hover:scale-110"
+                  className="object-cover transition duration-700 group-hover/card:scale-110"
                   unoptimized
-                  referrerPolicy="no-referrer"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-studio-black via-transparent to-transparent opacity-80 pointer-events-none"></div>
+                
+                {/* Logo no centro (Marca d'água principal) */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 group-hover/card:opacity-40 transition-all duration-700 z-10">
+                  <div className="relative w-32 h-16">
+                    <Image src="/logo.2.png" alt="Logo Watermark" fill className="object-contain grayscale" />
+                  </div>
+                </div>
+
+                <div className="absolute bottom-6 left-0 right-0 text-center pointer-events-none z-20">
+                  <h3 className="text-lg font-display text-white">{style.titulo}</h3>
+                  <p className="text-studio-gold text-[10px] mt-1 uppercase tracking-widest drop-shadow-md">
+                    {style.categoria?.toLowerCase()?.includes('executivo') ? 'Executivo/Corporativo' : style.categoria}
+                  </p>
+                </div>
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-studio-black via-transparent to-transparent opacity-80 pointer-events-none"></div>
-              <div className="absolute bottom-8 left-8 pointer-events-none">
-                <h3 className="text-2xl font-display">{style.title}</h3>
-                <p className="text-studio-gold text-xs mt-2 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition">Ver Detalhes</p>
+            ))}
+            {/* Duplicar para efeito infinito */}
+            {galleryData.slice(0, 15).map((style, i) => (
+              <div key={`dup-${i}`} className="relative w-64 h-80 rounded-xl overflow-hidden gold-border-gradient shrink-0 cursor-pointer group/card">
+                <Image
+                  src={style.img_url}
+                  alt={style.titulo}
+                  fill
+                  className="object-cover transition duration-700 group-hover/card:scale-110"
+                  unoptimized
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-studio-black via-transparent to-transparent opacity-80 pointer-events-none"></div>
+
+                {/* Logo no centro (Marca d'água principal) */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 group-hover/card:opacity-40 transition-all duration-700 z-10">
+                  <div className="relative w-32 h-16">
+                    <Image src="/logo.2.png" alt="Logo Watermark" fill className="object-contain grayscale" />
+                  </div>
+                </div>
+
+                <div className="absolute bottom-6 left-0 right-0 text-center pointer-events-none z-20">
+                  <h3 className="text-lg font-display text-white">{style.titulo}</h3>
+                  <p className="text-studio-gold text-[10px] mt-1 uppercase tracking-widest drop-shadow-md">
+                    {style.categoria?.toLowerCase()?.includes('executivo') ? 'Executivo/Corporativo' : style.categoria}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+
         <div className="mt-16 text-center">
-          <Link href="/galeria" className="inline-flex items-center justify-center gap-2 border border-studio-gold text-studio-gold px-10 py-4 font-bold uppercase tracking-widest hover:bg-studio-gold hover:text-studio-black transition-all text-sm rounded-lg shadow-[0_0_15px_rgba(212,175,55,0.15)] hover:shadow-[0_0_20px_rgba(212,175,55,0.4)]">
-            Ver Todos os Estilos <ArrowRight size={16} />
+          <Link href="/galeria" className="inline-flex items-center justify-center gap-4 bg-studio-gold text-studio-black px-12 py-5 font-extrabold uppercase tracking-[0.2em] hover:bg-studio-gold-light hover:scale-105 transition-all shadow-[0_0_30px_rgba(212,175,55,0.4)] rounded-xl text-sm group">
+            VER CATÁLOGO COMPLETO NO WHATSAPP <ArrowRight size={20} className="group-hover:translate-x-2 transition" />
           </Link>
         </div>
       </section>

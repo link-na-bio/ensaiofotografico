@@ -38,9 +38,9 @@ export default function GalleryPage() {
           <div className="relative w-[200px] h-[200px] -my-[80px] flex items-center justify-center z-10 pointer-events-none">
             <Image src="/logo.2.png" alt="Virtual Studio Logo" fill className="object-contain" priority />
           </div>
-          <Link href="/signup" className="hidden md:block bg-studio-gold text-studio-black px-6 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-studio-gold-light transition ring-4 ring-studio-gold/10">
-            Quero o meu
-          </Link>
+          <a href="https://wa.me/556193314473?text=Olá!%20Gostaria%20de%20saber%20mais%20sobre%20os%20ensaios%20VIP%20pelo%20WhatsApp." target="_blank" rel="noopener noreferrer" className="hidden md:block bg-studio-gold text-studio-black px-6 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-studio-gold-light transition ring-4 ring-studio-gold/10">
+            Falar no WhatsApp
+          </a>
         </div>
       </header>
 
@@ -50,12 +50,13 @@ export default function GalleryPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <p className="text-studio-gold uppercase tracking-[0.4em] text-[10px] mb-4 font-display">Museu de Resultados</p>
+          <p className="text-studio-gold uppercase tracking-[0.4em] text-[10px] mb-4 font-display">Atendimento VIP em 2 Minutos</p>
           <h1 className="text-4xl md:text-7xl font-bold mb-8 italic">
-            GALERIA DOS <span className="text-studio-gold">ESTILOS</span>
+            MUSEU DE <span className="text-studio-gold">ESTILOS</span>
           </h1>
           <p className="max-w-2xl mx-auto text-gray-400 text-lg font-light leading-relaxed mb-12">
-            Explore a perfeição visual gerada pela nossa Inteligência Artificial com curadoria artística humana. Cada pixel conta uma história de autoridade e estilo.
+            Explore a perfeição visual gerada pela nossa Inteligência Artificial com curadoria artística humana.<br/>
+            <span className="text-studio-gold font-bold">Atendimento VIP: Escolha seu estilo e faça seu pedido direto pelo WhatsApp em 2 minutos.</span>
           </p>
         </motion.div>
 
@@ -94,16 +95,19 @@ export default function GalleryPage() {
           >
             <AnimatePresence mode="popLayout">
               {filteredItems.map((item) => (
-                <motion.div
+                <motion.a
+                  href={`https://wa.me/556193314473?text=${encodeURIComponent('Olá! Gostaria de fazer meu ensaio sem cadastro, usando o estilo: ' + item.titulo + '.')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   key={item.id}
                   layout
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.4 }}
-                  className="group relative aspect-[4/5] overflow-hidden gold-border-gradient"
+                  className="group relative aspect-[4/5] overflow-hidden gold-border-gradient block cursor-pointer"
                 >
-                  <div className="absolute inset-0 bg-studio-black" onContextMenu={(e) => e.preventDefault()}>
+                  <div className="absolute inset-0 bg-studio-black">
                     {item.img_url ? (
                         <Image
                           src={item.img_url}
@@ -119,7 +123,7 @@ export default function GalleryPage() {
                         <span className="uppercase tracking-widest font-bold text-xs text-gray-500">Sem Imagem</span>
                       </div>
                     )}
-                    <div className="absolute inset-0 z-10 cursor-not-allowed" onContextMenu={(e) => e.preventDefault()}></div>
+                    <div className="absolute inset-0 z-10"></div>
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-studio-black via-transparent to-transparent opacity-90"></div>
 
@@ -131,12 +135,15 @@ export default function GalleryPage() {
                   </div>
 
                   {/* Categoria na parte inferior */}
-                  <div className="absolute bottom-6 left-0 right-0 text-center transition-all duration-500 z-20 group-hover:bottom-8">
+                  <div className="absolute bottom-6 left-0 right-0 text-center transition-all duration-500 z-20 group-hover:bottom-12">
                     <span className="text-studio-gold text-[10px] uppercase font-bold tracking-[0.3em] block drop-shadow-md">
                       {item.categoria?.toLowerCase()?.includes('executivo') ? 'Executivo/Corporativo' : item.categoria}
                     </span>
+                    <span className="mt-4 text-studio-black text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-500 block bg-studio-gold mx-auto w-max px-4 py-2 rounded-full border border-studio-gold/50 shadow-[0_0_15px_rgba(212,175,55,0.4)] hover:scale-105">
+                      Fazer no WhatsApp
+                    </span>
                   </div>
-                </motion.div>
+                </motion.a>
               ))}
             </AnimatePresence>
           </motion.div>
@@ -149,9 +156,9 @@ export default function GalleryPage() {
         <div className="container mx-auto px-6 text-center relative z-10">
           <Star size={40} className="text-studio-gold fill-studio-gold mx-auto mb-8 animate-pulse" />
           <h2 className="text-4xl md:text-6xl font-bold mb-10 italic">PRONTO PARA A SUA <br /> <span className="text-studio-gold">MELHOR VERSÃO?</span></h2>
-          <Link href="/signup" className="inline-flex items-center gap-4 px-12 py-6 bg-studio-gold text-studio-black font-extrabold uppercase tracking-[0.2em] hover:bg-studio-gold-light hover:scale-105 transition-all shadow-2xl shadow-studio-gold/30 rounded-xl text-sm md:text-lg group">
-            CRIAR MEU ENSAIO <ArrowRight size={24} className="group-hover:translate-x-2 transition" />
-          </Link>
+          <a href="https://wa.me/556193314473?text=Olá!%20Gostaria%20de%20fazer%20meu%20ensaio%20VIP%20pelo%20WhatsApp." target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-4 px-12 py-6 bg-studio-gold text-studio-black font-extrabold uppercase tracking-[0.2em] hover:bg-studio-gold-light hover:scale-105 transition-all shadow-2xl shadow-studio-gold/30 rounded-xl text-sm md:text-lg group">
+            CHAMAR NO WHATSAPP <ArrowRight size={24} className="group-hover:translate-x-2 transition" />
+          </a>
           <p className="mt-8 text-gray-500 text-sm tracking-[0.3em] font-light uppercase">Resultados reais em pouco tempo</p>
         </div>
       </section>
