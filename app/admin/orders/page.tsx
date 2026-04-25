@@ -24,7 +24,8 @@ import {
   X,
   Loader2,
   FileImage,
-  CheckCircle
+  CheckCircle,
+  PlusCircle
 } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
 
@@ -46,6 +47,10 @@ export default function AdminOrders() {
   const [downloadModal, setDownloadModal] = useState<{ isOpen: boolean; files: any[]; orderId: string }>({ isOpen: false, files: [], orderId: '' });
   const [comprovanteModal, setComprovanteModal] = useState<{ isOpen: boolean; url: string; orderId: string }>({ isOpen: false, url: '', orderId: '' });
   const [approvedPreviewsModal, setApprovedPreviewsModal] = useState<{ isOpen: boolean; files: any[]; orderId: string }>({ isOpen: false, files: [], orderId: '' });
+  
+  const [manualOrderModal, setManualOrderModal] = useState(false);
+  const [manualOrderData, setManualOrderData] = useState({ cliente: '', pacote: 'DINAMICO_AVULSO', valor: '', estilos: '' });
+  const [isSubmittingManual, setIsSubmittingManual] = useState(false);
 
   const [uploadingOrder, setUploadingOrder] = useState<{ id: string; userId: string; isBonus?: boolean } | null>(null);
   const [isZipping, setIsZipping] = useState(false);
@@ -115,6 +120,33 @@ export default function AdminOrders() {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  const handleCreateManualOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setIsSubmittingManual(true);
+      
+      const { data, error } = await supabase.from('pedidos').insert({
+        user_email: manualOrderData.cliente,
+        observacoes: `PEDIDO CONCIERGE (WhatsApp)\nCliente: ${manualOrderData.cliente}\nEstilos: ${manualOrderData.estilos}`,
+        pacote: manualOrderData.pacote,
+        valor: parseFloat(manualOrderData.valor) || 0,
+        estilos: manualOrderData.estilos.split(',').map(s => s.trim()).filter(Boolean),
+        status: 'Aguardando Produção'
+      }).select();
+
+      if (error) throw error;
+
+      setManualOrderModal(false);
+      setManualOrderData({ cliente: '', pacote: 'DINAMICO_AVULSO', valor: '', estilos: '' });
+      alert('Pedido manual criado com sucesso!');
+      fetchOrders();
+    } catch (error: any) {
+      alert('Erro ao criar pedido manual: ' + error.message);
+    } finally {
+      setIsSubmittingManual(false);
+    }
+  };
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     const actionKey = `status-${orderId}`;
@@ -499,8 +531,15 @@ export default function AdminOrders() {
           </div>
 
           <div className="bg-studio-black border border-white/5 rounded-none shadow-2xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
-              <h2 className="text-lg font-bold">Fila de Produção</h2>
+            <div className="px-6 py-4 border-b border-white/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <h2 className="text-lg font-bold font-display uppercase tracking-widest">Fila de Produção</h2>
+              <button 
+                onClick={() => setManualOrderModal(true)}
+                className="flex items-center gap-2 bg-studio-gold text-studio-black px-4 py-2 rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-studio-gold-light transition shadow-[0_0_15px_rgba(212,175,55,0.2)]"
+              >
+                <PlusCircle size={16} />
+                Novo Pedido Manual
+              </button>
             </div>
             <div className="overflow-x-auto min-h-[400px]">
               {isLoading ? (
@@ -632,6 +671,78 @@ export default function AdminOrders() {
             </div>
           </div>
         </div>
+      {/* MODAL NOVO PEDIDO MANUAL */}
+      {manualOrderModal && (
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
+          <div className="bg-studio-gray border border-white/10 rounded-2xl p-8 max-w-md w-full relative">
+            <button onClick={() => setManualOrderModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white">
+              <X size={24} />
+            </button>
+            <h2 className="text-2xl font-bold font-display uppercase tracking-widest text-white mb-6">Novo Pedido Manual</h2>
+            
+            <form onSubmit={handleCreateManualOrder} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Identificador do Cliente</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="Nome ou WhatsApp"
+                  value={manualOrderData.cliente}
+                  onChange={(e) => setManualOrderData({...manualOrderData, cliente: e.target.value})}
+                  className="w-full bg-studio-black border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-studio-gold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Pacote Vendido</label>
+                <select 
+                  value={manualOrderData.pacote}
+                  onChange={(e) => setManualOrderData({...manualOrderData, pacote: e.target.value})}
+                  className="w-full bg-studio-black border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-studio-gold"
+                >
+                  <option value="DINAMICO_AVULSO">DINAMICO_AVULSO</option>
+                  <option value="AMOSTRA VIP">AMOSTRA VIP</option>
+                  <option value="PREMIUM">PREMIUM</option>
+                  <option value="FOTOS_EXTRAS">FOTOS_EXTRAS</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Valor Faturado (R$)</label>
+                <input 
+                  type="number" 
+                  step="0.01"
+                  required
+                  placeholder="0.00"
+                  value={manualOrderData.valor}
+                  onChange={(e) => setManualOrderData({...manualOrderData, valor: e.target.value})}
+                  className="w-full bg-studio-black border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-studio-gold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Estilos Desejados</label>
+                <textarea 
+                  required
+                  rows={3}
+                  placeholder="Ex: Executivo 1, Casual 3"
+                  value={manualOrderData.estilos}
+                  onChange={(e) => setManualOrderData({...manualOrderData, estilos: e.target.value})}
+                  className="w-full bg-studio-black border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-studio-gold resize-none"
+                />
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={isSubmittingManual}
+                className="w-full bg-studio-gold text-studio-black font-bold uppercase tracking-widest py-4 rounded-xl hover:bg-studio-gold-light transition mt-6 disabled:opacity-50"
+              >
+                {isSubmittingManual ? <Loader2 className="animate-spin mx-auto" /> : 'Confirmar Pedido'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
       </main>
     </div>
   );
