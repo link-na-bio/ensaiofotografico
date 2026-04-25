@@ -189,7 +189,7 @@ export default function AdminOrders() {
       
       const selecionadas = pedido?.fotos_selecionadas || [];
       if (selecionadas.length === 0) {
-        alert('Este pedido ainda não possui prévias aprovadas.');
+        alert('Aguardando seleção do cliente.');
         return;
       }
 
@@ -596,16 +596,14 @@ export default function AdminOrders() {
                                 >
                                   {activeAction[`download-${order.id}`] ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
                                 </button>
-                                {order.fotos_selecionadas && order.fotos_selecionadas.length > 0 && (
-                                  <button
-                                    onClick={() => handleViewApprovedPreviews(order.user_id, order.id)}
-                                    disabled={activeAction[`view-previews-${order.id}`]}
-                                    className="size-9 flex items-center justify-center rounded border border-studio-gold/30 bg-studio-gold/10 text-studio-gold hover:border-studio-gold hover:bg-studio-gold hover:text-black transition-all disabled:opacity-50"
-                                    title="Prévias Aprovadas para Produção"
-                                  >
-                                    {activeAction[`view-previews-${order.id}`] ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
-                                  </button>
-                                )}
+                                <button
+                                  onClick={() => handleViewApprovedPreviews(order.user_id, order.id)}
+                                  disabled={activeAction[`view-previews-${order.id}`]}
+                                  className="size-9 flex items-center justify-center rounded border border-studio-gold/30 bg-studio-gold/10 text-studio-gold hover:border-studio-gold hover:bg-studio-gold hover:text-black transition-all disabled:opacity-50"
+                                  title="Prévias Aprovadas para Produção"
+                                >
+                                  {activeAction[`view-previews-${order.id}`] ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
+                                </button>
                                 <button
                                   onClick={() => triggerUploadBonus(order.id, order.user_id)}
                                   disabled={activeAction[`upload-${order.id}`]}
