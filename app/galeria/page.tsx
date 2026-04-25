@@ -4,15 +4,33 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, Camera, Star, ArrowRight, Loader2, Instagram, Mail, MessageCircle } from 'lucide-react';
+import { ChevronLeft, Camera, Star, ArrowRight, Loader2, Instagram, Mail, MessageCircle, ShieldCheck, LayoutDashboard, Cloud, Check, Download } from 'lucide-react';
 import { galleryData } from './data';
 import SalesNotification from '@/components/SalesNotification';
 
 export default function GalleryPage() {
-  const [activeCategory, setActiveCategory] = useState('Estúdio');
+  const [activeCategory, setActiveCategory] = useState('Todos');
   const [styles, setStyles] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>(['Todos']);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedStyles, setSelectedStyles] = useState<any[]>([]);
+
+  const toggleStyle = (style: any) => {
+    setSelectedStyles(prev => {
+      const isSelected = prev.find(s => s.id === style.id);
+      if (isSelected) {
+        return prev.filter(s => s.id !== style.id);
+      } else {
+        return [...prev, style];
+      }
+    });
+  };
+
+  const getWhatsAppLink = () => {
+    const names = selectedStyles.map(s => s.titulo).join(', ');
+    const text = `Olá! Escolhi estes estilos no catálogo: ${names}. Gostaria de saber mais sobre como fazer meu ensaio.`;
+    return `https://wa.me/556193314473?text=${encodeURIComponent(text)}`;
+  };
 
   useEffect(() => {
     // Utilize static data instead of fetching from Supabase
@@ -94,18 +112,20 @@ export default function GalleryPage() {
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6"
           >
             <AnimatePresence mode="popLayout">
-              {filteredItems.map((item) => (
-                <motion.a
-                  href={`https://wa.me/556193314473?text=${encodeURIComponent('Olá! Gostaria de fazer meu ensaio sem cadastro, usando o estilo: ' + item.titulo + '.')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+              {styles.filter(item => activeCategory === 'Todos' || item.categoria === activeCategory).map((item) => (
+                <motion.div
                   key={item.id}
                   layout
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.4 }}
-                  className="group relative aspect-[4/5] overflow-hidden gold-border-gradient block cursor-pointer"
+                  onClick={() => toggleStyle(item)}
+                  className={`group relative aspect-[4/5] overflow-hidden block cursor-pointer transition-all duration-300 ${
+                    selectedStyles.find(s => s.id === item.id) 
+                      ? 'ring-4 ring-studio-gold ring-inset border-transparent' 
+                      : 'gold-border-gradient'
+                  }`}
                 >
                   <div className="absolute inset-0 bg-studio-black">
                     {item.img_url ? (
@@ -113,7 +133,11 @@ export default function GalleryPage() {
                           src={item.img_url}
                           alt={item.titulo}
                           fill
-                          className="object-contain transition-all duration-700 group-hover:scale-110 group-hover:blur-[2px] opacity-80 group-hover:opacity-100 select-none pointer-events-none"
+                          className={`object-contain transition-all duration-700 ${
+                            selectedStyles.find(s => s.id === item.id) 
+                              ? 'scale-105 opacity-100' 
+                              : 'group-hover:scale-110 group-hover:blur-[2px] opacity-80 group-hover:opacity-100'
+                          } select-none pointer-events-none`}
                           referrerPolicy="no-referrer"
                           draggable={false}
                           unoptimized
@@ -127,6 +151,13 @@ export default function GalleryPage() {
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-studio-black via-transparent to-transparent opacity-90"></div>
 
+                  {/* Ícone de Seleção */}
+                  {selectedStyles.find(s => s.id === item.id) && (
+                    <div className="absolute top-4 right-4 z-30 bg-studio-gold text-studio-black rounded-full p-1 shadow-lg animate-in zoom-in duration-300">
+                      <Check size={20} strokeWidth={3} />
+                    </div>
+                  )}
+
                   {/* Logo no centro (Marca d'água principal) */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 group-hover:opacity-40 transition-all duration-700 z-10">
                     <div className="relative w-32 h-16">
@@ -139,16 +170,65 @@ export default function GalleryPage() {
                     <span className="text-studio-gold text-[10px] uppercase font-bold tracking-[0.3em] block drop-shadow-md">
                       {item.categoria?.toLowerCase()?.includes('executivo') ? 'Executivo/Corporativo' : item.categoria}
                     </span>
-                    <span className="mt-4 text-studio-black text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center gap-2 bg-studio-gold mx-auto w-max px-6 py-2.5 rounded-full border border-studio-gold/50 shadow-[0_0_20px_rgba(212,175,55,0.5)] hover:scale-105">
-                      <MessageCircle size={14} className="fill-studio-black" />
-                      Pedir este estilo
+                    <span className={`mt-4 text-studio-black text-[10px] font-bold uppercase tracking-widest transition-all duration-500 flex items-center gap-2 bg-studio-gold mx-auto w-max px-6 py-2.5 rounded-full border border-studio-gold/50 shadow-[0_0_20px_rgba(212,175,55,0.5)] hover:scale-105 ${
+                      selectedStyles.find(s => s.id === item.id) ? 'opacity-100 scale-105' : 'opacity-0 group-hover:opacity-100'
+                    }`}>
+                      <Check size={14} className="fill-studio-black" />
+                      {selectedStyles.find(s => s.id === item.id) ? 'Selecionado' : 'Selecionar Estilo'}
                     </span>
                   </div>
-                </motion.a>
+                </motion.div>
               ))}
             </AnimatePresence>
           </motion.div>
         )}
+      </section>
+
+      {/* Onboarding Híbrido: Convite para Plataforma Completa */}
+      <section className="container mx-auto px-6 pb-24">
+        <div className="bg-studio-gray/30 border border-studio-gold/20 rounded-3xl p-8 md:p-16 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-studio-gold/5 blur-[80px] rounded-full -mr-20 -mt-20"></div>
+          
+          <div className="relative z-10 flex flex-col items-center text-center">
+            <h2 className="text-2xl md:text-4xl font-bold mb-4 italic">Prefere ter controle total do seu ensaio?</h2>
+            <p className="max-w-2xl text-gray-400 text-lg font-light mb-12">
+              Crie sua conta VIP gratuita e acesse nossa plataforma de Inteligência Artificial com privacidade e autonomia.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full mb-12">
+              <div className="flex flex-col items-center p-6 bg-black/20 rounded-2xl border border-white/5 hover:border-studio-gold/20 transition-colors">
+                <div className="size-12 rounded-full bg-studio-gold/10 flex items-center justify-center text-studio-gold mb-4">
+                  <ShieldCheck size={24} />
+                </div>
+                <h3 className="text-sm font-bold uppercase tracking-widest mb-2">Privacidade Absoluta</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">Suas fotos processadas em um painel seguro e confidencial.</p>
+              </div>
+
+              <div className="flex flex-col items-center p-6 bg-black/20 rounded-2xl border border-white/5 hover:border-studio-gold/20 transition-colors">
+                <div className="size-12 rounded-full bg-studio-gold/10 flex items-center justify-center text-studio-gold mb-4">
+                  <LayoutDashboard size={24} />
+                </div>
+                <h3 className="text-sm font-bold uppercase tracking-widest mb-2">Gestão de Pedidos</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">Acompanhe o status da sua arte em tempo real na fila de produção.</p>
+              </div>
+
+              <div className="flex flex-col items-center p-6 bg-black/20 rounded-2xl border border-white/5 hover:border-studio-gold/20 transition-colors">
+                <div className="size-12 rounded-full bg-studio-gold/10 flex items-center justify-center text-studio-gold mb-4">
+                  <Download size={24} />
+                </div>
+                <h3 className="text-sm font-bold uppercase tracking-widest mb-2">Entrega Segura</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">Suas prévias e artes finais em alta resolução ficam disponíveis em seu painel privado para download seguro por até 15 dias.</p>
+              </div>
+            </div>
+
+            <Link 
+              href="/login" 
+              className="px-8 py-4 border border-studio-gold/50 text-studio-gold hover:bg-studio-gold hover:text-studio-black transition-all rounded-xl font-bold uppercase tracking-widest text-xs"
+            >
+              Criar Minha Conta VIP
+            </Link>
+          </div>
+        </div>
       </section>
 
       {/* CTA Final da Galeria */}
@@ -217,6 +297,37 @@ export default function GalleryPage() {
           </div>
         </div>
       </footer>
+
+      {/* Floating Action Button (WhatsApp) */}
+      <AnimatePresence>
+        {selectedStyles.length > 0 && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-6"
+          >
+            <a
+              href={getWhatsAppLink()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between w-full bg-studio-gold text-studio-black p-4 rounded-2xl shadow-[0_20px_50px_rgba(195,157,93,0.4)] hover:scale-105 transition-all group"
+            >
+              <div className="flex flex-col items-start">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">
+                  {selectedStyles.length} {selectedStyles.length === 1 ? 'estilo selecionado' : 'estilos selecionados'}
+                </span>
+                <span className="text-sm font-bold uppercase tracking-widest">
+                  Pedir via WhatsApp
+                </span>
+              </div>
+              <div className="bg-studio-black/10 p-3 rounded-xl group-hover:bg-studio-black/20 transition-colors">
+                <MessageCircle size={24} className="fill-studio-black" />
+              </div>
+            </a>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <SalesNotification />
     </div>
   );
