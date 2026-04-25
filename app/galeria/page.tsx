@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, Camera, Star, ArrowRight, Loader2, Instagram, Mail } from 'lucide-react';
+import { ChevronLeft, Camera, Star, ArrowRight, Loader2, Instagram, Mail, MessageCircle } from 'lucide-react';
 import { galleryData } from './data';
 import SalesNotification from '@/components/SalesNotification';
 
@@ -51,29 +51,31 @@ export default function GalleryPage() {
           animate={{ opacity: 1, y: 0 }}
         >
           <p className="text-studio-gold uppercase tracking-[0.4em] text-[10px] mb-4 font-display">Atendimento VIP em 2 Minutos</p>
-          <h1 className="text-4xl md:text-7xl font-bold mb-8 italic">
-            MUSEU DE <span className="text-studio-gold">ESTILOS</span>
+          <h1 className="text-4xl md:text-7xl font-bold mb-8 italic uppercase tracking-tighter">
+            CATÁLOGO <span className="text-studio-gold">VIP</span>
           </h1>
           <p className="max-w-2xl mx-auto text-gray-400 text-lg font-light leading-relaxed mb-12">
-            Explore a perfeição visual gerada pela nossa Inteligência Artificial com curadoria artística humana.<br/>
-            <span className="text-studio-gold font-bold">Atendimento VIP: Escolha seu estilo e faça seu pedido direto pelo WhatsApp em 2 minutos.</span>
+            Escolha o seu estilo preferido e faça o seu pedido em menos de 2 minutos, direto pelo WhatsApp. <span className="text-studio-gold font-bold">Sem cadastros demorados.</span>
           </p>
         </motion.div>
 
-        {/* Filtros */}
-        <div className="flex flex-wrap justify-center gap-4 mb-20">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-8 py-3 text-[10px] font-bold uppercase tracking-widest transition-all border-b-2 ${activeCategory === cat
-                ? 'border-studio-gold text-white bg-studio-gold/5'
-                : 'border-transparent text-gray-500 hover:text-white'
+        {/* Filtros estilo Chips */}
+        <div className="flex overflow-x-auto pb-4 mb-12 no-scrollbar justify-start md:justify-center">
+          <div className="flex gap-3 px-6">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`whitespace-nowrap px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all duration-300 border ${
+                  activeCategory === cat
+                    ? 'bg-studio-gold border-studio-gold text-studio-black shadow-[0_0_20px_rgba(212,175,55,0.3)]'
+                    : 'bg-transparent border-studio-gold/30 text-studio-gold hover:border-studio-gold hover:bg-studio-gold/5'
                 }`}
-            >
-              {cat?.toLowerCase()?.includes('executivo') ? 'Executivo/Corporativo' : cat}
-            </button>
-          ))}
+              >
+                {cat === 'Todos' ? '✨ Ver Todos' : cat}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -139,8 +141,9 @@ export default function GalleryPage() {
                     <span className="text-studio-gold text-[10px] uppercase font-bold tracking-[0.3em] block drop-shadow-md">
                       {item.categoria?.toLowerCase()?.includes('executivo') ? 'Executivo/Corporativo' : item.categoria}
                     </span>
-                    <span className="mt-4 text-studio-black text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-500 block bg-studio-gold mx-auto w-max px-4 py-2 rounded-full border border-studio-gold/50 shadow-[0_0_15px_rgba(212,175,55,0.4)] hover:scale-105">
-                      Fazer no WhatsApp
+                    <span className="mt-4 text-studio-black text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center gap-2 bg-studio-gold mx-auto w-max px-6 py-2.5 rounded-full border border-studio-gold/50 shadow-[0_0_20px_rgba(212,175,55,0.5)] hover:scale-105">
+                      <MessageCircle size={14} className="fill-studio-black" />
+                      Pedir este estilo
                     </span>
                   </div>
                 </motion.a>
