@@ -188,7 +188,7 @@ export default function GalleryPage() {
           <div className="relative z-10 flex flex-col items-center text-center">
             <h2 className="text-2xl md:text-4xl font-bold mb-4 italic">Prefere ter controle total do seu ensaio?</h2>
             <p className="max-w-2xl text-gray-400 text-lg font-light mb-12">
-              Crie sua conta VIP gratuita e acesse nossa plataforma de Inteligência Artificial com privacidade e autonomia.
+              Crie sua conta VIP gratuita e acesse nossa plataforma com privacidade e autonomia.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full mb-12">
@@ -236,7 +236,7 @@ export default function GalleryPage() {
           <a href="https://wa.me/556193314473?text=Olá!%20Gostaria%20de%20fazer%20meu%20ensaio%20VIP%20pelo%20WhatsApp." target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-4 px-12 py-6 bg-studio-gold text-studio-black font-extrabold uppercase tracking-[0.2em] hover:bg-studio-gold-light hover:scale-105 transition-all shadow-2xl shadow-studio-gold/30 rounded-xl text-sm md:text-lg group">
             CHAMAR NO WHATSAPP <ArrowRight size={24} className="group-hover:translate-x-2 transition" />
           </a>
-          <p className="mt-8 text-gray-500 text-sm tracking-[0.3em] font-light uppercase">Resultados reais em pouco tempo</p>
+          <p className="mt-8 text-gray-500 text-sm tracking-[0.3em] font-light uppercase">Resultados em pouco tempo</p>
         </div>
       </section>
 
