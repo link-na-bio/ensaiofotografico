@@ -27,7 +27,7 @@ const EVENTO_SAZONAL = {
 // Componente para renderização de imagem de estilo com fallback local
 const DashboardStyleImage = ({ style, unoptimized = true }: { style: any, unoptimized?: boolean }) => {
   const [src, setSrc] = useState<string | null>(null);
-  
+
   useEffect(() => {
     // Tenta primeiro o caminho local (webp otimizado)
     const safeTitle = (style.titulo || 'img').toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
@@ -38,10 +38,10 @@ const DashboardStyleImage = ({ style, unoptimized = true }: { style: any, unopti
   if (!src) return <div className="w-full h-full bg-studio-black animate-pulse" />;
 
   return (
-    <Image 
-      src={src} 
-      alt={style.titulo} 
-      fill 
+    <Image
+      src={src}
+      alt={style.titulo}
+      fill
       className="object-contain"
       unoptimized={unoptimized}
       onError={() => setSrc(style.img_url)} // Fallback para o Supabase se local falhar
@@ -183,7 +183,7 @@ export default function Dashboard() {
 
   const changeTab = (tab: 'home' | 'ensaios' | 'novo' | 'perfil' | 'mensagens') => {
     if (tab === 'novo' && (isRestricted || isMaintenanceGlobal)) {
-      alert(isMaintenanceGlobal ? "O sistema está em modo de manutenção." : "Acesso bloqueado, consulte o suporte.");
+      alert(isMaintenanceGlobal ? "O sistema está em modo de manutenção. Voltaremos em breve!" : "Acesso bloqueado, consulte o suporte.");
       return;
     }
     setActiveTab(tab);
@@ -778,7 +778,7 @@ export default function Dashboard() {
     try {
       // 1. Vincular o pedido de extras ao pedido pai para facilitar a liberação e localização dos arquivos
       const parentId = selectedEnsaioForGallery;
-      
+
       const qtdExtras = selectedExtras.length;
       const valorExtras = qtdExtras * getPrecoUnitario(qtdExtras);
 
@@ -860,8 +860,8 @@ export default function Dashboard() {
       let arquivosFinais = validFiles;
       if (selecionadas.length > 0) {
         arquivosFinais = validFiles.filter(f => f.name.toLowerCase().includes('bonus_') || selecionadas.some((sel: any) => {
-           const url = typeof sel === 'string' ? sel : sel.url;
-           return f.name.includes(url) || url.includes(f.name);
+          const url = typeof sel === 'string' ? sel : sel.url;
+          return f.name.includes(url) || url.includes(f.name);
         }));
         if (arquivosFinais.length === 0) {
           alert("Erro: As fotos selecionadas não puderam ser descarregadas. Contacte o suporte.");
