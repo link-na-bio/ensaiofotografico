@@ -68,12 +68,12 @@ export default function GalleryPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <p className="text-studio-gold uppercase tracking-[0.4em] text-[10px] mb-4 font-display">Atendimento VIP em 2 Minutos</p>
+          <p className="text-studio-gold uppercase tracking-[0.4em] text-[10px] mb-4 font-display">Atendimento VIP em Minutos</p>
           <h1 className="text-4xl md:text-7xl font-bold mb-8 italic uppercase tracking-tighter">
             CATÁLOGO <span className="text-studio-gold">VIP</span>
           </h1>
           <p className="max-w-2xl mx-auto text-gray-400 text-lg font-light leading-relaxed mb-12">
-            Escolha o seu estilo preferido e faça o seu pedido em menos de 2 minutos, direto pelo WhatsApp. <span className="text-studio-gold font-bold">Sem cadastros demorados.</span>
+            Escolha o seu estilo preferido e faça o seu pedido em minutos, direto pelo WhatsApp. <span className="text-studio-gold font-bold">Sem cadastros na plataforma.</span>
           </p>
         </motion.div>
 
@@ -83,11 +83,10 @@ export default function GalleryPage() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`whitespace-nowrap px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all duration-300 border ${
-                activeCategory === cat
-                  ? 'bg-studio-gold border-studio-gold text-studio-black shadow-[0_0_20px_rgba(212,175,55,0.3)]'
-                  : 'bg-transparent border-studio-gold/30 text-studio-gold hover:border-studio-gold hover:bg-studio-gold/5'
-              }`}
+              className={`whitespace-nowrap px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all duration-300 border ${activeCategory === cat
+                ? 'bg-studio-gold border-studio-gold text-studio-black shadow-[0_0_20px_rgba(212,175,55,0.3)]'
+                : 'bg-transparent border-studio-gold/30 text-studio-gold hover:border-studio-gold hover:bg-studio-gold/5'
+                }`}
             >
               {cat === 'Todos' ? '✨ Ver Todos' : cat}
             </button>
@@ -121,27 +120,25 @@ export default function GalleryPage() {
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.4 }}
                   onClick={() => toggleStyle(item)}
-                  className={`group relative aspect-[4/5] overflow-hidden block cursor-pointer transition-all duration-300 ${
-                    selectedStyles.find(s => s.id === item.id) 
-                      ? 'ring-4 ring-studio-gold ring-inset border-transparent' 
-                      : 'gold-border-gradient'
-                  }`}
+                  className={`group relative aspect-[4/5] overflow-hidden block cursor-pointer transition-all duration-300 ${selectedStyles.find(s => s.id === item.id)
+                    ? 'ring-4 ring-studio-gold ring-inset border-transparent'
+                    : 'gold-border-gradient'
+                    }`}
                 >
                   <div className="absolute inset-0 bg-studio-black">
                     {item.img_url ? (
-                        <Image
-                          src={item.img_url}
-                          alt={item.titulo}
-                          fill
-                          className={`object-contain transition-all duration-700 ${
-                            selectedStyles.find(s => s.id === item.id) 
-                              ? 'scale-105 opacity-100' 
-                              : 'group-hover:scale-110 group-hover:blur-[2px] opacity-80 group-hover:opacity-100'
+                      <Image
+                        src={item.img_url}
+                        alt={item.titulo}
+                        fill
+                        className={`object-contain transition-all duration-700 ${selectedStyles.find(s => s.id === item.id)
+                          ? 'scale-105 opacity-100'
+                          : 'group-hover:scale-110 group-hover:blur-[2px] opacity-80 group-hover:opacity-100'
                           } select-none pointer-events-none`}
-                          referrerPolicy="no-referrer"
-                          draggable={false}
-                          unoptimized
-                        />
+                        referrerPolicy="no-referrer"
+                        draggable={false}
+                        unoptimized
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-white/5">
                         <span className="uppercase tracking-widest font-bold text-xs text-gray-500">Sem Imagem</span>
@@ -170,9 +167,8 @@ export default function GalleryPage() {
                     <span className="text-studio-gold text-[10px] uppercase font-bold tracking-[0.3em] block drop-shadow-md">
                       {item.categoria?.toLowerCase()?.includes('executivo') ? 'Executivo/Corporativo' : item.categoria}
                     </span>
-                    <span className={`mt-4 text-studio-black text-[10px] font-bold uppercase tracking-widest transition-all duration-500 flex items-center gap-2 bg-studio-gold mx-auto w-max px-6 py-2.5 rounded-full border border-studio-gold/50 shadow-[0_0_20px_rgba(212,175,55,0.5)] hover:scale-105 ${
-                      selectedStyles.find(s => s.id === item.id) ? 'opacity-100 scale-105' : 'opacity-0 group-hover:opacity-100'
-                    }`}>
+                    <span className={`mt-4 text-studio-black text-[10px] font-bold uppercase tracking-widest transition-all duration-500 flex items-center gap-2 bg-studio-gold mx-auto w-max px-6 py-2.5 rounded-full border border-studio-gold/50 shadow-[0_0_20px_rgba(212,175,55,0.5)] hover:scale-105 ${selectedStyles.find(s => s.id === item.id) ? 'opacity-100 scale-105' : 'opacity-0 group-hover:opacity-100'
+                      }`}>
                       <Check size={14} className="fill-studio-black" />
                       {selectedStyles.find(s => s.id === item.id) ? 'Selecionado' : 'Selecionar Estilo'}
                     </span>
@@ -188,7 +184,7 @@ export default function GalleryPage() {
       <section className="container mx-auto px-6 pb-24">
         <div className="bg-studio-gray/30 border border-studio-gold/20 rounded-3xl p-8 md:p-16 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-studio-gold/5 blur-[80px] rounded-full -mr-20 -mt-20"></div>
-          
+
           <div className="relative z-10 flex flex-col items-center text-center">
             <h2 className="text-2xl md:text-4xl font-bold mb-4 italic">Prefere ter controle total do seu ensaio?</h2>
             <p className="max-w-2xl text-gray-400 text-lg font-light mb-12">
@@ -221,8 +217,8 @@ export default function GalleryPage() {
               </div>
             </div>
 
-            <Link 
-              href="/login" 
+            <Link
+              href="/login"
               className="px-8 py-4 border border-studio-gold/50 text-studio-gold hover:bg-studio-gold hover:text-studio-black transition-all rounded-xl font-bold uppercase tracking-widest text-xs"
             >
               Criar Minha Conta VIP
@@ -248,14 +244,14 @@ export default function GalleryPage() {
       <footer className="py-12 bg-studio-black border-t border-white/5 shrink-0" id="contato">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-10 md:gap-6">
-            
+
             {/* Logo and Copyright */}
             <div className="flex flex-col items-center md:items-start order-2 md:order-1">
               <div className="relative w-[150px] h-[60px] mb-2">
                 <Image src="/logo.2.png" alt="Virtual Studio Logo" fill className="object-contain" />
               </div>
               <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-light">
-                © 2026 VIRTUAL STUDIO<br/>
+                © 2026 VIRTUAL STUDIO<br />
                 <span className="opacity-60">Todos os direitos reservados</span>
               </p>
             </div>
@@ -269,16 +265,16 @@ export default function GalleryPage() {
             {/* Social and Contact */}
             <div className="flex flex-col items-center md:items-end gap-3 order-1 md:order-3">
               <div className="flex gap-4">
-                <a 
-                  href="mailto:suporte@virtualstudio.click" 
+                <a
+                  href="mailto:suporte@virtualstudio.click"
                   className="w-10 h-10 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-gray-400 hover:text-studio-gold hover:border-studio-gold/30 transition-all duration-300"
                   aria-label="Email support"
                 >
                   <Mail size={16} />
                 </a>
-                <a 
-                  href="https://www.instagram.com/virtualstudio.click/" 
-                  target="_blank" 
+                <a
+                  href="https://www.instagram.com/virtualstudio.click/"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full border border-white/5 bg-white/5 flex items-center justify-center text-gray-400 hover:text-studio-gold hover:border-studio-gold/30 transition-all duration-300"
                   aria-label="Instagram profile"
@@ -286,8 +282,8 @@ export default function GalleryPage() {
                   <Instagram size={16} />
                 </a>
               </div>
-              <button 
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+              <button
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 className="text-[10px] text-studio-gold uppercase tracking-widest hover:underline opacity-80 pt-1 cursor-pointer"
               >
                 Voltar ao Topo ↑
